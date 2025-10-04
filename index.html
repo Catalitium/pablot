@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-JC8GH7N249"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-JC8GH7N249');
+  </script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Pablobot — AI models, Bots (free), and Cryptorka whale tracker." />
+  <meta name="keywords" content="Pablobot, AI, Bots, Crypto, Cryptorka" />
+  <title>PABLOBOT — AI Models, Bots (Free), Cryptorka</title>
+
+  <link rel="canonical" href="https://pablobot.com/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pablobot.com/" />
+  <meta property="og:title" content="PABLOBOT — AI Models, Bots (Free), Cryptorka" />
+  <meta property="og:description" content="Compare top AI models, try free bots, and follow the Cryptorka whale-tracker project." />
+  <meta property="og:site_name" content="PABLOBOT" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="PABLOBOT" />
+  <meta name="twitter:description" content="AI models, free bots, and the Cryptorka whale tracker." />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebSite",
+    "name":"PABLOBOT",
+    "url":"https://pablobot.com/",
+    "description":"AI models table, free bots, and the Cryptorka whale tracker.",
+    "potentialAction":{
+      "@type":"SearchAction",
+      "target":"https://pablobot.com/#a-models?q={search_term_string}",
+      "query-input":"required name=search_term_string"
+    }
+  }
+  </script>
+
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+</head>
+<body>
+  <!-- Accessible skip link (only visible on focus) -->
+  <a class="skip-link" href="#a-models" data-track="skip-to-content">Skip to content</a>
+
+  <!-- Compact Top Bar -->
+  <header role="banner">
+    <div class="brand">
+      <!-- Left: logo + name -->
+      <a class="brand__emoji" href="#a-models" aria-label="Jump to AI Models" data-track="brand-emoji">🤖</a>
+
+      <div class="brand__block" aria-label="p A B lobot dot Com">
+        <h1 class="brand__name">
+          p
+          <a href="#a-models" class="brand__letter" data-track="brand-A" aria-label="Go to A. AI Models">A</a>
+          <a href="#b-bots" class="brand__letter" data-track="brand-B" aria-label="Go to B. Bots (Free)">B</a>lobot.
+          <a href="#c-crypto" class="brand__letter" data-track="brand-C" aria-label="Go to C. Cryptorka">C</a>om
+        </h1>
+        <p class="brand__tag muted">AI models • Bots-for-free • Cryptorka</p>
+      </div>
+
+      <!-- Right: primary nav -->
+      <nav class="primary" aria-label="Primary">
+        <ul>
+          <li><a href="#a-models" data-track="nav-a-models">AI Models</a></li>
+          <li><a href="#b-bots" data-track="nav-b-bots">Bots</a></li>
+          <li><a href="#c-crypto" data-track="nav-c-crypto">Cryptorka</a></li>
+          <li><button id="newsletter-btn" class="nav-btn" data-track="nav-newsletter" aria-label="Subscribe to newsletter">📬 Newsletter</button></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap" id="main">
+
+    <!-- C. CRYPTO — CRYPTORKA -->
+    <section id="c-crypto" class="section" aria-labelledby="c-heading">
+      <h2 id="c-heading"> Cryptorka 🐳 Whale Tracker</h2>
+      <p>Be Apex hunter for Alpha.</p>
+
+      <div class="card" aria-labelledby="crypto-heading">
+        <h3 id="crypto-heading">Top “Stable” Cryptos & Wallets (NFA)</h3>
+        <p class="muted">Toggle between hunting for Alpha and established stablecoins/blue-chips coins. <strong>NFA</strong>.</p>
+
+        <!-- Tabs -->
+        <div class="tabs" role="tablist" aria-label="Cryptorka views">
+          <button id="tab-stables" class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-stables" tabindex="0" data-tab="stables">
+            Stablecoins
+          </button>
+          <button id="tab-wallets" class="tab" role="tab" aria-selected="false" aria-controls="panel-wallets" tabindex="-1" data-tab="wallets">
+            Wallets <span class="muted" aria-hidden="true">(NFA)</span>
+          </button>
+        </div>
+
+        <!-- Shared search -->
+        <div class="searchbar" role="search">
+          <input id="cryptoSearch" type="search" placeholder="Search…" aria-label="Filter current view" autocomplete="off" inputmode="search" />
+          <span class="kb" id="cryptoSearchHint">Sorted by type (Stablecoin → Layer 1), then name</span>
+        </div>
+
+        <!-- Panel: STABLES -->
+        <div id="panel-stables" role="tabpanel" aria-labelledby="tab-stables">
+          <div class="table-wrap" role="region" aria-label="Stablecoins & blue-chips table">
+            <table aria-describedby="crypto-heading">
+              <caption>Compare assets: type, primary network, paper/docs and Dexscreener pairs</caption>
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Asset</th>
+                  <th scope="col" class="hide-sm">Type</th>
+                  <th scope="col">Network</th>
+                  <th scope="col">Paper/Docs</th>
+                  <th scope="col">Dexscreener</th>
+                </tr>
+              </thead>
+              <tbody id="crypto-tbody">
+                <!-- Server-side seed rows to avoid FOUC; JS may re-render -->
+                <tr tabindex="0">
+                  <td data-label="#">1</td>
+                  <td data-label="Asset">
+                    <div class="model">
+                      <span class="emoji" aria-hidden="true">💵</span>
+                      <div>
+                        <strong>Tether USD₮ <span class="meta-pill">USDT</span></strong>
+                        <div class="cell-note">Largest USD-pegged stablecoin; deep liquidity.</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="hide-sm" data-label="Type">Stablecoin</td>
+                  <td data-label="Network">Multi (ETH/SOL/TRON)</td>
+                  <td data-label="Paper/Docs"><a href="https://tether.to/en/whitepaper/" target="_blank" rel="noopener" class="crypto-whitepaper-link" data-asset="USDT">Paper</a></td>
+                  <td data-label="Dexscreener"><a href="https://dexscreener.com/search?q=USDT" target="_blank" rel="noopener" class="crypto-dexscreener-link" data-asset="USDT">Pairs</a></td>
+                </tr>
+                <tr tabindex="0">
+                  <td data-label="#">2</td>
+                  <td data-label="Asset">
+                    <div class="model">
+                      <span class="emoji" aria-hidden="true">💸</span>
+                      <div>
+                        <strong>USD Coin <span class="meta-pill">USDC</span></strong>
+                        <div class="cell-note">USD-pegged; issued by Circle; widely integrated.</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="hide-sm" data-label="Type">Stablecoin</td>
+                  <td data-label="Network">Multi (ETH/SOL)</td>
+                  <td data-label="Paper/Docs"><a href="https://www.circle.com/blog/introducing-usdc" target="_blank" rel="noopener" class="crypto-whitepaper-link" data-asset="USDC">Docs</a></td>
+                  <td data-label="Dexscreener"><a href="https://dexscreener.com/search?q=USDC" target="_blank" rel="noopener" class="crypto-dexscreener-link" data-asset="USDC">Pairs</a></td>
+                </tr>
+                <tr tabindex="0">
+                  <td data-label="#">3</td>
+                  <td data-label="Asset">
+                    <div class="model">
+                      <span class="emoji" aria-hidden="true">🅿️</span>
+                      <div>
+                        <strong>PayPal USD <span class="meta-pill">PYUSD</span></strong>
+                        <div class="cell-note">PayPal-branded USD stablecoin (Paxos).</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="hide-sm" data-label="Type">Stablecoin</td>
+                  <td data-label="Network">Ethereum</td>
+                  <td data-label="Paper/Docs"><a href="https://www.paxos.com/pyusd/" target="_blank" rel="noopener" class="crypto-whitepaper-link" data-asset="PYUSD">Docs</a></td>
+                  <td data-label="Dexscreener"><a href="https://dexscreener.com/search?q=PYUSD" target="_blank" rel="noopener" class="crypto-dexscreener-link" data-asset="PYUSD">Pairs</a></td>
+                </tr>
+                <tr tabindex="0">
+                  <td data-label="#">4</td>
+                  <td data-label="Asset">
+                    <div class="model">
+                      <span class="emoji" aria-hidden="true">₿</span>
+                      <div>
+                        <strong>Bitcoin <span class="meta-pill">BTC</span></strong>
+                        <div class="cell-note">Original cryptocurrency; most secure PoW network.</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="hide-sm" data-label="Type">Layer 1</td>
+                  <td data-label="Network">Bitcoin</td>
+                  <td data-label="Paper/Docs"><a href="https://bitcoin.org/bitcoin.pdf" target="_blank" rel="noopener" class="crypto-whitepaper-link" data-asset="BTC">Paper</a></td>
+                  <td data-label="Dexscreener"><a href="https://dexscreener.com/search?q=BTC" target="_blank" rel="noopener" class="crypto-dexscreener-link" data-asset="BTC">Pairs</a></td>
+                </tr>
+                <tr tabindex="0">
+                  <td data-label="#">5</td>
+                  <td data-label="Asset">
+                    <div class="model">
+                      <span class="emoji" aria-hidden="true">✨</span>
+                      <div>
+                        <strong>Ethereum <span class="meta-pill">ETH</span></strong>
+                        <div class="cell-note">Smart contracts; transitioned to PoS.</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="hide-sm" data-label="Type">Layer 1</td>
+                  <td data-label="Network">Ethereum</td>
+                  <td data-label="Paper/Docs"><a href="https://ethereum.org/en/whitepaper/" target="_blank" rel="noopener" class="crypto-whitepaper-link" data-asset="ETH">Paper</a></td>
+                  <td data-label="Dexscreener"><a href="https://dexscreener.com/ethereum" target="_blank" rel="noopener" class="crypto-dexscreener-link" data-asset="ETH">Pairs</a></td>
+                </tr>
+                <tr tabindex="0">
+                  <td data-label="#">6</td>
+                  <td data-label="Asset">
+                    <div class="model">
+                      <span class="emoji" aria-hidden="true">🌞</span>
+                      <div>
+                        <strong>Solana <span class="meta-pill">SOL</span></strong>
+                        <div class="cell-note">High-performance monolithic chain.</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="hide-sm" data-label="Type">Layer 1</td>
+                  <td data-label="Network">Solana</td>
+                  <td data-label="Paper/Docs"><a href="https://solana.com/solana-whitepaper.pdf" target="_blank" rel="noopener" class="crypto-whitepaper-link" data-asset="SOL">Paper</a></td>
+                  <td data-label="Dexscreener"><a href="https://dexscreener.com/solana" target="_blank" rel="noopener" class="crypto-dexscreener-link" data-asset="SOL">Pairs</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Panel: WALLETS -->
+        <div id="panel-wallets" role="tabpanel" aria-labelledby="tab-wallets" hidden>
+          <div class="table-wrap" role="region" aria-label="Wallets to follow table">
+            <table aria-describedby="crypto-heading">
+              <caption>Curated wallets to watch (labels only; NFA). Click explorer to inspect flows.</caption>
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Label</th>
+                  <th scope="col" class="hide-sm">Network</th>
+                  <th scope="col">Explorer</th>
+                </tr>
+              </thead>
+              <tbody id="wallets-tbody">
+                <tr tabindex="0">
+                  <td data-label="#">1</td>
+                  <td data-label="Label">
+                    <div class="model">
+                      <span class="emoji" aria-hidden="true">🕊️</span>
+                      <div><strong>Hermes</strong><div class="cell-note">Solana whale label</div></div>
+                    </div>
+                  </td>
+                  <td class="hide-sm" data-label="Network">Solana</td>
+                  <td data-label="Explorer"><a target="_blank" rel="noopener" class="wallet-explorer-link" data-track="wallet-hermes" href="https://solscan.io/account/benRLpbWCL8P8t51ufYt522419hGF5zif3CqgWGbEUm">Solscan</a></td>
+                </tr>
+                <tr tabindex="0">
+                  <td data-label="#">2</td>
+                  <td data-label="Label">
+                    <div class="model">
+                      <span class="emoji" aria-hidden="true">🔥</span>
+                      <div><strong>Vulcan</strong><div class="cell-note">Solana whale label</div></div>
+                    </div>
+                  </td>
+                  <td class="hide-sm" data-label="Network">Solana</td>
+                  <td data-label="Explorer"><a target="_blank" rel="noopener" class="wallet-explorer-link" data-track="wallet-vulcan" href="https://solscan.io/account/8L8qZp9KGSCYNYChYCNJ8NNkB296r2U7N9d9JcLmYRuG">Solscan</a></td>
+                </tr>
+                <tr tabindex="0">
+                  <td data-label="#">3</td>
+                  <td data-label="Label">
+                    <div class="model">
+                      <span class="emoji" aria-hidden="true">🌊</span>
+                      <div><strong>Poseidon</strong><div class="cell-note">Solana whale label</div></div>
+                    </div>
+                  </td>
+                  <td class="hide-sm" data-label="Network">Solana</td>
+                  <td data-label="Explorer"><a target="_blank" rel="noopener" class="wallet-explorer-link" data-track="wallet-poseidon" href="https://solscan.io/account/G5nxEXuFMfV74DSnsrSatqCW32F34XUnBeq3PfDS7w5E">Solscan</a></td>
+                </tr>
+                <tr tabindex="0">
+                  <td data-label="#">4</td>
+                  <td data-label="Label">
+                    <div class="model">
+                      <span class="emoji" aria-hidden="true">⚡</span>
+                      <div><strong>Zeus</strong><div class="cell-note">Ethereum whale label</div></div>
+                    </div>
+                  </td>
+                  <td class="hide-sm" data-label="Network">Ethereum</td>
+                  <td data-label="Explorer"><a target="_blank" rel="noopener" class="wallet-explorer-link" data-track="wallet-zeus" href="https://etherscan.io/address/0xA7F3659c53820346176f7E0E350780DF304db179">Etherscan</a></td>
+                </tr>
+                <tr tabindex="0">
+                  <td data-label="#">5</td>
+                  <td data-label="Label">
+                    <div class="model">
+                      <span class="emoji" aria-hidden="true">👑</span>
+                      <div><strong>Hera</strong><div class="cell-note">Ethereum whale label</div></div>
+                    </div>
+                  </td>
+                  <td class="hide-sm" data-label="Network">Ethereum</td>
+                  <td data-label="Explorer"><a target="_blank" rel="noopener" class="wallet-explorer-link" data-track="wallet-hera" href="https://etherscan.io/address/0xFB3BF33Ba8E5d08D87B0db0e46952144DF822833">Etherscan</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <h3>What is Cryptorka?</h3>
+          <p>Cryptorka is a focused crypto whale tracker that highlights unusually large wallet movements and labels notable entities to surface actionable context fast.</p>
+          <ul class="list">
+            <li>Smart alerts for outsized inflows/outflows</li>
+            <li>Entity labeling and heuristics</li>
+            <li>Lightweight dashboards for speed</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Get notified</h3>
+          <p class="muted">Be first to try Cryptorka when the alpha is ready.</p>
+          <button class="btn btn--brand" type="button" id="orka-notify-btn" data-track="cta-orka-notify" aria-label="Notify me about Cryptorka">Notify me</button>
+          <p class="muted">Uses the same newsletter modal.</p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- B. BOTS (FREE) -->
+    <section id="b-bots" class="section" aria-labelledby="b-heading">
+      <h2 id="b-heading">Bots — Free bots</h2>
+      <p class="muted">Handy, zero-cost utilities. No sign-in required.</p>
+
+      <div class="grid grid--cards" aria-live="polite">
+        <article class="card">
+          <h3>📄 Text Summarizer</h3>
+          <p>Drop in long text and get crisp, structured summaries with key bullets.</p>
+          <div><a class="btn btn--brand" href="#b-bots" data-track="bot-summarizer">Launch</a></div>
+        </article>
+        <article class="card">
+          <h3>🧪 Prompt Tuner</h3>
+          <p>Iterate prompts and compare responses side-by-side to find what works.</p>
+          <div><a class="btn btn--brand" href="#b-bots" data-track="bot-prompt-tuner">Launch</a></div>
+        </article>
+        <article class="card">
+          <h3>🔎 Regex Helper</h3>
+          <p>Craft and test regular expressions with instant feedback.</p>
+          <div><a class="btn btn--brand" href="#b-bots" data-track="bot-regex-helper">Launch</a></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- A. AI MODELS (LLM TABLE) -->
+    <section id="a-models" class="section" aria-labelledby="a-heading">
+      <h2 id="a-heading">AI Models — Top LLMs</h2>
+      <p>Scan specs, compare models, and jump to official sources. Ranked by context window, then parameters.</p>
+
+      <div class="searchbar" role="search">
+        <input id="llmSearch" type="search" placeholder="Search models..." aria-label="Filter LLM models" autocomplete="off" inputmode="search" />
+        <span class="kb">Ranked by context window → parameters</span>
+      </div>
+
+      <div class="table-wrap" role="region" aria-label="LLM comparison table">
+        <table aria-describedby="a-heading">
+          <caption>Compare LLM specifications: parameters, context windows, and official sources</caption>
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Model</th>
+              <th scope="col" class="hide-sm">Provider</th>
+              <th scope="col">Params (B)</th>
+              <th scope="col">Context (K)</th>
+              <th scope="col">Link</th>
+            </tr>
+          </thead>
+          <tbody id="llm-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- References -->
+    <section id="papers" class="section" aria-labelledby="papers-heading">
+      <h2 id="papers-heading">Papers & References</h2>
+      <div class="collapse" data-open="false">
+        <button class="collapse__head" type="button" data-toggle="#papers-core" aria-expanded="false" data-track="collapse-papers-core">
+          <span><strong>Foundational Papers (Core List)</strong></span>
+          <span class="muted">Show/Hide</span>
+        </button>
+        <div class="collapse__body" id="papers-core">
+          <ul id="papers-core-list" class="list"></ul>
+        </div>
+      </div>
+      <div id="paper-groups" class="grid grid--cards" aria-live="polite"></div>
+    </section>
+
+    <section id="timeline" class="section" aria-labelledby="timeline-heading">
+      <h2 id="timeline-heading">📜 Timeline of Knowledge</h2>
+      <ul id="timeline-list" class="list"></ul>
+    </section>
+
+    <div class="hr" role="separator" aria-hidden="true"></div>
+
+    <!-- FOOTER -->
+    <section aria-label="Footer" class="section">
+      <nav class="footer" aria-label="Secondary">
+        <ul class="list--clean">
+          <li><a href="#a-models" data-track="footer-a-models">A. AI Models</a></li>
+          <li><a href="#b-bots" data-track="footer-b-bots">B. Bots</a></li>
+          <li><a href="#c-crypto" data-track="footer-c-crypto">C. Cryptorka</a></li>
+        </ul>
+      </nav>
+      <p class="foot-note">© 2025 PABLOBOT. Model data sourced from official documentation.</p>
+    </section>
+  </main>
+
+  <!-- Newsletter Modal -->
+  <div id="modal-backdrop" class="modal-backdrop" data-open="false" aria-hidden="true"></div>
+  <section id="newsletter-modal" class="modal" aria-hidden="true" aria-labelledby="nl-title" role="dialog">
+    <div class="modal__panel" role="document">
+      <div class="modal__head">
+        <h3 id="nl-title">📬 Subscribe for Updates</h3>
+        <button class="modal__close" id="nl-close" aria-label="Close" type="button">✕</button>
+      </div>
+
+      <div class="modal__body">
+        <p class="note">Get concise updates: new LLM specs, new bots, and Cryptorka alpha access.</p>
+
+        <!-- Netlify-enabled form -->
+        <form
+          id="nl-form"
+          class="modal__row"
+          name="newsletter"
+          method="POST"
+          data-netlify="true"
+          netlify-honeypot="bot-field"
+          novalidate
+        >
+          <!-- Required for Netlify to recognize the form -->
+          <input type="hidden" name="form-name" value="newsletter" />
+
+          <!-- Honeypot (hidden from users) -->
+          <p class="sr-only" hidden aria-hidden="true">
+            <label>Don’t fill this out if you’re human:
+              <input name="bot-field" tabindex="-1" autocomplete="off" />
+            </label>
+          </p>
+
+          <input
+            id="nl-email"
+            type="email"
+            name="email"
+            placeholder="you@company.com"
+            required
+            autocomplete="email"
+            aria-label="Email address"
+          />
+          <button class="btn btn--brand" type="submit" data-track="newsletter-submit">Subscribe</button>
+
+          <!-- Optional reCAPTCHA (enable in Netlify > Forms if you want it)
+          <div data-netlify-recaptcha="true"></div>
+          -->
+        </form>
+
+        <p id="nl-feedback" class="note" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <button id="fab-newsletter" class="fab" aria-label="Subscribe to newsletter" data-track="fab-newsletter">📬</button>
+  <a class="top-link" href="#a-models" aria-label="Back to top" data-track="back-to-top">↑</a>
+
+  <!-- App JS -->
+  <script src="app.js" defer></script>
+</body>
+</html>
