@@ -1107,6 +1107,81 @@ function initGlobalDelegates() {
 }
 
 /* ============================================================================
+   MOBILE HELPERS: tables + tap targets (defensive, zero-deps)
+   - Wrap bare <table> in .table-wrap for horizontal scrolling on phones
+   - Sticky header support remains CSS-based
+   - Subtle edge gradients hint scrollability via CSS pseudo-elements
+   - Ensure interactive elements meet 44px minimum hit area
+   ========================================================================== */
+
+/* rAF throttle to avoid scroll handler spam */
+function __rafThrottle(fn) {
+  let ticking = false;
+  return function (...args) {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { ticking = false; fn.apply(this, args); });
+  };
+}
+
+/* Wrap any table not already inside .table-wrap */
+function wrapTables() {
+  const wrappers = [];
+  const tables = Array.from(document.querySelectorAll('table'));
+  tables.forEach((table) => {
+    if (table.closest('.table-wrap')) {
+      const existing = table.closest('.table-wrap');
+      if (existing) wrappers.push(existing);
+      return; // already wrapped
+    }
+    const wrap = document.createElement('div');
+    wrap.className = 'table-wrap';
+    const parent = table.parentNode;
+    if (!parent) return;
+    parent.insertBefore(wrap, table);
+    wrap.appendChild(table);
+    wrappers.push(wrap);
+  });
+  return wrappers;
+}
+
+/* Compute and toggle scroll hint classes on a wrapper */
+function updateScrollHints(wrap) {
+  if (!wrap) return;
+  const canScroll = wrap.scrollWidth - wrap.clientWidth > 1;
+  wrap.classList.toggle('is-scrollable', canScroll);
+  if (!canScroll) { wrap.classList.remove('at-start', 'at-end'); return; }
+  const atStart = wrap.scrollLeft <= 1;
+  const atEnd = wrap.scrollLeft + wrap.clientWidth >= wrap.scrollWidth - 1;
+  wrap.classList.toggle('at-start', atStart);
+  wrap.classList.toggle('at-end', atEnd);
+}
+
+/* Attach scroll listeners and initialize hint states */
+function initScrollHints(wrappers) {
+  const onScroll = __rafThrottle((e) => updateScrollHints(e.currentTarget));
+  wrappers.forEach((wrap) => {
+    updateScrollHints(wrap);
+    wrap.addEventListener('scroll', onScroll, { passive: true });
+  });
+  const onResize = debounce(() => wrappers.forEach(updateScrollHints), 150);
+  window.addEventListener('resize', onResize, { passive: true });
+}
+
+/* Ensure buttons/links meet 44px tap target without changing layout semantics */
+function ensureTapTargets() {
+  const sels = ['.btn', 'button', '[role="button"]', 'a.btn', 'nav.primary a', '.nav-btn'];
+  const els = sels.flatMap((s) => Array.from(document.querySelectorAll(s)));
+  els.forEach((el) => {
+    if (!el || !el.isConnected) return;
+    const rect = el.getBoundingClientRect();
+    if (rect && rect.height > 0 && rect.height < 44) {
+      el.classList.add('hit-boost');
+    }
+  });
+}
+
+/* ============================================================================
    9) INIT — BOOTSTRAP APP
    ========================================================================== */
 
@@ -1141,6 +1216,20 @@ document.addEventListener("DOMContentLoaded", () => {
   initTopLink();
   initGotoParam();
   ensureTableDataLabels();
+  /* Mobile: wrap any stray tables and show scroll hints */
+  const __wraps = wrapTables();
+  initScrollHints(__wraps);
+  ensureTapTargets();
+  window.addEventListener('resize', debounce(ensureTapTargets, 150), { passive: true });
+  /* Defensive: if dynamic nodes get injected later, wrap/hint new tables */
+  if ('MutationObserver' in window) {
+    const mo = new MutationObserver(debounce(() => {
+      const newWraps = wrapTables();
+      newWraps.forEach(updateScrollHints);
+      ensureTapTargets();
+    }, 120));
+    mo.observe(document.documentElement, { childList: true, subtree: true });
+  }
   initGlobalDelegates();
 
   /* Open modal buttons */
@@ -1234,3 +1323,103 @@ async function handleSubscribe(email) {
 /* ============================================================================
    END OF FILE
    ========================================================================== */
+/* Mobile enhancement for the specific searchbar (Vanilla JS, no globals) */
+(() => {
+  const root = document.querySelector('.searchbar');
+  const input = document.getElementById('cryptoSearch');
+  const hint  = document.getElementById('cryptoSearchHint') || root?.querySelector('.kb');
+
+  if (!root || !input) return;
+
+  /* Ensure input meets minimum touch target height without breaking layout */
+  const ensureTapTarget = () => {
+    const rect = input.getBoundingClientRect();
+    if (rect.height < 44) {
+      // Add a lightweight inline style boost (local to this element only)
+      input.style.minBlockSize = '44px';
+    }
+  };
+
+  /* Inject a clear button that only appears when there is text */
+  const mountClearButton = () => {
+    // container for proper absolute positioning context relative to the input
+    // Without changing HTML, we wrap visually by overlaying a positioned element
+    // in the searchbar and aligning to the input’s right edge.
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'search-clear-btn';
+    btn.setAttribute('aria-label', 'Clear search');
+    btn.title = 'Clear';
+
+    // Position the button relative to the searchbar; align to input’s right padding
+    // Use a wrapper span to host the absolutely positioned button
+    const holder = document.createElement('span');
+    holder.className = 'search-clear';
+    holder.style.position = 'relative';
+
+    // Insert holder after the input so it lives in the same stacking context
+    input.insertAdjacentElement('afterend', holder);
+    holder.appendChild(btn);
+
+    // Toggle visibility based on input value and focus state
+    const toggle = () => {
+      const hasValue = !!input.value;
+      btn.classList.toggle('is-visible', hasValue);
+      // When our custom clear is active, hide native WebKit cancel icon for consistency
+      input.classList.toggle('has-custom-clear', hasValue);
+    };
+
+    btn.addEventListener('click', () => {
+      input.value = '';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.focus({ preventScroll: true });
+      toggle();
+    });
+
+    input.addEventListener('input', toggle);
+    input.addEventListener('focus', toggle);
+    input.addEventListener('blur', toggle);
+
+    // Initialize once
+    toggle();
+
+    // Keep the button aligned on resize (debounced)
+    let raf = 0;
+    const onResize = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        // If layout shifts drastically, ensureTapTarget again
+        ensureTapTarget();
+      });
+    };
+    window.addEventListener('resize', onResize, { passive: true });
+  };
+
+  /* Optional: soften hint behavior on mobile—hide when typing, show when empty */
+  const wireHintBehavior = () => {
+    if (!hint) return;
+    const update = () => {
+      const empty = input.value.length === 0;
+      hint.style.opacity = empty ? '0.85' : '0.0';
+      hint.style.transition = 'opacity 140ms ease';
+      hint.setAttribute('aria-hidden', empty ? 'false' : 'true');
+    };
+    input.addEventListener('input', update);
+    input.addEventListener('focus', update);
+    input.addEventListener('blur', update);
+    update();
+  };
+
+  /* Initialize on DOM ready or immediately if already interactive */
+  const start = () => {
+    ensureTapTarget();
+    mountClearButton();
+    wireHintBehavior();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
+})();

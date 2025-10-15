@@ -20,6 +20,8 @@ body{
   font:500 16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
 }
+/* Smooth, consistent scrolling and text sizing on mobile */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 a{color:var(--brand);text-decoration:none}
 a:hover{text-decoration:underline}
 a:focus-visible,button:focus-visible{
@@ -127,8 +129,10 @@ main{display:grid;gap:calc(var(--space)*1.25)}
    =========================== */
 .table-wrap{
   border:1px solid var(--line);border-radius:var(--radius);
-  overflow:auto;background:var(--bg);box-shadow:var(--shadow-sm);
-  -webkit-overflow-scrolling:touch;
+  /* Horizontal scroll only; prevent vertical nested scrollbars */
+  overflow-x:auto;overflow-y:visible;
+  background:var(--bg);box-shadow:var(--shadow-sm);
+  -webkit-overflow-scrolling:touch; /* inertial scrolling on iOS */
 }
 table{width:100%;border-collapse:collapse;min-width:720px}
 caption{
@@ -140,6 +144,7 @@ thead th{
   font-weight:600;padding:1rem;text-align:left;
   border-bottom:2px solid var(--line);
   text-transform:uppercase;letter-spacing:.5px;font-size:.9rem;
+  z-index:2; /* ensure header sits above cells when sticky */
 }
 tbody td{
   padding:1rem;border-bottom:1px solid var(--line);vertical-align:middle;
@@ -243,6 +248,21 @@ footer{border-top:1px solid var(--line);padding-top:2rem;margin-top:3rem}
   .fab{bottom:70px;width:48px;height:48px;font-size:1.3rem}
   .top-link{bottom:16px;right:16px}
   body{font-size:15px;line-height:1.45}
+}
+
+/* Compact search on small devices (mobile-first) */
+@media (max-width: 520px) {
+  .searchbar { gap: 6px; margin: .5rem auto .75rem; }
+  #cryptoSearch { padding: .5rem .75rem; font-size: .9rem; max-width: 100%; }
+  #cryptoSearch::placeholder { opacity: .7; font-size: .9em; }
+  #cryptoSearchHint, .searchbar .kb { font-size: .8rem; line-height: 1.3; }
+}
+
+/* Ultra-narrow phones: slightly tighter */
+@media (max-width: 360px) {
+  .searchbar { gap: 4px; margin: .4rem auto .6rem; }
+  #cryptoSearch { padding: .45rem .65rem; font-size: .85rem; }
+  #cryptoSearchHint, .searchbar .kb { font-size: .75rem; }
 }
 
 /* Backdrop */
@@ -465,5 +485,189 @@ footer{border-top:1px solid var(--line);padding-top:2rem;margin-top:3rem}
   #nl-form .btn.btn--brand { width: 100%; }
   .modal__close {
     top: 8px; right: 8px; width: 40px; height: 40px; /* bigger touch target */
+  }
+}
+
+/* ===========================
+   MOBILE ENHANCEMENTS
+   - Intrinsic media and code blocks
+   - Tap-friendly controls
+   - Subtle scroll hints for wide tables
+   =========================== */
+
+/* Media should never overflow viewport on small devices */
+img, video, svg, canvas, iframe { max-inline-size: 100%; block-size: auto; display: block; height: auto; }
+
+/* Code blocks: horizontally scrollable with pleasant padding */
+pre { max-inline-size: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: .9rem; margin: 1rem 0; border: 1px solid var(--line); border-radius: 8px; background: #fafafa; }
+pre code { white-space: pre; word-break: normal; }
+code { overflow-wrap: anywhere; }
+
+/* Ensure interactive controls meet recommended 44px target */
+button, .btn, [role="button"], a.btn, nav.primary a, .nav-btn { min-block-size: 44px; }
+a { touch-action: manipulation; }
+
+/* Scroll hint gradients for horizontally scrollable tables */
+.table-wrap { position: relative; }
+.table-wrap::before, .table-wrap::after { content: ""; position: absolute; inset-block: 0; width: 16px; pointer-events: none; opacity: 0; transition: opacity .16s ease; z-index: 3; }
+.table-wrap::before { left: 0; background: linear-gradient(to right, rgba(0,0,0,.08), transparent 70%); border-start-start-radius: var(--radius); border-end-start-radius: var(--radius); }
+.table-wrap::after { right: 0; background: linear-gradient(to left, rgba(0,0,0,.08), transparent 70%); border-start-end-radius: var(--radius); border-end-end-radius: var(--radius); }
+.table-wrap.is-scrollable:not(.at-start)::before { opacity: 1; }
+.table-wrap.is-scrollable:not(.at-end)::after { opacity: 1; }
+
+/* Helper class used by JS to boost too-small hit areas */
+.hit-boost { min-block-size: 44px; }
+
+/* Hide optional cells on very small screens */
+@media (max-width: 640px) {
+  .table-wrap .hide-sm { display: none; }
+}
+
+/* Tighten wallet table on phones: prevent overflow and wrap content */
+@media (max-width: 640px) {
+  .table-wrap table { min-width: 0; }
+  .table-wrap td { word-break: break-word; overflow-wrap: anywhere; }
+  .table-wrap td > * { min-width: 0; }
+  .table-wrap td .model { display: flex; gap: .5rem; align-items: flex-start; }
+}
+
+/* Root-safe defaults for the specific searchbar only (no global resets) */
+.searchbar {
+  /* Create a flexible row that can wrap the hint underneath on small screens */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+
+  /* Keep content away from screen edges on phones */
+  padding: 0.75rem 1rem;
+
+  /* Avoid causing a full-width stretch on huge screens; never overflow on small */
+  inline-size: 100%;
+  max-inline-size: 48rem;
+
+  /* Visual containment without heavy borders */
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+/* Make the input fluid and tap-friendly */
+.searchbar #cryptoSearch {
+  flex: 1 1 16rem;                 /* grows to fill, shrinks if needed */
+  inline-size: 100%;
+  min-block-size: 44px;            /* touch target */
+  padding-inline: 0.875rem 2.5rem; /* leave room on the right for clear btn */
+  padding-block: 0.5rem;
+
+  font-size: clamp(0.95rem, 2.6vw, 1rem);
+  line-height: 1.3;
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 0.6rem;
+  outline: none;
+  background: #fff;
+
+  /* Prevent horizontal overflow on tiny devices */
+  max-inline-size: 100%;
+  box-sizing: border-box;
+}
+
+/* Focus styles: visible but not shouting */
+.searchbar #cryptoSearch:focus {
+  border-color: #2563eb;                 /* blue-ish */
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+/* Placeholder legibility */
+.searchbar #cryptoSearch::placeholder {
+  color: rgba(0,0,0,0.45);
+}
+
+/* iOS/Chromium search cancel button won’t always be present—hide only if our custom clear shows */
+.searchbar #cryptoSearch.has-custom-clear::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* The hint sits under the input on narrow screens due to flex-wrap */
+.searchbar .kb,
+.searchbar #cryptoSearchHint {
+  flex: 1 1 100%;                  /* wrap to new line when needed */
+  margin-block-start: 0.25rem;
+  font-size: clamp(0.78rem, 2.2vw, 0.85rem);
+  color: rgba(0,0,0,0.55);
+}
+
+/* Optional subtle keyboard/metadata styling */
+.searchbar .kb::before {
+  content: "ℹ︎ ";
+  opacity: 0.65;
+}
+
+/* Clear button injected by JS: positioned inside the input area */
+.searchbar .search-clear {
+  position: relative;              /* for stacking context */
+}
+
+.searchbar .search-clear-btn {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: 1rem;
+  transform: translateY(-50%);
+
+  display: none;                   /* shown via JS when there’s value */
+  justify-content: center;
+  align-items: center;
+
+  min-inline-size: 44px;           /* touch target */
+  min-block-size: 44px;
+  border: none;
+  border-radius: 0.5rem;
+  background: transparent;
+  cursor: pointer;
+
+  /* Accessible visual affordance on focus */
+  outline: none;
+}
+
+.searchbar .search-clear-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.25);
+}
+
+/* Button glyph (×) style via data attribute for simplicity */
+.searchbar .search-clear-btn::before {
+  content: attr(aria-label);       /* default for screen readers if text used */
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+/* Visual icon using pure CSS (no external assets) */
+.searchbar .search-clear-btn::after {
+  content: "×";
+  font-size: 1.25rem;
+  line-height: 1;
+  opacity: 0.65;
+}
+
+.searchbar .search-clear-btn:hover::after {
+  opacity: 0.9;
+}
+
+/* When JS shows the button */
+.searchbar .search-clear-btn.is-visible {
+  display: inline-flex;
+}
+
+/* Ultra-narrow screens: gently reduce paddings to avoid crowding */
+@media (max-width: 360px) {
+  .searchbar {
+    padding: 0.5rem 0.75rem;
+  }
+  .searchbar #cryptoSearch {
+    padding-inline: 0.75rem 2.25rem;
   }
 }
