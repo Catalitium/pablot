@@ -82,6 +82,8 @@ nav.primary a,.nav-btn{
   border:1px solid var(--line);background:var(--bg);
   font-size:.9rem;font-weight:500;color:var(--ink);
   transition:.2s;white-space:nowrap;
+  min-block-size:40px; line-height:1.2; /* thumb-friendly */
+  -webkit-tap-highlight-color: transparent;
 }
 nav.primary a:hover,.nav-btn:hover{
   background:var(--panel);border-color:var(--brand);text-decoration:none;
@@ -127,50 +129,173 @@ main{display:grid;gap:calc(var(--space)*1.25)}
 /* ===========================
    TABLES
    =========================== */
+/* Scope: only touch .table-wrap and contained tables */
 .table-wrap{
-  border:1px solid var(--line);border-radius:var(--radius);
-  /* Horizontal scroll only; prevent vertical nested scrollbars */
-  overflow-x:auto;overflow-y:visible;
-  background:var(--bg);box-shadow:var(--shadow-sm);
-  -webkit-overflow-scrolling:touch; /* inertial scrolling on iOS */
+  position: relative;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow-x:auto;             /* horizontal scroll if needed */
+  overflow-y:visible;
+  background:var(--bg);
+  box-shadow:var(--shadow-sm);
+  -webkit-overflow-scrolling:touch;
+  scrollbar-gutter: stable both-edges; /* prevents layout shift when scrollbar shows */
 }
-table{width:100%;border-collapse:collapse;min-width:720px}
-caption{
+
+/* Gentle edge fades that appear only when scrollable (toggled by JS) */
+.table-wrap::before,
+.table-wrap::after{
+  content:"";
+  position:absolute;
+  inset-block:0;
+  inline-size:18px;
+  pointer-events:none;
+  display:none;                /* JS flips to block via data attributes */
+  background:linear-gradient(to right, var(--bg), transparent);
+  z-index:3;
+}
+.table-wrap::after{
+  inset-inline-start:auto;
+  inset-inline-end:0;
+  background:linear-gradient(to left, var(--bg), transparent);
+}
+.table-wrap[data-shadow-left="true"]::before{ display:block; }
+.table-wrap[data-shadow-right="true"]::after{ display:block; }
+
+/* Base table (kept similar to yours) */
+.table-wrap table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:720px;             /* prevents cramped columns on mid widths */
+}
+.crypto-list{ display:grid; gap:10px; margin:10px 0 0; padding:0; list-style:none; }
+.crypto-list li{ display:grid; gap:6px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); }
+.crypto-row{ display:flex; align-items:center; gap:8px; }
+.crypto-row .emoji{ font-size:1.1rem; }
+.crypto-meta{ display:flex; gap:10px; flex-wrap:wrap; color:var(--muted); font-size:.95rem; }
+.crypto-links{ display:flex; gap:10px; flex-wrap:wrap; }
+
+/* Center titles for wallets list */
+#wallets-list .crypto-row{ justify-content: center; }
+#wallets-list .crypto-row strong{ display:inline-block; text-align:center; }
+.table-wrap caption{
   caption-side:top;text-align:left;color:var(--muted);
   padding:.8rem 1rem;font-size:.9rem;
 }
-thead th{
-  position:sticky;top:0;background:var(--panel);
-  font-weight:600;padding:1rem;text-align:left;
+.table-wrap thead th{
+  position:sticky; top:0; z-index:2;
+  background:var(--panel);
+  font-weight:600; padding:1rem; text-align:left;
   border-bottom:2px solid var(--line);
-  text-transform:uppercase;letter-spacing:.5px;font-size:.9rem;
-  z-index:2; /* ensure header sits above cells when sticky */
+  text-transform:uppercase; letter-spacing:.5px; font-size:.9rem;
 }
-tbody td{
+.table-wrap tbody td{
   padding:1rem;border-bottom:1px solid var(--line);vertical-align:middle;
 }
-tbody tr:hover{background:rgba(0,102,255,.02)}
-.cell-note{color:var(--muted);font-size:.9rem;margin-top:.25rem}
+.table-wrap tbody tr:hover{ background:rgba(0,102,255,.02) }
+.table-wrap .cell-note{ color:var(--muted); font-size:.9rem; margin-top:.25rem }
 
-/* --- Responsive Table as Cards --- */
-@media(max-width:640px){
-  .table-wrap table,.table-wrap thead,.table-wrap tbody,.table-wrap th,.table-wrap td,.table-wrap tr{
-    display:block;width:100%;
+/* Make links inside cells comfortable to tap */
+.table-wrap a{
+  display:inline-block;
+  min-block-size:40px;                 /* near-44px without blowing up rows */
+  line-height:1.1;
+}
+
+/* -----------------------------------------------------------
+   Compact “CARD” MODE for phones (≤ 560px)
+   Uses your existing data-label attributes on <td>
+   No HTML changes required.
+----------------------------------------------------------- */
+@media (max-width: 560px){
+  /* Remove horizontal scrolling by stacking rows vertically */
+  .table-wrap{ overflow-x:visible; }
+  /* Hide heavy tables, show mobile lists */
+  .table-wrap table{ display:none; }
+  .crypto-list{ display:grid; gap:8px; margin:8px 0 0; padding:0; list-style:none; }
+  .crypto-list li{ display:grid; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); gap:6px; }
+  .crypto-row{ display:flex; align-items:center; gap:8px; }
+  .crypto-row .emoji{ font-size:1.1rem; }
+  .crypto-meta{ display:flex; gap:10px; flex-wrap:wrap; color:var(--muted); font-size:.9rem; }
+  .crypto-links{ display:flex; gap:10px; flex-wrap:wrap; }
+  .table-wrap::before,
+  .table-wrap::after{ display:none !important; }
+
+  .table-wrap table{
+    min-width:0;
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
   }
-  .table-wrap thead{display:none}
-  .table-wrap tr{
-    margin-bottom:1rem;border:1px solid var(--line);
-    border-radius:var(--radius);padding:.75rem;background:var(--panel);
+
+  /* Hide header; we’ll print labels via td::before */
+  .table-wrap thead,
+  .table-wrap caption{ 
+    position:absolute !important; 
+    inline-size:1px; block-size:1px; overflow:hidden; clip-path:inset(50%);
+    white-space:nowrap; 
   }
-  .table-wrap td{
-    display:flex;justify-content:space-between;align-items:center;
-    padding:.4rem 0;border:none;
+
+  /* Turn each row into a card */
+  .table-wrap tbody tr{
+    display:grid;
+    grid-template-columns: 1fr;      /* one column stack */
+    gap:.5rem;
+    padding:0.75rem 0.9rem;
+    margin:0.6rem 0;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--bg);
+    box-shadow:var(--shadow-sm);
   }
-  .table-wrap td::before{
-    content:attr(data-label);font-weight:600;color:var(--muted);
-    flex-basis:45%;text-align:left;
+  .table-wrap tbody tr:hover{ background:var(--bg) } /* no hover color on mobile */
+
+  /* Each cell becomes a labeled line: [Label]  Value */
+  .table-wrap tbody td{
+    display:grid;
+    grid-template-columns: minmax(7rem, 40%) 1fr;
+    align-items:start;
+    gap:.75rem;
+    padding:0;                        /* we already padded the card */
+    border:none;
+  }
+
+  /* Use existing data-label as the key */
+  .table-wrap tbody td::before{
+    content: attr(data-label);
+    font-weight:600;
+    color: var(--text, #111);
+    opacity:.8;
+  }
+
+  /* Tweak common columns */
+  .table-wrap tbody td[data-label="#"]{
+    order:-2;                         /* show first */
+  }
+  .table-wrap tbody td[data-label="Asset"]{
+    order:-1;
+  }
+
+  /* Columns marked .hide-sm remain hidden as you already do */
+  .table-wrap .hide-sm{ display:none !important; }
+
+  /* Keep the “model” layout tidy inside the stacked cell */
+  .table-wrap .model{
+    display:flex; gap:.6rem; align-items:flex-start;
+  }
+  .table-wrap .emoji{ font-size:1.2rem; line-height:1; }
+
+  /* Make action links fill width nicely if desired */
+  .table-wrap td[data-label="Dexscreener"] a,
+  .table-wrap td[data-label="Paper/Docs"] a,
+  .table-wrap td[data-label="Explorer"] a{
+    width:fit-content;
+    padding:.5rem .75rem;
+    border:1px solid var(--line);
+    border-radius:8px;
   }
 }
+
 
 /* ===========================
    SEARCHBAR (Centered)
@@ -191,6 +316,9 @@ tbody tr:hover{background:rgba(0,102,255,.02)}
   box-shadow:0 0 0 2px rgba(0,102,255,.1);
 }
 .kb{font-size:.85rem;color:var(--muted)}
+
+/* Removed older 'searchbar-mini' block in favor of unified compact search at end */
+
 
 /* ===========================
    TABS (Cryptorka)
@@ -263,6 +391,41 @@ footer{border-top:1px solid var(--line);padding-top:2rem;margin-top:3rem}
   .searchbar { gap: 4px; margin: .4rem auto .6rem; }
   #cryptoSearch { padding: .45rem .65rem; font-size: .85rem; }
   #cryptoSearchHint, .searchbar .kb { font-size: .75rem; }
+}
+
+/* ===========================
+   Search Focus Polish
+   - Make focus visually clear without layout shift
+   - Scope strictly to .searchbar and its input/hint
+   =========================== */
+
+/* Highlight the whole searchbar when the input is focused */
+.searchbar:focus-within {
+  border-color: #2563eb; /* brand-ish blue */
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+
+/* Smooth focus transition on the input */
+.searchbar #cryptoSearch {
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  background-clip: padding-box;
+}
+
+/* Stronger, consistent input focus without jumping */
+.searchbar #cryptoSearch:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+/* Hint remains subtle and doesn’t reflow on focus */
+.searchbar #cryptoSearchHint {
+  transition: color .15s ease, opacity .15s ease;
+}
+.searchbar:focus-within #cryptoSearchHint {
+  color: var(--muted);
+  opacity: .9;
 }
 
 /* Backdrop */
@@ -531,27 +694,80 @@ a { touch-action: manipulation; }
   .table-wrap td .model { display: flex; gap: .5rem; align-items: flex-start; }
 }
 
-/* Root-safe defaults for the specific searchbar only (no global resets) */
-.searchbar {
-  /* Create a flexible row that can wrap the hint underneath on small screens */
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
+/* ===========================
+   MOBILE OVERHAUL (merged)
+   - Single-column container, compact controls, robust tables
+   - Added at end to safely override earlier rules where needed
+   =========================== */
 
-  /* Keep content away from screen edges on phones */
-  padding: 0.75rem 1rem;
+/* Root container: keep content centered with safe padding */
+main.wrap { max-inline-size: 720px; margin-inline: auto; padding-inline: 12px; }
 
-  /* Avoid causing a full-width stretch on huge screens; never overflow on small */
-  inline-size: 100%;
-  max-inline-size: 48rem;
-
-  /* Visual containment without heavy borders */
-  border: 1px solid rgba(0,0,0,0.08);
-  border-radius: 0.75rem;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+/* Compact, flexible search row; hint wraps */
+.searchbar { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-block: 8px 12px; }
+#cryptoSearch, #llmSearch {
+  flex: 1 1 16rem; inline-size: 100%; min-block-size: 40px;
+  padding-block: 8px; padding-inline: 12px 40px; /* room for clear (×) */
+  font-size: clamp(.9rem, 2.6vw, .95rem); line-height: 1.2;
+  border: 1px solid rgba(0,0,0,0.15); border-radius: 10px; background: #fff;
+  outline: none; max-inline-size: 100%; box-sizing: border-box;
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+  -webkit-appearance: none; appearance: none; background-clip: padding-box;
 }
+.searchbar:focus-within { box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+#cryptoSearch:focus, #llmSearch:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+#cryptoSearch::placeholder, #llmSearch::placeholder { color: rgba(0,0,0,0.45); opacity: .9; }
+#cryptoSearchHint, .searchbar .kb { flex: 1 1 100%; margin-block-start: 2px; font-size: clamp(.78rem, 2.2vw, .85rem); line-height: 1.3; color: rgba(0,0,0,0.55); }
+@media (max-width: 360px) {
+  .searchbar { gap: 6px; margin-block: 6px 10px; }
+  #cryptoSearch, #llmSearch { min-block-size: 38px; padding-inline: 10px 38px; font-size: .9rem; }
+  #cryptoSearchHint, .searchbar .kb { font-size: .78rem; }
+}
+
+/* Tabs: horizontally scrollable on small screens */
+.tabs { display: inline-flex; gap: 8px; max-inline-size: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-gutter: stable; padding-block: 2px; }
+.tab { flex: 0 0 auto; min-block-size: 40px; padding-inline: 12px; border-radius: 999px; white-space: nowrap; }
+
+/* Edge fades via data attributes (JS toggles) */
+.table-wrap[data-shadow-left="true"]::before { opacity: 1; }
+.table-wrap[data-shadow-right="true"]::after { opacity: 1; }
+
+/* Wide tables keep min-width; sticky header preserved by existing rules */
+.table-wrap > table { min-width: 720px; }
+
+/* Phone card mode (≤560px): stacked rows with labels */
+@media (max-width: 560px) {
+  .table-wrap { overflow: visible; }
+  .table-wrap > table { min-width: 0; width: 100%; }
+  .table-wrap caption, .table-wrap thead { position: absolute !important; inline-size: 1px; block-size: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .table-wrap tbody tr { display: block; padding: 12px; margin-block: 10px; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  .table-wrap tbody td { display: grid; grid-template-columns: 42% 1fr; gap: 8px; padding: 6px 0; border: 0; word-break: break-word; overflow-wrap: anywhere; }
+  .table-wrap tbody td::before { content: attr(data-label); font-weight: 600; color: rgba(0,0,0,0.55); text-align: left; }
+  .hide-sm { display: none !important; }
+  .table-wrap a { display: inline-block; min-block-size: 40px; padding: 6px 10px; border: 1px solid rgba(0,0,0,0.12); border-radius: 10px; text-decoration: none; }
+  .model { display: flex; gap: 8px; align-items: flex-start; min-width: 0; }
+  .model > * { min-width: 0; }
+  .cell-note { color: rgba(0,0,0,0.55); }
+}
+
+/* ===========================
+   Mobile-first container + compact search (final overrides)
+   =========================== */
+@media (max-width: 560px) {
+  /* Reinforce single-column container with safe padding */
+  main.wrap { max-inline-size: 720px; margin-inline: auto; padding-inline: 12px; }
+
+  /* Slim search wrapper; remove card-like padding/border if any earlier */
+  .searchbar { padding: 0; border: 0; background: transparent; box-shadow: none; }
+
+  /* Compact input height (~32px) and tighter padding */
+  .searchbar #cryptoSearch, .searchbar #llmSearch { min-block-size: 32px; padding-block: 6px; padding-inline: 10px 34px; font-size: .9rem; }
+
+  /* Hint small and tidy */
+  #cryptoSearchHint, .searchbar .kb { font-size: .78rem; }
+}
+
+/* Consolidation: older searchbar variants removed; unified compact search lives later in file */
 
 /* Make the input fluid and tap-friendly */
 .searchbar #cryptoSearch {
@@ -671,3 +887,230 @@ a { touch-action: manipulation; }
     padding-inline: 0.75rem 2.25rem;
   }
 }
+
+/* === searchbar-tiny.css — hard overrides for a compact search === */
+
+/* Container: no card chrome; tiny, inline feel */
+.searchbar{
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  /* keep it narrow even on wide screens */
+  max-inline-size: 420px !important;
+  inline-size: 100%;
+  margin-inline: auto !important;
+  text-align: center !important;
+
+  height: 55px !important;  /* compact height */
+  padding: 0 !important;    /* no extra padding */
+  margin-block: 8px 12px !important;
+}
+
+/* Input: clamp to a small height everywhere */
+#cryptoSearch{
+  -webkit-appearance: none;
+  appearance: none;
+
+  flex: 1 1 160px;
+  inline-size: 100%;
+  max-inline-size: 360px;
+
+  height: 32px !important;
+  min-height: 32px !important;
+  line-height: 30px !important;   /* centers text without extra height */
+  padding: 0 .625rem !important;   /* tight padding */
+
+  font-size: .9rem !important;
+  border: 1px solid rgba(0,0,0,.18) !important;
+  border-radius: 6px !important;
+  background: #fff !important;
+  color: inherit;
+
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color .15s ease, box-shadow .15s ease;
+  height: 15px !important;
+}
+#cryptoSearch:focus{
+  border-color:#2563eb !important;
+  box-shadow:0 0 0 2px rgba(37,99,235,.15) !important;
+}
+#cryptoSearch::placeholder{ color: rgba(0,0,0,.45) }
+
+/* Final overrides: ensure compact, consistent search wins over legacy !important rules */
+.searchbar #cryptoSearch, .searchbar #llmSearch {
+  min-height: 32px !important;
+  height: auto !important;
+  line-height: normal !important;
+  padding: 6px 34px 6px 10px !important;
+  font-size: .9rem !important;
+}
+
+/* Accessibility: clear focus for tabs */
+.tab:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+/* Media/code containment on small screens */
+img, video, svg, canvas, iframe { max-inline-size: 100%; block-size: auto; height: auto; display: block; }
+pre { max-inline-size: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+code { overflow-wrap: anywhere; }
+
+/* ===========================
+   Collapse (Papers & References)
+   - Make the toggle button compact, accessible, and reliable
+   =========================== */
+.collapse { margin-block: 8px 12px; }
+.collapse__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  inline-size: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  min-block-size: 40px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.collapse__head:hover { background: var(--panel); border-color: var(--brand); }
+.collapse__head:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+/* Caret indicator */
+.collapse__head::after {
+  content: '▾';
+  margin-inline-start: auto;
+  opacity: .7;
+  transition: transform .18s ease;
+}
+.collapse[data-open="true"] .collapse__head::after { transform: rotate(180deg); }
+/* Body visibility controlled by wrapper state */
+.collapse__body { padding: 10px 0; }
+.collapse[data-open="false"] .collapse__body { display: none; }
+
+/* (removed) PROMPT CAROUSEL styles */
+
+/* ===========================
+   Footer
+   =========================== */
+.site-footer{ border-top:1px solid var(--line); padding-block:16px 20px; }
+.site-footer .footer ul{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; list-style:none; padding:0; margin:0 0 8px; }
+.site-footer .footer a{
+  display:inline-block; padding:8px 12px; min-block-size:40px;
+  border:1px solid var(--line); border-radius:8px; background:var(--bg);
+  color:var(--ink); text-decoration:none; transition:.2s;
+}
+.site-footer .footer a:hover{ background:var(--panel); border-color:var(--brand); text-decoration:none; }
+.site-footer .foot-note{ text-align:center; color:var(--muted); font-size:.9rem; margin:6px 0 0; }
+
+/* ===========================
+   PG: Prompt Gallery (namespaced)
+   =========================== */
+#pg-section { margin-block: 10px 16px; }
+.pg-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-block: 8px 12px; }
+.pg-input, .pg-select { appearance: none; -webkit-appearance: none; border: 1px solid var(--line, #e5e7eb); background: var(--bg, #fff); color: var(--ink, #111827); border-radius: 8px; padding: 10px 12px; font-size: 0.95rem; min-inline-size: 220px; }
+.pg-input { flex: 1 1 200px; min-inline-size: 260px; }
+.pg-btn { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line, #e5e7eb); background: var(--panel, #f9fafb); color: var(--ink, #111827); cursor: pointer; }
+.pg-btn:hover { background: var(--bg, #fff); border-color: var(--brand, #2563eb); }
+.pg-status { color: var(--muted, #6b7280); font-size: .95rem; margin: 2px 0 10px; }
+
+.pg-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 700px) { .pg-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .pg-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.pg-card { background: var(--bg, #fff); border: 1px solid var(--line, #e5e7eb); border-radius: 10px; padding: 14px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 2px 8px rgba(0,0,0,.03); display: grid; gap: 10px; transition: box-shadow .18s ease, transform .18s ease; }
+.pg-card:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,.06), 0 6px 18px rgba(0,0,0,.05); }
+@media (prefers-reduced-motion: reduce){
+  .pg-card:hover{ transform:none }
+}
+.pg-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.pg-badge { display: inline-block; font-size: .75rem; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line, #e5e7eb); background: var(--panel, #f9fafb); color: var(--ink, #111827); }
+.pg-title { font-size: 1.05rem; line-height: 1.25; margin: 1px 0; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+.pg-subject { color: var(--ink, #111827); font-size: .95rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.pg-pre { background: #0f172a; color: #e2e8f0; padding: 10px; border-radius: 8px; overflow: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .85rem; line-height:1.35; border:1px solid rgba(255,255,255,.06); }
+.pg-meta { display: flex; flex-wrap: wrap; gap: 8px; color: var(--muted, #6b7280); font-size: .85rem; }
+.pg-meta b { color: var(--ink, #111827); font-weight: 600; }
+.pg-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.pg-action { cursor: pointer; padding: 10px 12px; min-block-size:40px; border-radius: 8px; border: 1px solid var(--line, #e5e7eb); background: var(--bg, #fff); color: var(--ink, #111827); font-weight: 600; font-size: .9rem; }
+.pg-action:hover { border-color: var(--brand, #2563eb); background: var(--panel, #f9fafb); }
+
+.pg-ctas { display: flex; gap: 10px; margin-block: 12px 6px; flex-wrap: wrap; }
+.pg-cta { display: inline-block; text-align: center; padding: 12px 16px; border-radius: 10px; text-decoration: none; font-weight: 700; flex: 1 1 180px; }
+.pg-cta--primary { background: var(--brand, #2563eb); color: #fff; }
+.pg-cta--secondary { background: var(--panel, #f3f4f6); color: var(--ink, #111827); border: 1px solid var(--line, #e5e7eb); }
+.pg-cta--primary:hover { background: var(--accent, #1d4ed8); }
+.pg-cta--secondary:hover { background: #fff; }
+/* Improve CTA tap targets and stacking on narrow screens */
+.pg-cta { min-block-size: 44px; }
+.pg-ctas { align-items: stretch; }
+@media (max-width: 420px){
+  .pg-ctas { flex-direction: column; }
+  .pg-cta { width: 100%; flex: 1 1 auto; }
+}
+
+/* Shorten subscribe CTA label on ultra-small screens */
+.pg-label-short { display: none; }
+@media (max-width: 360px){
+  .pg-label-full { display: none; }
+  .pg-label-short { display: inline; }
+}
+
+.pg-sticky { position: fixed; inset-inline: 0; bottom: 0; z-index: 60; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px env(safe-area-inset-right, 10px) calc(10px + env(safe-area-inset-bottom, 0)); background: rgba(255,255,255,.96); border-top: 1px solid var(--line, #e5e7eb); backdrop-filter: saturate(120%) blur(6px); transition: transform .2s ease; will-change: transform; }
+.pg-sticky.pg-sticky--hidden { transform: translateY(110%); }
+.pg-sticky-btn { display: inline-block; text-align: center; padding: 12px 14px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 1rem; }
+.pg-sticky-btn--primary { background: var(--brand, #2563eb); color: #fff; }
+.pg-sticky-btn--secondary { background: var(--panel, #f3f4f6); color: var(--ink, #111827); border: 1px solid var(--line, #e5e7eb); }
+.pg-sticky-btn--primary:hover { background: var(--accent, #1d4ed8); }
+.pg-sticky-btn--secondary:hover { background: #fff; }
+.pg-sticky-spacer { block-size: 70px; }
+
+/* a11y focus */
+.pg-input:focus, .pg-select:focus, .pg-btn:focus, .pg-action:focus, .pg-cta:focus, .pg-sticky-btn:focus { outline: 2px solid var(--brand, #2563eb); outline-offset: 2px; }
+
+/* Toast: appears above sticky bar on phones */
+.pg-toast { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0)); transform: translate(-50%, 120%); z-index: 70; background: rgba(17,24,39,.96); color: #fff; padding: 10px 14px; border-radius: 10px; font-weight: 600; box-shadow: 0 6px 18px rgba(0,0,0,.25); transition: transform .2s ease, opacity .2s ease; opacity: 0; pointer-events: none; }
+.pg-toast.pg-toast--show { transform: translate(-50%, 0); opacity: 1; }
+
+/* Very small phones: bump base font slightly for legibility */
+@media (max-width: 360px){ body { font-size: 17px; } }
+
+/* --- Enhancements: header, chips, collapsible preview, accents --- */
+.pg-header{ display:flex; align-items:center; justify-content:flex-start; gap:8px; }
+.pg-head-left{ display:flex; align-items:center; gap:8px; min-inline-size:0; }
+.pg-emoji{ font-size:1.15rem; line-height:1; }
+.pg-head-right{ display:flex; align-items:center; gap:6px; }
+.pg-chip{ display:inline-block; font-size:.75rem; padding:3px 8px; border-radius:999px; border:1px solid var(--line,#e5e7eb); background: var(--panel,#f3f4f6); color: var(--ink,#111827); font-variant-numeric: tabular-nums; }
+.pg-chip--score{ background:#fff8eb; border-color:#ffe2b5; }
+.pg-chip--rank{ background:#eef2ff; border-color:#c7d2fe; display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; padding:0; border-radius:50%; font-weight:700; }
+
+.pg-prompt{ display:grid; gap:8px; }
+.pg-toggle{ appearance:none; -webkit-appearance:none; border:1px solid var(--line,#e5e7eb); background:var(--bg,#fff); color:var(--ink,#111827); padding:8px 10px; border-radius:8px; font-weight:600; font-size:.9rem; cursor:pointer; width:max-content; }
+.pg-toggle:hover{ background:var(--panel,#f3f4f6); border-color:var(--brand,#2563eb); }
+
+/* Collapsed state uses gradient fade */
+.pg-prompt[data-open="false"] .pg-pre{ position:relative; max-height:8.5em; overflow:hidden; }
+.pg-prompt[data-open="false"] .pg-pre::after{ content:""; position:absolute; inset-inline:0; bottom:0; height:2.75em; background:linear-gradient(180deg, rgba(15,23,42,0), #0f172a); }
+
+/* Micro-feedback */
+.pg-pre--flash{ outline:2px solid #16a34a; box-shadow:0 0 0 2px rgba(22,163,74,.18); }
+.pg-action.pg-ok{ background:#ecfdf5; border-color:#a7f3d0; color:#065f46; }
+
+/* Category accents on badges */
+.pg-card[data-pg-cat="learning"] .pg-badge{ background:#e7f0ff; border-color:#c7dbff; }
+.pg-card[data-pg-cat="brainstorming"] .pg-badge{ background:#fff7e6; border-color:#ffe8b3; }
+.pg-card[data-pg-cat="creativity"] .pg-badge{ background:#f3e8ff; border-color:#e9d5ff; }
+.pg-card[data-pg-cat="education"] .pg-badge{ background:#e6fffb; border-color:#b2f5ea; }
+
+@media (min-width: 700px){
+  .pg-title{-webkit-line-clamp:2}
+}
+.card--compact .list { display: grid; gap: 6px; margin: 0; padding-left: 1.1rem; }
+.card--compact .list li { margin: 0; line-height: 1.25; }
+.card--compact a { line-height: 1.25; }

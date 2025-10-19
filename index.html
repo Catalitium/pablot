@@ -52,7 +52,7 @@
 <body>
   <!-- Accessible skip link (only visible on focus) -->
   <a class="skip-link" href="#a-models" data-track="skip-to-content">Skip to content</a>
-
+  
   <!-- Compact Top Bar -->
   <header role="banner">
     <div class="brand">
@@ -82,6 +82,71 @@
   </header>
 
   <main class="wrap" id="main">
+    <!-- AI Prompts Gallery -->
+    <section id="pg-section" class="section" aria-labelledby="pg-heading">
+      <h2 id="pg-heading">Prompt Gallery</h2>
+      <div class="pg-controls" role="region" aria-label="Prompt controls">
+        <input id="pg-search" class="pg-input" type="search" placeholder="Search prompts (subject, category, domain, verb, noun, style, format, reason)" aria-label="Search prompts" />
+        <select id="pg-sort" class="pg-select" aria-label="Sort prompts">
+          <option value="score">Sort by score</option>
+          <option value="verb">Sort by verb</option>
+          <option value="category">Sort by category</option>
+        </select>
+        <button id="pg-clear" class="pg-btn" type="button" aria-label="Clear search and reset sort">Clear</button>
+      </div>
+      <p id="pg-status" class="pg-status" role="status" aria-live="polite"></p>
+
+      <div id="pg-grid" class="pg-grid" aria-live="polite"></div>
+
+      <div class="pg-ctas">
+        <a id="pg-free-cta"
+           class="pg-cta pg-cta--secondary"
+           href="/files/Top%2050%20AI%20Prompts.pdf"
+           download="Top-50-AI-Prompts.pdf"
+           rel="noopener"
+           aria-label="Download: Top 50 AI Prompts (PDF)"
+           onclick="return pgDownloadOutbound(this,{label:'free_pdf',location:'grid'});">
+          Free PDF
+        </a>
+        <a id="pg-subscribe-cta"
+           class="pg-cta pg-cta--primary"
+           href="#"
+           aria-label="Get 1000 prompts by subscribing"
+           title="Get 1000 prompts by subscribing"
+           onclick="try{gtag('event','cta_click',{label:'get_1000_subscribe',type:'subscribe',location:'grid'});}catch(e){}; openModal(); return false;">
+          <span class="pg-label-full">Get 1000 prompts</span>
+          <span class="pg-label-short" aria-hidden="true">Get 1,000</span>
+        </a>
+      </div>
+
+      <script id="pg-schema" type="application/ld+json"></script>
+
+      
+    </section>
+
+    <!-- B. BOTS (FREE) -->
+    <section id="b-bots" class="section" aria-labelledby="b-heading">
+      <h2 id="b-heading">Bots — Free bots</h2>
+      <p class="muted">Handy, zero-cost utilities. No sign-in required.</p>
+
+      <div class="grid grid--cards" aria-live="polite">
+        <article class="card">
+          <h3>📄 Text Summarizer</h3>
+          <p>Drop in long text and get crisp, structured summaries with key bullets.</p>
+          <div><a class="btn btn--brand" href="#b-bots" data-track="bot-summarizer">Launch</a></div>
+        </article>
+        <article class="card">
+          <h3>🧪 Prompt Tuner</h3>
+          <p>Iterate prompts and compare responses side-by-side to find what works.</p>
+          <div><a class="btn btn--brand" href="#b-bots" data-track="bot-prompt-tuner">Launch</a></div>
+        </article>
+        <article class="card">
+          <h3>🔎 Free Encrypt</h3>
+          <p>Encrypt files/folder using the Fernet python library. AES-256 </p>
+          <div><a class="btn btn--brand" href="#b-bots" data-track="bot-regex-helper">Launch</a></div>
+        </article>
+      </div>
+    </section>
 
     <!-- C. CRYPTO — CRYPTORKA -->
     <section id="c-crypto" class="section" aria-labelledby="c-heading">
@@ -102,16 +167,12 @@
           </button>
         </div>
 
-        <!-- Shared search -->
-        <div class="searchbar" role="search">
-          <input id="cryptoSearch" type="search" placeholder="Search…" aria-label="Filter current view" autocomplete="off" inputmode="search" />
-          <span class="kb" id="cryptoSearchHint">Sorted by type (Stablecoin → Layer 1), then name</span>
-        </div>
+        <!-- Removed search for simplicity before prod -->
 
         <!-- Panel: STABLES -->
         <div id="panel-stables" role="tabpanel" aria-labelledby="tab-stables">
           <div class="table-wrap" role="region" aria-label="Stablecoins & blue-chips table">
-            <table aria-describedby="crypto-heading">
+            <table aria-describedby="crypto-heading" hidden>
               <caption>Compare assets: type, primary network, paper/docs and Dexscreener pairs</caption>
               <thead>
                 <tr>
@@ -223,14 +284,16 @@
                 </tr>
               </tbody>
             </table>
+            <!-- Mobile-first list (shown on small screens) -->
+            <ul id="crypto-list" class="crypto-list" hidden></ul>
           </div>
         </div>
 
         <!-- Panel: WALLETS -->
         <div id="panel-wallets" role="tabpanel" aria-labelledby="tab-wallets" hidden>
           <div class="table-wrap" role="region" aria-label="Wallets to follow table">
-            <table aria-describedby="crypto-heading">
-              <caption>Curated wallets to watch (labels only; NFA). Click explorer to inspect flows.</caption>
+            <table aria-describedby="crypto-heading" hidden>
+              <caption>(👀 NFA). </caption>
               <thead>
                 <tr>
                   <th scope="col">#</th>
@@ -297,6 +360,8 @@
                 </tr>
               </tbody>
             </table>
+            <!-- Mobile-first list (shown on small screens) -->
+            <ul id="wallets-list" class="crypto-list" hidden></ul>
           </div>
         </div>
       </div>
@@ -317,58 +382,6 @@
           <button class="btn btn--brand" type="button" id="orka-notify-btn" data-track="cta-orka-notify" aria-label="Notify me about Cryptorka">Notify me</button>
           <p class="muted">Uses the same newsletter modal.</p>
         </div>
-      </div>
-    </section>
-    
-    <!-- B. BOTS (FREE) -->
-    <section id="b-bots" class="section" aria-labelledby="b-heading">
-      <h2 id="b-heading">Bots — Free bots</h2>
-      <p class="muted">Handy, zero-cost utilities. No sign-in required.</p>
-
-      <div class="grid grid--cards" aria-live="polite">
-        <article class="card">
-          <h3>📄 Text Summarizer</h3>
-          <p>Drop in long text and get crisp, structured summaries with key bullets.</p>
-          <div><a class="btn btn--brand" href="#b-bots" data-track="bot-summarizer">Launch</a></div>
-        </article>
-        <article class="card">
-          <h3>🧪 Prompt Tuner</h3>
-          <p>Iterate prompts and compare responses side-by-side to find what works.</p>
-          <div><a class="btn btn--brand" href="#b-bots" data-track="bot-prompt-tuner">Launch</a></div>
-        </article>
-        <article class="card">
-          <h3>🔎 Regex Helper</h3>
-          <p>Craft and test regular expressions with instant feedback.</p>
-          <div><a class="btn btn--brand" href="#b-bots" data-track="bot-regex-helper">Launch</a></div>
-        </article>
-      </div>
-    </section>
-
-    <!-- A. AI MODELS (LLM TABLE) -->
-    <section id="a-models" class="section" aria-labelledby="a-heading">
-      <h2 id="a-heading">AI Models — Top LLMs</h2>
-      <p>Scan specs, compare models, and jump to official sources. Ranked by context window, then parameters.</p>
-
-      <div class="searchbar" role="search">
-        <input id="llmSearch" type="search" placeholder="Search models..." aria-label="Filter LLM models" autocomplete="off" inputmode="search" />
-        <span class="kb">Ranked by context window → parameters</span>
-      </div>
-
-      <div class="table-wrap" role="region" aria-label="LLM comparison table">
-        <table aria-describedby="a-heading">
-          <caption>Compare LLM specifications: parameters, context windows, and official sources</caption>
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Model</th>
-              <th scope="col" class="hide-sm">Provider</th>
-              <th scope="col">Params (B)</th>
-              <th scope="col">Context (K)</th>
-              <th scope="col">Link</th>
-            </tr>
-          </thead>
-          <tbody id="llm-tbody"></tbody>
-        </table>
       </div>
     </section>
 
@@ -395,15 +408,16 @@
     <div class="hr" role="separator" aria-hidden="true"></div>
 
     <!-- FOOTER -->
-    <section aria-label="Footer" class="section">
+    <section aria-label="Footer" class="section site-footer" role="contentinfo">
       <nav class="footer" aria-label="Secondary">
         <ul class="list--clean">
           <li><a href="#a-models" data-track="footer-a-models">A. AI Models</a></li>
           <li><a href="#b-bots" data-track="footer-b-bots">B. Bots</a></li>
           <li><a href="#c-crypto" data-track="footer-c-crypto">C. Cryptorka</a></li>
+          <li><a href="#main" data-track="footer-top">Back to top</a></li>
         </ul>
       </nav>
-      <p class="foot-note">© 2025 PABLOBOT. Model data sourced from official documentation.</p>
+      <p class="foot-note">© 2025 PABLOBOT · Model data from official documentation.</p>
     </section>
   </main>
 
@@ -462,6 +476,12 @@
 
   <button id="fab-newsletter" class="fab" aria-label="Subscribe to newsletter" data-track="fab-newsletter">📬</button>
   <a class="top-link" href="#a-models" aria-label="Back to top" data-track="back-to-top">↑</a>
+
+  <!-- Sticky dual CTA bar -->
+  
+
+  <!-- Toast for copy/share feedback -->
+  <div id="pg-toast" class="pg-toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <!-- App JS -->
   <script src="app.js" defer></script>

@@ -1,3 +1,5 @@
+"use strict";
+
 /* PABLOBOT - Production JS (ES Module, zero deps)
    - gtag + trackClick retained
    - No Supabase
@@ -236,6 +238,21 @@ const DATA = {
         { t: "Bigtable", url: "https://research.google/pubs/pub45351/", note: "Google's distributed storage system. (2006)" },
         { t: "MapReduce", url: "https://research.google/pubs/pub36726/", note: "Large-scale data processing model. (2004)" }
       ]
+    },
+    {
+      title: "AI History Milestones",
+      items: [
+        { t: "Turing (1950): Computing Machinery and Intelligence (Turing Test)", url: "https://en.wikipedia.org/wiki/Turing_test", note: "Defines the Imitation Game." },
+        { t: "Turing (1936): On Computable Numbers (Halting Problem)", url: "https://www.cs.ox.ac.uk/activities/ieg/e-library/sources/tp2-ie.pdf", note: "Introduces Turing machines and undecidability." },
+        { t: "McCulloch & Pitts (1943)", url: "https://en.wikipedia.org/wiki/Artificial_neuron#McCulloch%E2%80%93Pitts_neuron", note: "Formal neuron model for computation." },
+        { t: "Logic Theorist (1956)", url: "https://en.wikipedia.org/wiki/Logic_Theorist", note: "Early AI program proving theorems." },
+        { t: "Rosenblatt (1958): Perceptron", url: "https://en.wikipedia.org/wiki/Perceptron", note: "Foundational linear classifier / neural net." },
+        { t: "Weizenbaum (1966): ELIZA", url: "https://dl.acm.org/doi/10.1145/365153.365168", note: "Early NLP chatbot demonstrating conversation." },
+        { t: "Deep Blue (1997)", url: "https://www.research.ibm.com/articles/deep-blue", note: "IBM chess system defeats Kasparov." },
+        { t: "Watson/DeepQA (2011)", url: "https://dl.acm.org/doi/10.1145/2001186.2001189", note: "IBM Watson Jeopardy! system overview." },
+        { t: "AlexNet (2012)", url: "https://proceedings.neurips.cc/paper_files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf", note: "ImageNet CNN breakthrough." },
+        { t: "AlphaGo (2016)", url: "https://www.nature.com/articles/nature16961", note: "Deep nets + MCTS master Go." }
+      ]
     }
   ],
   timeline: [
@@ -451,13 +468,30 @@ function renderPaperGroups(){
   if (!root) return;
   root.innerHTML = "";
 
-  for (const group of DATA.paperGroups) {
-    const list = el("ul", { class: "list" });
+  // Merge the last two groups into a compact "Other" card (links only)
+  let groups = DATA.paperGroups.slice();
+  if (groups.length >= 4) {
+    const g3 = groups[2];
+    const g4 = groups[3];
+    const mergedItems = [];
+    if (g3 && Array.isArray(g3.items)) mergedItems.push(...g3.items.map(({ t, url }) => ({ t, url })));
+    if (g4 && Array.isArray(g4.items)) mergedItems.push(...g4.items.map(({ t, url }) => ({ t, url })));
+    groups = [groups[0], groups[1], { title: "📜Other", items: mergedItems }];
+  }
+
+  for (const group of groups) {
+    const normTitle = String(group.title || "").toLowerCase().replace(/^[^a-z]+/,'');
+    const isOther = (normTitle === "other");
+    const list = el("ul", { class: isOther ? "list list--compact" : "list" });
     for (const { t, url, note } of group.items) {
       const a = el("a", { href: url, target: "_blank", rel: "noopener noreferrer" }, t);
-      list.appendChild(el("li", {}, el("strong", {}, a), ` — ${note}`));
+      if (isOther) {
+        list.appendChild(el("li", {}, a));
+      } else {
+        list.appendChild(el("li", {}, el("strong", {}, a), ` — ${note}`));
+      }
     }
-    root.appendChild(el("div", { class: "card" }, el("h3", {}, group.title), list));
+    root.appendChild(el("div", { class: isOther ? "card card--compact" : "card" }, el("h3", {}, group.title), list));
   }
 }
 
@@ -486,42 +520,443 @@ function rankCryptos(list) {
 
 /* Render cryptos table (adds data-labels for responsive cards) */
 function renderCryptoTable() {
-  const tbody = $("#crypto-tbody");
-  if (!tbody) return;
+  // Build UL list directly from data
   const ranked = rankCryptos(CRYPTOS);
-  tbody.innerHTML = "";
-
-  for (const c of ranked) {
-    const tr = el("tr", { tabindex: "0" });
-    tr.innerHTML = `
-      <td data-label="#"><span class="rank" aria-label="Rank">${c._rank}</span></td>
-      <td data-label="Asset">
-        <div class="model">
-          <span class="emoji" aria-hidden="true">${c.emoji || "🪙"}</span>
-          <div>
-            <strong>${c.name} <span class="meta-pill">${c.symbol}</span></strong>
-            <div class="cell-note">${c.note || ""}</div>
-          </div>
-        </div>
-      </td>
-      <td class="hide-sm" data-label="Type">${c.type || "—"}</td>
-      <td data-label="Network">${c.network || "—"}</td>
-      <td data-label="Paper/Docs">
-        <a href="${c.paper}" target="_blank" rel="noopener"
-           class="crypto-whitepaper-link"
-           data-asset="${c.symbol}"
-           aria-label="Open ${c.name} paper/docs">Paper</a>
-      </td>
-      <td data-label="Dexscreener">
-        <a href="${c.dexscreener}" target="_blank" rel="noopener"
-           class="crypto-dexscreener-link"
-           data-asset="${c.symbol}"
-           aria-label="Open Dexscreener pairs for ${c.symbol}">Pairs</a>
-      </td>
-    `;
-    tbody.appendChild(tr);
+  const list = $("#crypto-list");
+  if (list) {
+    list.innerHTML = "";
+    for (const c of ranked) {
+      const li = document.createElement('li');
+      const row = document.createElement('div'); row.className = 'crypto-row';
+      const emoji = document.createElement('span'); emoji.className='emoji'; emoji.textContent = c.emoji || '💰';
+      const title = document.createElement('strong'); title.textContent = `${c.name} (${c.symbol})`;
+      row.appendChild(emoji); row.appendChild(title);
+      const meta = document.createElement('div'); meta.className='crypto-meta'; meta.textContent = `${c.type || ''} • ${c.network || ''}`;
+      const links = document.createElement('div'); links.className='crypto-links';
+      const a1 = document.createElement('a'); a1.href=c.paper; a1.target='_blank'; a1.rel='noopener'; a1.className='crypto-whitepaper-link'; a1.setAttribute('data-asset', c.symbol); a1.textContent='Paper';
+      const a2 = document.createElement('a'); a2.href=c.dexscreener; a2.target='_blank'; a2.rel='noopener'; a2.className='crypto-dexscreener-link'; a2.setAttribute('data-asset', c.symbol); a2.textContent='Pairs';
+      links.appendChild(a1); links.appendChild(a2);
+      li.appendChild(row); li.appendChild(meta); li.appendChild(links);
+      list.appendChild(li);
+    }
+    list.hidden = false;
   }
 }
+
+// Build wallets mobile list from existing table rows
+const WALLETS = [
+  { label: 'Hermes',   network: 'Solana',   emoji: '🪽', explorer: 'https://solscan.io/account/benRLpbWCL8P8t51ufYt522419hGF5zif3CqgWGbEUm' },
+  { label: 'Vulcan',   network: 'Solana',   emoji: '🔥', explorer: 'https://solscan.io/account/8L8qZp9KGSCYNYChYCNJ8NNkB296r2U7N9d9JcLmYRuG' },
+  { label: 'Poseidon', network: 'Solana',   emoji: '🔱', explorer: 'https://solscan.io/account/G5nxEXuFMfV74DSnsrSatqCW32F34XUnBeq3PfDS7w5E' },
+  { label: 'Zeus',     network: 'Ethereum', emoji: '⚡', explorer: 'https://etherscan.io/address/0xA7F3659c53820346176f7E0E350780DF304db179' },
+  { label: 'Hera',     network: 'Ethereum', emoji: '👑', explorer: 'https://etherscan.io/address/0xFB3BF33Ba8E5d08D87B0db0e46952144DF822833' }
+];
+
+function renderWalletsList(){
+  const list = document.querySelector('#wallets-list');
+  if (!list) return;
+  list.innerHTML = '';
+  WALLETS.forEach(w => {
+    const li = document.createElement('li');
+    const row = document.createElement('div'); row.className = 'crypto-row';
+    const emoji = document.createElement('span'); emoji.className = 'emoji'; emoji.textContent = w.emoji || '🐋';
+    const title = document.createElement('strong'); title.textContent = w.label;
+    row.appendChild(emoji); row.appendChild(title);
+    const meta = document.createElement('div'); meta.className='crypto-meta'; meta.textContent = w.network || '';
+    const links = document.createElement('div'); links.className='crypto-links';
+    if (w.explorer) {
+      const a = document.createElement('a'); a.href = w.explorer; a.target='_blank'; a.rel='noopener'; a.textContent='Explorer'; a.className='wallet-explorer-link';
+      links.appendChild(a);
+    }
+    li.appendChild(row); li.appendChild(meta); li.appendChild(links);
+    list.appendChild(li);
+  });
+  list.hidden = false;
+}
+
+/* ============================================================================
+   4A) PROMPT CAROUSEL (mobile-first, scroll-snap)
+   - Renders enriched cards with emoji, stats, tags, and actions
+   ========================================================================== */
+
+/* (removed) PROMPTS for carousel */
+/* const PROMPTS = [
+  {
+    rank: 1,
+    emojis: "🛰️💬🧵",
+    title: "Long-context executive distill",
+    blurb: "Boil a 100K-token transcript into decisions, owners, dates, risks.",
+    prompt: `Act as a Chief of Staff. Input: a very long meeting transcript.
+Output strictly as:
+1) A compact table (UTF-8) of 10 key decisions with {Decision, Rationale (≤12 words), Owner, Deadline (YYYY-MM-DD), Dependencies}.
+2) A 200-word executive brief (≤5 sentences, active voice).
+3) A bullet list of 5 unresolved risks, each with Mitigation (≤15 words) and Trigger (measurable).
+Rules:
+- Infer dates only if explicitly stated; otherwise write "TBD".
+- Merge duplicates; remove chatter.
+- No quotes, no speculation, no filler.
+- Keep total output ≤ 350 words excluding the table.`,
+    tags: ["long-context","ops","summary"],
+    link: "https://x.ai/"
+  },
+  {
+    rank: 2,
+    emojis: "🧠⚙️📈",
+    title: "Reasoning—finals only",
+    blurb: "Solve multi-step logic without exposing inner steps.",
+    prompt: `Solve the multi-step math/logic problem.
+Think privately; DO NOT reveal intermediate steps.
+Return exactly:
+• Final answer (on its own line)
+• Verification: 2 sentences that check key constraints without steps
+• If uncertainty remains: list the minimal extra data needed as 1–3 bullets; otherwise write "None".
+No other text, no chain-of-thought.`,
+    tags: ["reasoning","math"],
+    link: "https://api.deepseek.com/"
+  },
+  {
+    rank: 3,
+    emojis: "🦙🧰🌐",
+    title: "Llama mini-RAG blueprint",
+    blurb: "Sketch a pragmatic RAG with chunks, indexes, retrieval, rerank, evals.",
+    prompt: `Design a lightweight RAG for mixed PDFs + web pages.
+Deliverables:
+A) Architecture (bullets): ingest, chunking, embedding dims, index type, retrieval, rerank.
+B) Pseudocode snippets for: (1) ingestion & chunking, (2) indexing, (3) query → retrieve → rerank → answer.
+C) Evaluation plan: metrics (Precision@k, Recall@k, NDCG@k), dataset sketch, and pass thresholds.
+Constraints:
+- Chunking per type: PDF, code, HTML; justify overlap sizes.
+- Keep pseudocode language-agnostic; show function signatures and comments.
+- Include an ablation you would run first (1 paragraph).`,
+    tags: ["RAG","design"],
+    link: "https://ai.meta.com/llama/"
+  },
+  {
+    rank: 4,
+    emojis: "⚡️⌛️🧪",
+    title: "Dual-route latency planner",
+    blurb: "Specify FAST (<300ms) vs THOROUGH routes with trade-offs.",
+    prompt: `Propose two execution routes for the task:
+FAST:
+- Model, temperature, max_tokens, stop, expected latency (<300ms), expected failure modes, when to use.
+THOROUGH:
+- Model, temperature, max_tokens, stop, rerank/verification step, expected latency, quality wins, when to use.
+Then add:
+- Auto-router heuristic: 5 crisp rules for choosing the route.
+- Guardrails: 3 checks to cap token growth & prevent long tails.`,
+    tags: ["systems","routing"],
+    link: "#"
+  },
+  {
+    rank: 5,
+    emojis: "🧩🧪🔒",
+    title: "Adversarial safety battery",
+    blurb: "Six red-team cases with threat models & pass/fail.",
+    prompt: `Produce 6 adversarial test cases that attempt jailbreaks while remaining within policy.
+For each case include:
+- Threat model (vector, user intent, model weakness targeted)
+- Prompt (1–2 lines)
+- Expected safe behavior
+- Pass/Fail criteria (observable, binary)
+Cover categories: obfuscation, roleplay, multi-turn escalation, multilingual pivot, code execution lure, and ambiguous medical/legal advice.
+No disallowed content in examples.`,
+    tags: ["safety","evals"],
+    link: "#"
+  },
+  {
+    rank: 6,
+    emojis: "🗺️🌍🗣️",
+    title: "Tri-locale launch brief",
+    blurb: "Localize to EN-US, ZH-CN, ES-MX + tone guide.",
+    prompt: `Rewrite the announcement for:
+1) United States (EN-US),
+2) Mainland China (ZH-CN, Simplified),
+3) Mexico (ES-MX).
+Keep meaning; localize idioms, units, holidays, and formality.
+Deliver:
+- Tone guide table per locale: {Formality, Energy, Key idioms, Taboo topics to avoid, CTA style}.
+- Three localized versions (≤150 words each), each with a 10-word headline and a 1-line CTA.
+- Note any claims that need re-verification for each locale.`,
+    tags: ["i18n","localization"],
+    link: "#"
+  },
+  {
+    rank: 7,
+    emojis: "🧑‍💻📦🧪",
+    title: "Refactor + test harness",
+    blurb: "Clean code, document, and add table-driven tests.",
+    prompt: `Given the function, produce:
+A) Refactored code: readable, O(Big-O) unchanged or better, pure where possible, clear names.
+B) Docstring: purpose, params, returns, errors, examples.
+C) Edge cases handled explicitly (list).
+D) Table-driven unit tests (incl. pathological inputs and property-like checks).
+E) Comment complex lines with intent (why, not what).
+Return only code blocks for A and D, and brief bullets for B/C/E.`,
+    tags: ["code","testing"],
+    link: "#"
+  },
+  {
+    rank: 8,
+    emojis: "📚🧪📊",
+    title: "Balanced eval set for QA",
+    blurb: "50 items × 5 tiers × 3 domains with rubrics.",
+    prompt: `Generate 50 QA items across 3 domains (e.g., product, data, reasoning) and 5 difficulty tiers (1=trivial…5=expert).
+For each item include:
+- task_type, domain, difficulty(1–5), prompt, expected_answer, rubric (3–5 bullet criteria), pitfalls (2 bullets).
+Balance:
+- ~16/17 items per domain; 10 per difficulty evenly distributed (allow ±1).
+- Include 20% adversarial/edge cases.
+Deliver as a compact UTF-8 table plus a JSON export array.`,
+    tags: ["evals","synthetic"],
+    link: "#"
+  },
+  {
+    rank: 9,
+    emojis: "🔍🧭📑",
+    title: "Policy QA navigator",
+    blurb: "Answer under policy with cited sections.",
+    prompt: `Given a policy document with section IDs, answer user queries.
+If the query conflicts with policy: decline and propose a safe alternative.
+Always cite sections as [§ID] adjacent to the relevant sentence.
+Output:
+1) Answer or Decline (2–5 sentences, precise)
+2) Cited sections (list)
+3) Rationale (1–2 sentences)
+No extra commentary.`,
+    tags: ["policy","guardrails"],
+    link: "#"
+  },
+  {
+    rank: 10,
+    emojis: "🧾✍️🎯",
+    title: "One-page PRD distiller",
+    blurb: "Turn messy notes into a crisp PRD (≤600 words).",
+    prompt: `From notes, create a one-pager PRD with headings:
+- Problem
+- Goals (SMART, 3–5 bullets)
+- Non-Goals (3–5 bullets)
+- Users & JTBD (2 personas, 2 scenarios each)
+- Requirements (Must/Should/Could with acceptance tests)
+- Risks (top 3 with mitigations)
+- Success Metrics (north star + 3 leading)
+Hard cap 600 words. Use short sentences. No fluff.`,
+    tags: ["pm","docs"],
+    link: "#"
+  },
+  {
+    rank: 11,
+    emojis: "📈🗂️🔎",
+    title: "Prose→ANSI SQL + self-check",
+    blurb: "Translate a question to SQL and add a validator query.",
+    prompt: `Input: schema + plain-English question.
+Output:
+1) Main ANSI SQL query solving the task.
+2) A second SQL query that validates the first via row-counts, ranges, or consistency checks.
+3) One sentence on assumptions; if any table/column is missing, state "Assumption: …".
+No explanatory prose beyond the above.`,
+    tags: ["data","sql"],
+    link: "#"
+  },
+  {
+    rank: 12,
+    emojis: "🧠🕵️‍♀️🧪",
+    title: "Hallucination label & rewrite",
+    blurb: "Tag FACT/UNSUPPORTED/SPECULATIVE, then purge fluff.",
+    prompt: `Given an answer, label each sentence as:
+- FACT (include source or citation tag),
+- UNSUPPORTED,
+- SPECULATIVE.
+Then provide a revised version containing only verified FACT content.
+Format:
+1) Labeled list (one line per sentence)
+2) Revised answer (≤150 words)`,
+    tags: ["quality","audit"],
+    link: "#"
+  },
+  {
+    rank: 13,
+    emojis: "🎭🗣️✨",
+    title: "Brand voice mimicry kit",
+    blurb: "Infer voice from 3 samples; output guide + rewrite.",
+    prompt: `From 3 brand samples:
+A) Create a style guide with: Tone, Syntax patterns, Signature phrases, Do/Don't lexicon, Sentence length, Pacing, Imagery level.
+B) Rewrite the new copy in that voice (≤120 words).
+C) Provide a 5-item checklist to QA future content for fit.
+Avoid verbatim reuse unless required by trademarks.`,
+    tags: ["marketing","style"],
+    link: "#"
+  },
+  {
+    rank: 14,
+    emojis: "🧱🔗📦",
+    title: "Chunking strategy picker",
+    blurb: "Pick chunk sizes/overlap per doc type with heuristics.",
+    prompt: `For document types {PDF, code, HTML}, recommend:
+- Chunk sizes & overlaps
+- Section-aware splitting rules
+- Heuristics (e.g., heading depth, table detection, code blocks)
+- Trade-offs (recall vs precision) and when to rerank
+Then propose a small experiment matrix (3 configs) and the metric you’d choose to ship.
+Be concrete and justify choices.`,
+    tags: ["RAG","chunking"],
+    link: "#"
+  },
+  {
+    rank: 15,
+    emojis: "🧭🧯🧑‍⚖️",
+    title: "Cross-functional risk review",
+    blurb: "Top 7 Legal/Privacy/Brand risks with owners & mitigations.",
+    prompt: `From the plan, list the top 7 risks spanning Legal, Privacy, and Brand (at least 2 per area).
+For each: Title, Area, Severity(1–5), Likelihood(1–5), Owner, Mitigation (≤12 words), Early-warning signal, Residual risk.
+End with a 3-line summary: what to monitor, decision needed, and date of next review.`,
+    tags: ["risk","review"],
+    link: "#"
+  }
+]; */
+
+/* function renderPromptCarousel(){
+  const root = document.getElementById("prompt-carousel");
+  if (!root) return;
+
+  root.innerHTML = "";
+
+  const viewport = el("div", { class: "carousel__viewport", role: "region", "aria-roledescription": "carousel", "aria-label": "Prompt Templates" });
+  const track = el("div", { class: "carousel__track" });
+  viewport.appendChild(track);
+
+  const controls = el("div", { class: "carousel__controls" },
+    el("button", { class: "carousel__btn", type: "button", "aria-label": "Previous", "data-dir": "prev" }, "‹"),
+    el("button", { class: "carousel__btn", type: "button", "aria-label": "Next", "data-dir": "next" }, "›")
+  );
+  const dots = el("div", { class: "carousel__dots", role: "tablist", "aria-label": "Pagination" });
+
+  // Build slides
+  const n = PROMPTS.length;
+  const slides = [];
+  for (let i = 0; i < n; i++) {
+    const p = PROMPTS[i];
+    const words = String(p.prompt || "").trim().split(/\s+/).filter(Boolean).length;
+    const tagCount = Array.isArray(p.tags) ? p.tags.length : 0;
+
+    const card = el("article", { class: "card prompt-card" },
+      el("div", { class: "prompt-card__head" },
+        el("div", { class: "prompt-card__emoji", "aria-hidden": "true" }, p.emojis || "✨"),
+        el("div", {},
+          el("h3", { class: "prompt-card__title" }, p.title || "Untitled"),
+          el("p", { class: "prompt-card__blurb" }, p.blurb || "")
+        )
+      ),
+      el("div", { class: "prompt-stats" },
+        el("span", { class: "stat" }, el("b", {}, `#${p.rank ?? (i + 1)}`), " rank"),
+        el("span", { class: "stat" }, el("b", {}, String(tagCount)), " tags"),
+        el("span", { class: "stat" }, el("b", {}, String(words)), " words")
+      ),
+      el("div", { class: "chips" }, ...(p.tags || []).map(t => el("span", { class: "chip" }, t))),
+      el("div", { class: "prompt-card__actions" },
+        el("button", { class: "btn btn--ghost", type: "button", "data-action": "copy", "data-idx": String(i) }, "Copy Prompt"),
+        p.link ? el("a", { class: "btn btn--brand", href: p.link, target: "_blank", rel: "noopener", "data-action": "open", "data-idx": String(i) }, "Open") : null
+      )
+    );
+
+    const slide = el("div", { class: "carousel__slide", role: "group", "aria-label": `${i + 1} of ${n}` }, card);
+    track.appendChild(slide);
+    slides.push(slide);
+  }
+
+  root.appendChild(viewport);
+  root.appendChild(controls);
+  root.appendChild(dots);
+
+  // Helpers
+  const getPositions = () => slides.map(s => s.offsetLeft);
+  const getSlideIndexNear = () => {
+    const x = viewport.scrollLeft;
+    let best = 0, min = Infinity;
+    positions.forEach((left, idx) => { const d = Math.abs(left - x); if (d < min) { min = d; best = idx; } });
+    return best;
+  };
+  const pageSize = () => {
+    const first = slides[0];
+    const w = first ? first.getBoundingClientRect().width : viewport.clientWidth;
+    return Math.max(1, Math.round(viewport.clientWidth / Math.max(1, w)));
+  };
+  const pagesCount = () => Math.ceil(slides.length / pageSize());
+  const toIndex = (idx) => {
+    const clamped = Math.max(0, Math.min(slides.length - 1, idx));
+    viewport.scrollTo({ left: slides[clamped].offsetLeft, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    updateDots();
+  };
+  const toPage = (pg) => toIndex(pg * pageSize());
+
+  // Dots
+  const buildDots = () => {
+    dots.innerHTML = "";
+    const pages = pagesCount();
+    for (let i = 0; i < pages; i++) {
+      const b = el("button", { class: "carousel__dot", type: "button", role: "tab", "aria-label": `Go to page ${i + 1}`, "data-page": String(i) });
+      dots.appendChild(b);
+    }
+    updateDots();
+  };
+  const updateDots = () => {
+    const currSlide = getSlideIndexNear();
+    const ps = pageSize();
+    const page = Math.floor(currSlide / ps);
+    Array.from(dots.children).forEach((d, i) => d.setAttribute("aria-current", i === page ? "true" : "false"));
+  };
+
+  // Events
+  let positions = getPositions();
+  viewport.addEventListener("scroll", debounce(updateDots, 60), { passive: true });
+  window.addEventListener("resize", debounce(() => { positions = getPositions(); buildDots(); updateDots(); }, 120), { passive: true });
+
+  controls.addEventListener("click", (e) => {
+    const btn = e.target.closest(".carousel__btn");
+    if (!btn) return;
+    const dir = btn.getAttribute("data-dir");
+    const currSlide = getSlideIndexNear();
+    const ps = pageSize();
+    const currPage = Math.floor(currSlide / ps);
+    const nextPage = dir === "prev" ? Math.max(0, currPage - 1) : Math.min(pagesCount() - 1, currPage + 1);
+    toPage(nextPage);
+  });
+
+  dots.addEventListener("click", (e) => {
+    const dot = e.target.closest(".carousel__dot");
+    if (!dot) return;
+    const p = parseInt(dot.getAttribute("data-page") || "0", 10);
+    toPage(p);
+  });
+
+  // Copy / Open actions (delegated)
+  root.addEventListener("click", async (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.getAttribute('data-action');
+    const idx = parseInt(btn.getAttribute('data-idx') || '0', 10);
+    const item = PROMPTS[idx];
+    if (!item) return;
+
+    if (action === 'copy') {
+      try {
+        await navigator.clipboard?.writeText(item.prompt || '');
+        const prev = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = prev; }, 1200);
+        trackClick('button', 'prompt-copy', { rank: item.rank, title: item.title });
+      } catch(err) {
+        alert('Copy failed. Select and copy manually.');
+      }
+    }
+    if (action === 'open') {
+      trackClick('external-link', 'prompt-open-link', { rank: item.rank, title: item.title, url: item.link || null });
+    }
+  });
+
+  // Initial
+  buildDots();
+  updateDots();
+} */
 
 /* ============================================================================
    5) INTERACTIONS — LLM TABLE
@@ -809,48 +1244,32 @@ function setupCryptorkaTabs(){
   const tabWallets   = $("#tab-wallets");
   const panelStables = $("#panel-stables");
   const panelWallets = $("#panel-wallets");
-  const search       = $("#cryptoSearch");
+  const search       = $("#cryptoSearch"); // may be absent
   const hint         = $("#cryptoSearchHint");
 
-  if (!tabStables || !tabWallets || !panelStables || !panelWallets || !search) return;
+  if (!tabStables || !tabWallets || !panelStables || !panelWallets) return;
 
-  function applyFilter(q){
-    const query = (q || "").toLowerCase();
+    function applyFilter(q){
+      const query = (q || "").toLowerCase();
 
-    // Filter current visible panel rows
-    if (!panelStables.hidden) {
+      // Filter current visible panel rows
+      if (!panelStables.hidden) {
       $$("#crypto-tbody tr").forEach(tr => {
         tr.style.display = tr.innerText.toLowerCase().includes(query) ? "" : "none";
       });
-    } else {
+      $$("#crypto-list li").forEach(li => {
+        li.style.display = li.innerText.toLowerCase().includes(query) ? "" : "none";
+      });
+      } else {
       $$("#wallets-tbody tr").forEach(tr => {
         tr.style.display = tr.innerText.toLowerCase().includes(query) ? "" : "none";
       });
-    }
-
-    // results chip
-    let chip = $("#crypto-search-results");
-    if (query) {
-      const container = panelStables.hidden ? "#wallets-tbody" : "#crypto-tbody";
-      const visible = $$(container + " tr").filter(tr => tr.style.display !== "none").length;
-      const msg = `${visible} item${visible === 1 ? "" : "s"} found`;
-      if (!chip) {
-        chip = el("span", { id:"crypto-search-results", class:"search-results" }, msg);
-        search.parentElement.appendChild(chip);
-      } else {
-        chip.textContent = msg;
+      $$("#wallets-list li").forEach(li => {
+        li.style.display = li.innerText.toLowerCase().includes(query) ? "" : "none";
+      });
       }
 
-      clearTimeout(applyFilter._t);
-      applyFilter._t = setTimeout(() => {
-        trackClick("search", "crypto-shared-search", {
-          tab: panelWallets.hidden ? "stables" : "wallets",
-          search_query: query
-        });
-      }, 800);
-    } else {
-      chip?.remove();
-    }
+    // Search removed; no results chip
   }
 
   function setActive(which){
@@ -867,12 +1286,10 @@ function setupCryptorkaTabs(){
     panelStables.hidden = !isStables;
     panelWallets.hidden = isStables;
 
-    if (hint) hint.textContent = isStables
-      ? "Sorted by type (Stablecoin → Layer 1), then name"
-      : "Sorted alphabetically by label";
+    if (hint) hint.textContent = '';
 
     trackClick("navigation", "crypto-tab-change", { tab: which });
-    applyFilter(search.value.trim());
+    applyFilter('');
   }
 
   tabStables.addEventListener("click", () => setActive("stables"));
@@ -892,7 +1309,7 @@ function setupCryptorkaTabs(){
       else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); document.activeElement.click(); }
   });
 
-  search.addEventListener("input", () => applyFilter(search.value.trim()));
+  // Search removed for prod simplicity
 
   // DEFAULT: show wallets unless URL explicitly requests ?tab=stables
   const p = new URLSearchParams(location.search);
@@ -1168,16 +1585,83 @@ function initScrollHints(wrappers) {
   window.addEventListener('resize', onResize, { passive: true });
 }
 
-/* Ensure buttons/links meet 44px tap target without changing layout semantics */
+/* Ensure buttons/links meet ~40px tap target without changing layout semantics */
 function ensureTapTargets() {
-  const sels = ['.btn', 'button', '[role="button"]', 'a.btn', 'nav.primary a', '.nav-btn'];
+  const sels = ['.btn', 'button', '.tab', '[role="button"], a.btn', 'nav.primary a', '.nav-btn'];
   const els = sels.flatMap((s) => Array.from(document.querySelectorAll(s)));
   els.forEach((el) => {
     if (!el || !el.isConnected) return;
     const rect = el.getBoundingClientRect();
-    if (rect && rect.height > 0 && rect.height < 44) {
+    if (rect && rect.height > 0 && rect.height < 40) {
       el.classList.add('hit-boost');
     }
+  });
+}
+
+/* Ensure target="_blank" links get rel="noopener" for security */
+function ensureNoopener(){
+  try {
+    document.querySelectorAll('a[target="_blank"]').forEach((a)=>{
+      const rel = (a.getAttribute('rel')||'').toLowerCase();
+      if (!/noopener/.test(rel)) a.setAttribute('rel', (rel? rel+' ' : '') + 'noopener');
+    });
+  } catch(_) {}
+}
+
+/* Data-attribute based scroll shadows on .table-wrap (disabled ≤560px) */
+const __CARD_MODE_MQ = window.matchMedia('(max-width: 560px)');
+function updateWrapShadows(wrap) {
+  if (!wrap) return;
+  if (__CARD_MODE_MQ.matches) {
+    wrap.removeAttribute('data-shadow-left');
+    wrap.removeAttribute('data-shadow-right');
+    return;
+  }
+  const canScroll = wrap.scrollWidth - wrap.clientWidth > 1;
+  if (!canScroll) {
+    wrap.removeAttribute('data-shadow-left');
+    wrap.removeAttribute('data-shadow-right');
+    return;
+  }
+  const atStart = wrap.scrollLeft <= 1;
+  const atEnd = wrap.scrollLeft + wrap.clientWidth >= wrap.scrollWidth - 1;
+  wrap.setAttribute('data-shadow-left', String(!atStart));
+  wrap.setAttribute('data-shadow-right', String(!atEnd));
+}
+function initWrapShadows(wrappers) {
+  const onScroll = __rafThrottle((e) => updateWrapShadows(e.currentTarget));
+  wrappers.forEach((wrap) => {
+    updateWrapShadows(wrap);
+    wrap.addEventListener('scroll', onScroll, { passive: true });
+  });
+  const onResize = debounce(() => wrappers.forEach(updateWrapShadows), 150);
+  window.addEventListener('resize', onResize, { passive: true });
+  __CARD_MODE_MQ.addEventListener?.('change', () => wrappers.forEach(updateWrapShadows));
+}
+
+/* Search clear (×) button for search inputs without changing layout height */
+function initSearchClear() {
+  const inputs = ['#cryptoSearch', '#llmSearch']
+    .map((sel) => document.querySelector(sel))
+    .filter(Boolean);
+  inputs.forEach((input) => {
+    const bar = input.closest('.searchbar') || input.parentElement;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Clear search');
+    Object.assign(btn.style, {
+      position: 'absolute', insetInlineEnd: '10px', insetBlockStart: '50%', transform: 'translateY(-50%)',
+      minInlineSize: '32px', minBlockSize: '32px', border: 'none', borderRadius: '8px', background: 'transparent', cursor: 'pointer',
+      display: 'none', alignItems: 'center', justifyContent: 'center', padding: '0', fontSize: '20px', lineHeight: '1', opacity: '0.6'
+    });
+    btn.textContent = '×';
+    const toggle = () => { btn.style.display = input.value ? 'inline-flex' : 'none'; };
+    btn.addEventListener('click', () => { input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true })); input.focus(); toggle(); });
+    input.addEventListener('input', toggle, { passive: true });
+    input.addEventListener('focus', toggle, { passive: true });
+    input.addEventListener('blur', toggle, { passive: true });
+    if (bar && input.nextSibling) { bar.insertBefore(btn, input.nextSibling); } else if (bar) { bar.appendChild(btn); }
+    toggle();
   });
 }
 
@@ -1187,11 +1671,13 @@ function ensureTapTargets() {
 
 document.addEventListener("DOMContentLoaded", () => {
   /* Render content */
+  // (carousel removed)
   renderLLMTable();
   renderPapersCore();
   renderPaperGroups();
   renderTimeline();
   renderCryptoTable();
+  renderWalletsList();
 
   /* Bind global interactions */
   bindLLMOfficialClickTracking();
@@ -1216,16 +1702,20 @@ document.addEventListener("DOMContentLoaded", () => {
   initTopLink();
   initGotoParam();
   ensureTableDataLabels();
-  /* Mobile: wrap any stray tables and show scroll hints */
+  ensureNoopener();
+  /* Mobile: wrap any stray tables and show scroll hints + edge fades */
   const __wraps = wrapTables();
   initScrollHints(__wraps);
+  initWrapShadows(__wraps);
   ensureTapTargets();
+  initSearchClear();
   window.addEventListener('resize', debounce(ensureTapTargets, 150), { passive: true });
   /* Defensive: if dynamic nodes get injected later, wrap/hint new tables */
   if ('MutationObserver' in window) {
     const mo = new MutationObserver(debounce(() => {
       const newWraps = wrapTables();
       newWraps.forEach(updateScrollHints);
+      newWraps.forEach(updateWrapShadows);
       ensureTapTargets();
     }, 120));
     mo.observe(document.documentElement, { childList: true, subtree: true });
@@ -1421,5 +1911,502 @@ async function handleSubscribe(email) {
     document.addEventListener('DOMContentLoaded', start, { once: true });
   } else {
     start();
+  }
+})();
+/* Vanilla JS enhancements:
+   1) Adds scroll edge-hint shadows on wider screens.
+   2) Ensures every table is wrapped (safety) without altering your HTML if it already is.
+*/
+(() => {
+  const WRAP_SELECTOR = '.table-wrap';
+
+  // 1) Ensure wrap exists (defensive; your HTML already has it)
+  document.querySelectorAll('table').forEach(tbl => {
+    const parent = tbl.parentElement;
+    if (!parent || !parent.classList || !parent.classList.contains('table-wrap')) {
+      const wrap = document.createElement('div');
+      wrap.className = 'table-wrap';
+      parent?.insertBefore(wrap, tbl);
+      wrap.appendChild(tbl);
+    }
+  });
+
+  // 2) Scroll shadow logic for non-card (wide) mode
+  const wraps = Array.from(document.querySelectorAll(WRAP_SELECTOR));
+
+  const setShadows = (el) => {
+    // If we’re in card mode (<=560px), bail (CSS hides shadows then)
+    if (window.matchMedia('(max-width: 560px)').matches) {
+      el.removeAttribute('data-shadow-left');
+      el.removeAttribute('data-shadow-right');
+      return;
+    }
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    const maxLeft = 2; // small epsilon to hide shadow when at the edge
+    const atStart = scrollLeft <= maxLeft;
+    const atEnd = scrollLeft + clientWidth >= scrollWidth - maxLeft;
+
+    el.setAttribute('data-shadow-left', (!atStart).toString());
+    el.setAttribute('data-shadow-right', (!atEnd).toString());
+  };
+
+  const attach = (el) => {
+    setShadows(el);
+    el.addEventListener('scroll', () => setShadows(el), { passive: true });
+  };
+
+  // Initialize all wraps
+  wraps.forEach(attach);
+
+  // Recompute on resize (debounced with rAF)
+  let raf = 0;
+  const onResize = () => {
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => wraps.forEach(setShadows));
+  };
+  window.addEventListener('resize', onResize, { passive: true });
+})();
+
+// === searchbar-mini.js (optional: adds a small clear “×” when typing) ===
+(() => {
+  const input = document.getElementById('cryptoSearch');
+  const bar = input?.closest('.searchbar');
+  if (!input || !bar) return;
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.setAttribute('aria-label','Clear');
+  btn.textContent = '×';
+  Object.assign(btn.style, {
+    position:'absolute', insetInlineEnd:'0.5rem', insetBlockStart:'50%',
+    transform:'translateY(-50%)', display:'none',
+    minWidth:'36px', minHeight:'36px', border:'0', background:'transparent',
+    cursor:'pointer', borderRadius:'6px'
+  });
+
+  const holder = document.createElement('span');
+  holder.style.position = 'relative';
+  input.insertAdjacentElement('afterend', holder);
+  holder.appendChild(btn);
+
+  const toggle = () => { btn.style.display = input.value ? 'inline-block' : 'none'; };
+  btn.addEventListener('click', () => { input.value=''; input.dispatchEvent(new Event('input',{bubbles:true})); input.focus({preventScroll:true}); toggle(); });
+  input.addEventListener('input', toggle);
+  input.addEventListener('focus', toggle);
+  input.addEventListener('blur', toggle);
+  toggle();
+})();
+
+// PG: Prompt Gallery (namespaced, no globals)
+(() => {
+  // Keep URLs unlinked for now per request
+  const FREE_URL = '#';
+  const PRO_URL = '#';
+
+  const $ = (sel, ctx=document) => ctx.querySelector(sel);
+  const grid = $('#pg-grid');
+  const searchEl = $('#pg-search');
+  const sortEl = $('#pg-sort');
+  const clearEl = $('#pg-clear');
+  const statusEl = $('#pg-status');
+  const schemaEl = $('#pg-schema');
+  const ctaFree = $('#pg-free-cta');
+  const ctaPro = $('#pg-pro-cta');
+  const stickyFree = $('#pg-sticky-free');
+  const stickyPro = $('#pg-sticky-pro');
+  const stickyBar = $('#pg-sticky');
+  const toastEl = $('#pg-toast');
+
+  const hrefAttr = (a) => (a ? a.getAttribute('href') || '' : '');
+  if (ctaFree && (!hrefAttr(ctaFree) || hrefAttr(ctaFree) === '#')) ctaFree.href = FREE_URL;
+  if (ctaPro && (!hrefAttr(ctaPro) || hrefAttr(ctaPro) === '#')) ctaPro.href = PRO_URL;
+  if (stickyFree && (!hrefAttr(stickyFree) || hrefAttr(stickyFree) === '#')) stickyFree.href = FREE_URL;
+  if (stickyPro && (!hrefAttr(stickyPro) || hrefAttr(stickyPro) === '#')) stickyPro.href = PRO_URL;
+
+  // Disable navigation for CTAs until URLs are finalized
+  function disableNav(a){
+    if (!a) return;
+    const href = hrefAttr(a);
+    if (href && href !== '#') return; // only disable if placeholder
+    a.setAttribute('aria-disabled','true');
+    a.addEventListener('click', (e)=>{ e.preventDefault(); if (statusEl) statusEl.textContent = 'Coming soon'; });
+  }
+  disableNav(ctaFree);
+  disableNav(ctaPro);
+  disableNav(stickyFree);
+  disableNav(stickyPro);
+
+  if (!grid || !searchEl || !sortEl || !clearEl || !schemaEl) return;
+
+  let fullAll = [];
+  let featured = [];
+  let filtered = [];
+
+  function safeText(v) { return v == null ? '' : String(v); }
+  function pgSlug(s){ return safeText(s).toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,''); }
+  function titleOf(x) {
+    return `${safeText(x.verb)} ${safeText(x.noun)}`.trim().replace(/\s+/g,' ');
+  }
+  function emojiFor(x){
+    const v = safeText(x.verb).toLowerCase();
+    const c = safeText(x.category).toLowerCase();
+    if (c.includes('learn') || c.includes('educ')) return '🎓';
+    if (c.includes('brain') || c.includes('idea')) return '💡';
+    if (c.includes('creat')) return '🎨';
+    if (v.includes('explain')) return '🧠';
+    if (v.includes('generate') || v.includes('create')) return '✨';
+    if (v.includes('plan')) return '🗺️';
+    if (v.includes('summar')) return '📝';
+    return '🔹';
+  }
+  function scoreText(s){
+    const n = Number(s);
+    if (Number.isFinite(n)) return (Math.round(n*100)/100).toString();
+    return '';
+  }
+  function metaChips(x){
+    const chips = [];
+    const add = (label, val, aria) => {
+      const span = document.createElement('span');
+      span.className = 'pg-chip';
+      span.textContent = `${label} ${val}`.trim();
+      if (aria) span.setAttribute('aria-label', aria);
+      chips.push(span);
+    };
+    if (x.length) add('⏱', x.length, `Length ${x.length}`);
+    if (x.temperature != null) add('🌡', x.temperature, `Temperature ${x.temperature}`);
+    if (x.max_tokens != null) add('🔢', x.max_tokens, `Max tokens ${x.max_tokens}`);
+    if (x.goal) add('🎯', x.goal, `Goal ${x.goal}`);
+    return chips;
+  }
+
+  function badge(label) {
+    const s = document.createElement('span');
+    s.className = 'pg-badge';
+    s.textContent = label;
+    return s;
+  }
+
+  function copyText(text) {
+    return navigator.clipboard?.writeText(text).catch(() => Promise.reject());
+  }
+
+  async function shareText(title, text) {
+    if (navigator.share) {
+      try { await navigator.share({ title, text }); return 'shared'; } catch {}
+    }
+    try { await copyText(text); return 'copied'; } catch { return 'error'; }
+  }
+
+  function render(items) {
+    grid.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    items.forEach((x, idx) => {
+      const art = document.createElement('article');
+      art.className = 'pg-card';
+      art.setAttribute('aria-labelledby', `pg-t-${idx}`);
+      if (x.category) art.setAttribute('data-pg-cat', pgSlug(x.category));
+
+      const header = document.createElement('div');
+      header.className = 'pg-header';
+      const headLeft = document.createElement('div');
+      headLeft.className = 'pg-head-left';
+      const emoji = document.createElement('span');
+      emoji.className = 'pg-emoji';
+      emoji.setAttribute('aria-hidden','true');
+      emoji.textContent = emojiFor(x);
+      const h = document.createElement('h3');
+      h.className = 'pg-title';
+      h.id = `pg-t-${idx}`;
+      h.textContent = titleOf(x) || 'Prompt';
+      headLeft.appendChild(emoji);
+      headLeft.appendChild(h);
+      header.appendChild(headLeft);
+
+      const subject = document.createElement('p');
+      subject.className = 'pg-subject';
+      subject.textContent = safeText(x.subject);
+
+      const promptBox = document.createElement('div');
+      promptBox.className = 'pg-prompt';
+      promptBox.setAttribute('data-open','false');
+      const preId = `pg-pre-${idx}`;
+      const pre = document.createElement('pre');
+      pre.className = 'pg-pre';
+      pre.id = preId;
+      pre.textContent = safeText(x.rendered_prompt);
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'pg-toggle';
+      toggle.setAttribute('aria-controls', preId);
+      toggle.setAttribute('aria-expanded','false');
+      toggle.textContent = 'Show prompt';
+      toggle.addEventListener('click', () => {
+        const isOpen = promptBox.getAttribute('data-open') === 'true';
+        const next = !isOpen;
+        promptBox.setAttribute('data-open', String(next));
+        toggle.setAttribute('aria-expanded', String(next));
+        toggle.textContent = next ? 'Hide' : 'Show prompt';
+      });
+      promptBox.appendChild(pre);
+      promptBox.appendChild(toggle);
+
+      const meta = document.createElement('div');
+      meta.className = 'pg-meta';
+      metaChips(x).forEach(c => meta.appendChild(c));
+
+      const actions = document.createElement('div');
+      actions.className = 'pg-actions';
+      const btnCopy = document.createElement('button');
+      btnCopy.type = 'button';
+      btnCopy.className = 'pg-action';
+      btnCopy.setAttribute('aria-label','Copy prompt');
+      btnCopy.textContent = 'Copy Prompt';
+      btnCopy.addEventListener('click', async () => {
+        const ok = await copyText(safeText(x.rendered_prompt)).then(()=>true,()=>false);
+        if (ok) {
+          statusEl.textContent = 'Copied to clipboard';
+          btnCopy.classList.add('pg-ok');
+          const old = btnCopy.textContent;
+          btnCopy.textContent = 'Copied ✓';
+          pre.classList.add('pg-pre--flash');
+          // GA4 minimal: copy_prompt
+          try { gtag('event','copy_prompt',{ label: titleOf(x) || 'Prompt', rank: idx+1, location:'card' }); } catch {}
+          showToast('Copied ✓');
+          setTimeout(() => {
+            btnCopy.classList.remove('pg-ok');
+            btnCopy.textContent = old;
+            pre.classList.remove('pg-pre--flash');
+          }, 1200);
+        } else {
+          statusEl.textContent = 'Copy failed';
+          showToast('Copy failed');
+        }
+      });
+      const btnShare = document.createElement('button');
+      btnShare.type = 'button';
+      btnShare.className = 'pg-action';
+      btnShare.setAttribute('aria-label','Share prompt');
+      btnShare.textContent = 'Share';
+      btnShare.addEventListener('click', async () => {
+        const mode = await shareText(titleOf(x) || 'Prompt', safeText(x.rendered_prompt));
+        if (mode === 'shared') {
+          statusEl.textContent = 'Shared ✓';
+          btnShare.classList.add('pg-ok');
+          const old = btnShare.textContent; btnShare.textContent = 'Shared ✓';
+          // GA4 minimal: share_prompt
+          try { gtag('event','share_prompt',{ label: titleOf(x) || 'Prompt', rank: idx+1, method:'native_share', location:'card' }); } catch {}
+          showToast('Shared ✓');
+          setTimeout(() => { btnShare.classList.remove('pg-ok'); btnShare.textContent = old; }, 1200);
+        } else if (mode === 'copied') {
+          statusEl.textContent = 'Copied ✓';
+          btnShare.classList.add('pg-ok');
+          const old = btnShare.textContent; btnShare.textContent = 'Copied ✓';
+          // GA4 minimal: share_prompt (fallback copied)
+          try { gtag('event','share_prompt',{ label: titleOf(x) || 'Prompt', rank: idx+1, method:'copy_fallback', location:'card' }); } catch {}
+          showToast('Copied ✓');
+          setTimeout(() => { btnShare.classList.remove('pg-ok'); btnShare.textContent = old; }, 1200);
+        } else {
+          statusEl.textContent = 'Share unavailable';
+          showToast('Share unavailable');
+        }
+      });
+      actions.appendChild(btnCopy);
+      actions.appendChild(btnShare);
+
+      art.appendChild(header);
+      art.appendChild(subject);
+      art.appendChild(promptBox);
+      art.appendChild(meta);
+      art.appendChild(actions);
+      frag.appendChild(art);
+    });
+    grid.appendChild(frag);
+    updateSchema(items);
+  }
+
+  function matches(x, q) {
+    if (!q) return true;
+    const hay = [x.subject, x.category, x.domain, x.verb, x.noun, x.style, x.format, x.reason]
+      .map(safeText).join(' ').toLowerCase();
+    return q.split(/\s+/).every(t => hay.includes(t));
+  }
+
+  function sortItems(items, key) {
+    const arr = items.slice();
+    if (key === 'verb') return arr.sort((a,b) => safeText(a.verb).localeCompare(safeText(b.verb)));
+    if (key === 'category') return arr.sort((a,b) => safeText(a.category).localeCompare(safeText(b.category)));
+    return arr.sort((a,b) => (b.score ?? -Infinity) - (a.score ?? -Infinity));
+  }
+
+  function update() {
+    const q = searchEl.value.trim().toLowerCase();
+    const key = sortEl.value;
+    const base = q ? fullAll : featured;
+    const list = base.filter(x => matches(x, q));
+    const sorted = sortItems(list, key);
+    const total = sorted.length;
+    filtered = q ? sorted.slice(0, 6) : sorted;
+    render(filtered);
+    if (q) {
+      statusEl.textContent = `Showing ${filtered.length} of ${total} matches`;
+    } else {
+      statusEl.textContent = `Showing ${filtered.length} of ${featured.length}`;
+    }
+    // GA4 minimal: search_submit (debounced, avoid spamming on every keystroke)
+    maybeReportSearch(q);
+  }
+
+  // Debounced GA search reporter
+  let __lastQ = '';
+  const __reportSearch = debounce(() => {
+    if (!__lastQ || __lastQ.length < 2) return;
+    try { gtag('event','search_submit',{ query: __lastQ, results: filtered.length, location:'pg' }); } catch {}
+  }, 800);
+  function maybeReportSearch(q){
+    if (q === __lastQ) return; __lastQ = q; __reportSearch();
+  }
+
+  function updateSchema(items) {
+    const take = items.slice(0, 30);
+    const itemListElement = take.map((x, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'CreativeWork',
+        name: titleOf(x) || 'Prompt',
+        about: safeText(x.subject),
+        inLanguage: 'en',
+        genre: [safeText(x.category), safeText(x.domain)].filter(Boolean).join(' / '),
+        text: safeText(x.rendered_prompt),
+        keywords: [safeText(x.style), safeText(x.format)].filter(Boolean).join(', '),
+        isAccessibleForFree: true
+      }
+    }));
+    const obj = { '@context': 'https://schema.org', '@type': 'ItemList', itemListElement };
+    schemaEl.textContent = JSON.stringify(obj);
+  }
+
+  function attachEvents() {
+    searchEl.addEventListener('input', () => { update(); });
+    sortEl.addEventListener('change', () => { update(); });
+    clearEl.addEventListener('click', () => {
+      searchEl.value = '';
+      sortEl.value = 'score';
+      update();
+      searchEl.focus({ preventScroll: true });
+    });
+  }
+
+  // Toast helper
+  let toastTimer = 0;
+  function showToast(msg){
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('pg-toast--show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('pg-toast--show'), 1600);
+  }
+
+
+  // Hide sticky CTA on scroll down, show on scroll up (mobile-first)
+  function initStickyAutoHide(){
+    if (!stickyBar) return;
+    let lastY = window.scrollY || 0;
+    let ticking = false;
+    let hideTimer = 0;
+    const onScroll = () => {
+      if (ticking) return; ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY || 0;
+        const dy = y - lastY;
+        if (y > 80 && dy > 2) {
+          clearTimeout(hideTimer);
+          hideTimer = setTimeout(() => stickyBar.classList.add('pg-sticky--hidden'), 100);
+        } else if (dy < -2) {
+          clearTimeout(hideTimer);
+          stickyBar.classList.remove('pg-sticky--hidden');
+        }
+        lastY = y;
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  // Minimal outbound helper with GA4 event_callback reliability
+  window.pgOutbound = function(url, params = {}, newTab = false){
+    const open = () => {
+      try {
+        if (newTab) { window.open(url, '_blank', 'noopener'); }
+        else { window.location.href = url; }
+      } catch { window.location.href = url; }
+    };
+    try {
+      if (typeof gtag === 'function') {
+        gtag('event','cta_click', { ...params, link_url: url, event_callback: open });
+        setTimeout(open, 800);
+      } else {
+        open();
+      }
+    } catch {
+      open();
+    }
+    return false; // prevent default navigation
+  };
+
+  // Ensure GA event fires before starting a file download (same-origin)
+  window.pgDownloadOutbound = function(anchorEl, params = {}){
+    try {
+      const url = anchorEl.getAttribute('href');
+      const fileName = anchorEl.getAttribute('download') || '';
+      const trigger = () => {
+        try {
+          const a = document.createElement('a');
+          a.href = url;
+          if (fileName) a.setAttribute('download', fileName);
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => a.remove(), 0);
+        } catch { window.location.href = url; }
+      };
+      if (typeof gtag === 'function') {
+        gtag('event','cta_click', { ...params, link_url: url, file_name: fileName, type:'download', event_callback: trigger });
+        setTimeout(trigger, 800);
+      } else {
+        trigger();
+      }
+    } catch { /* no-op */ }
+    return false; // prevent default
+  };
+
+  async function init() {
+    try {
+      statusEl.textContent = 'Loading prompts…';
+      const res = await fetch('/prompts.jsonl');
+      if (!res.ok) throw new Error('Fetch failed');
+      const txt = await res.text();
+      const out = [];
+      txt.split(/\r?\n/).forEach((line) => {
+        const s = line.trim();
+        if (!s) return;
+        try { out.push(JSON.parse(s)); } catch {}
+      });
+      // Store full dataset and compute featured top 6 by score
+      fullAll = out;
+      featured = out.slice().sort((a,b) => (b.score ?? -Infinity) - (a.score ?? -Infinity)).slice(0, 6);
+      attachEvents();
+      update();
+      initStickyAutoHide();
+    } catch (e) {
+      statusEl.textContent = 'Could not load prompts.';
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
 })();

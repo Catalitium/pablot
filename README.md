@@ -30,11 +30,19 @@ Built with pure HTML/CSS/JS. No frameworks. Just power. 🚀
 
 ```
 bash
-git clone https://github.com/Catalitium/Pablobot.git
+git clone https://github.com/Catalitium/Pablot.git
 cd Pablobot
 python3 -m http.server 8080     # or: npx serve .
 open http://localhost:8080
 ```
+
+## Prompt Gallery (pg-*)
+
+- Data: `prompts.jsonl` (NDJSON; one JSON object per line)
+- UI: search, sort, copy/share, responsive grid (1/2/3 cols)
+- Configure CTA URLs in `app.js` (constants `FREE_URL`, `PRO_URL`).
+- Schema.org: dynamic `ItemList` JSON-LD updates on filter changes.
+- Namespacing: all HTML/CSS/JS prefixed with `pg-` to avoid collisions.
 
 
 ## A. GenAI 🧠 Core LLMs
