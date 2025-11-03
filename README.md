@@ -31,9 +31,6 @@ Built with pure HTML/CSS/JS. No frameworks. Just power. 🚀
 ```
 bash
 git clone https://github.com/Catalitium/Pablot.git
-cd Pablobot
-python3 -m http.server 8080     # or: npx serve .
-open http://localhost:8080
 ```
 
 ## Prompt Gallery (pg-*)
@@ -98,20 +95,9 @@ Fly.io
 Just push to main and deploy from the repo root.
 Add robots.txt and sitemap.xml for crawl optimization.
 
-## 🧪 Checklist
-
-✅ Lighthouse Score ≥ 90 (Performance, Accessibility)
-
-✅ Fully keyboard & mobile accessible
-
-✅ Semantic markup with ARIA roles
-
-✅ GA + click analytics functional
-
-✅ Single dependency-free JS bundle (app.js)
-
 ## 📜 License
 
 MIT — Free to remix, learn, and deploy.
 Keep it readable, minimal, and fast. 💨
 Made with 🤖 by Pablobot Labs / Catalitium"# pablot" 
+
