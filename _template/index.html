@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tool Name — Pablot</title>
+  <meta name="description" content="One-line description of what this tool does.">
+  <link rel="icon" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="../assets/pablot-ui.css">
+  <style>
+    /* Tool-specific styles only — brand variables are already in pablot-ui.css */
+    .tool-body {
+      padding: var(--sp-8) 0;
+    }
+
+    .output-area {
+      margin-top: var(--sp-4);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="tool-header">
+    <a href="../" class="back-link">← Pablot</a>
+    <h1>Tool Name</h1>
+  </header>
+
+  <main class="container">
+    <div class="tool-body stack stack--lg">
+
+      <!-- Input section -->
+      <div class="card stack stack--md">
+        <div>
+          <label for="input">Input</label>
+          <textarea id="input" placeholder="Paste your content here…"></textarea>
+        </div>
+        <div class="cluster cluster--sm">
+          <button class="btn btn--primary" id="runBtn">Run</button>
+          <button class="btn btn--ghost" id="clearBtn">Clear</button>
+        </div>
+      </div>
+
+      <!-- Output section -->
+      <div class="card output-area" id="outputCard" hidden>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-3)">
+          <label style="margin:0">Output</label>
+          <button class="copy-btn" id="copyBtn">Copy</button>
+        </div>
+        <pre class="code-block" id="output"></pre>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const inputEl   = document.getElementById("input");
+    const outputEl  = document.getElementById("output");
+    const outputCard= document.getElementById("outputCard");
+    const copyBtn   = document.getElementById("copyBtn");
+    const toast     = document.getElementById("toast");
+
+    // ── Core logic ──────────────────────────────────────────
+    function run() {
+      const val = inputEl.value.trim();
+      if (!val) return;
+
+      // TODO: replace with actual tool logic
+      const result = val;
+
+      outputEl.textContent = result;
+      outputCard.hidden = false;
+    }
+
+    function clear() {
+      inputEl.value = "";
+      outputCard.hidden = true;
+      inputEl.focus();
+    }
+
+    // ── Clipboard ────────────────────────────────────────────
+    function copyOutput() {
+      navigator.clipboard.writeText(outputEl.textContent).then(() => {
+        copyBtn.textContent = "Copied!";
+        copyBtn.classList.add("copied");
+        showToast("Copied to clipboard", "success");
+        setTimeout(() => {
+          copyBtn.textContent = "Copy";
+          copyBtn.classList.remove("copied");
+        }, 2000);
+      });
+    }
+
+    // ── Toast ────────────────────────────────────────────────
+    let _toastTimer;
+    function showToast(msg, type = "") {
+      toast.textContent = msg;
+      toast.className = "toast show" + (type ? ` toast--${type}` : "");
+      clearTimeout(_toastTimer);
+      _toastTimer = setTimeout(() => { toast.className = "toast"; }, 2500);
+    }
+
+    // ── Event wiring ─────────────────────────────────────────
+    document.getElementById("runBtn").addEventListener("click", run);
+    document.getElementById("clearBtn").addEventListener("click", clear);
+    copyBtn.addEventListener("click", copyOutput);
+
+    // Ctrl/Cmd+Enter to run
+    inputEl.addEventListener("keydown", e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); run(); }
+    });
+  </script>
+
+</body>
+</html>

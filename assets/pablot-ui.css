@@ -1,0 +1,314 @@
+/* ============================================================
+   Pablot UI — Shared Design System for Tool Pages
+   Usage: <link rel="stylesheet" href="../assets/pablot-ui.css">
+   Then add tool-specific overrides in a <style> block or local CSS.
+============================================================ */
+
+/* ── 1. Custom Properties ──────────────────────────────────── */
+:root {
+  /* Brand colors */
+  --color-bg:        #fafafa;
+  --color-surface:   #ffffff;
+  --color-border:    #e8e8e8;
+  --color-border-2:  #d4d4d4;
+  --color-text:      #262626;
+  --color-text-muted:#737373;
+  --color-heading:   #171717;
+  --color-accent:    #2563eb;
+  --color-accent-h:  #1d4ed8;
+  --color-success:   #16a34a;
+  --color-error:     #dc2626;
+  --color-warn:      #d97706;
+
+  /* Spacing */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-12: 48px;
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  --text-xs:   11px;
+  --text-sm:   13px;
+  --text-base: 14px;
+  --text-md:   15px;
+  --text-lg:   18px;
+  --text-xl:   22px;
+  --text-2xl:  28px;
+
+  /* Radii */
+  --r-sm:  4px;
+  --r-md:  8px;
+  --r-lg:  12px;
+  --r-xl:  16px;
+  --r-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:  0 4px 12px rgba(0,0,0,.10);
+  --shadow-lg:  0 8px 28px rgba(0,0,0,.12);
+
+  /* Transitions */
+  --t-fast: 0.15s ease;
+  --t-base: 0.2s ease;
+}
+
+/* ── 2. Reset ──────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── 3. Base Typography ────────────────────────────────────── */
+html { font-size: 16px; }
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  color: var(--color-heading);
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+h1 { font-size: var(--text-2xl); letter-spacing: -0.5px; }
+h2 { font-size: var(--text-xl); }
+h3 { font-size: var(--text-lg); }
+
+p { line-height: 1.6; }
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+code, pre {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+/* ── 4. Layout ─────────────────────────────────────────────── */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--sp-6) var(--sp-8);
+}
+
+.container--wide { max-width: 1100px; }
+.container--narrow { max-width: 560px; }
+
+.stack { display: flex; flex-direction: column; }
+.stack--sm  { gap: var(--sp-2); }
+.stack--md  { gap: var(--sp-4); }
+.stack--lg  { gap: var(--sp-6); }
+
+.cluster { display: flex; flex-wrap: wrap; align-items: center; }
+.cluster--sm { gap: var(--sp-2); }
+.cluster--md { gap: var(--sp-4); }
+
+/* ── 5. Tool Page Shell ────────────────────────────────────── */
+.tool-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-8);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.back-link {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--t-fast);
+}
+.back-link:hover { color: var(--color-accent); text-decoration: none; }
+
+.tool-header h1 {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+/* ── 6. Card ───────────────────────────────────────────────── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-5);
+}
+
+.card--hover {
+  transition: transform var(--t-base), box-shadow var(--t-base), border-color var(--t-base);
+  cursor: pointer;
+}
+.card--hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-2);
+}
+
+/* ── 7. Form Elements ──────────────────────────────────────── */
+label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-heading);
+  margin-bottom: var(--sp-1);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="password"],
+input[type="search"],
+textarea,
+select {
+  width: 100%;
+  padding: 8px 12px;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--r-md);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  line-height: 1.5;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+select { cursor: pointer; }
+
+/* ── 8. Buttons ────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: 8px 18px;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: all var(--t-fast);
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.btn:disabled { opacity: 0.5; pointer-events: none; }
+
+.btn--primary {
+  background: var(--color-accent);
+  color: white;
+  border-color: var(--color-accent);
+}
+.btn--primary:hover {
+  background: var(--color-accent-h);
+  border-color: var(--color-accent-h);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border-2);
+}
+.btn--ghost:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: transparent;
+}
+
+.btn--sm {
+  padding: 5px 12px;
+  font-size: var(--text-sm);
+  border-radius: var(--r-sm);
+}
+
+/* ── 9. Copy Button ────────────────────────────────────────── */
+.copy-btn {
+  padding: 5px 12px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--r-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+.copy-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+.copy-btn.copied { border-color: var(--color-success); color: var(--color-success); }
+
+/* ── 10. Toast ─────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 10px 18px;
+  background: var(--color-heading);
+  color: white;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 9999;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast--success { background: var(--color-success); }
+.toast--error   { background: var(--color-error); }
+
+/* ── 11. Code Block ────────────────────────────────────────── */
+.code-block {
+  background: var(--color-heading);
+  color: #e5e7eb;
+  padding: var(--sp-4);
+  border-radius: var(--r-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  overflow-x: auto;
+  tab-size: 2;
+}
+
+/* ── 12. Responsive ────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .container { padding: var(--sp-4) var(--sp-4); }
+  .tool-header { padding: var(--sp-3) var(--sp-4); }
+  h1 { font-size: var(--text-xl); }
+}
