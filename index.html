@@ -3,908 +3,253 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pablot Hub - All Tools</title>
-  <meta name="description" content="Unified hub for 130+ developer tools, AI models, and crypto tracking">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-  <style>
-    :root {
-      --bg: #0a0a0b;
-      --bg-secondary: #141416;
-      --bg-tertiary: #1c1c1f;
-      --border: #2a2a2e;
-      --text: #fafafa;
-      --text-muted: #73737a;
-      --accent: #00d4aa;
-      --accent-glow: rgba(0, 212, 170, 0.3);
-      --danger: #ff4757;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      line-height: 1.5;
-    }
-
-    /* Header */
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(10, 10, 11, 0.85);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--accent), #00a88a);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 18px;
-      color: #000;
-    }
-
-    .logo-text {
-      font-size: 20px;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-    }
-
-    .logo-text span {
-      color: var(--accent);
-    }
-
-    /* Command Palette Trigger */
-    .cmd-trigger {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 16px;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.2s;
-      min-width: 280px;
-    }
-
-    .cmd-trigger:hover {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent-glow);
-    }
-
-    .cmd-trigger kbd {
-      background: var(--bg-tertiary);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-family: monospace;
-      margin-left: auto;
-    }
-
-    /* Command Palette Overlay */
-    .cmd-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(8px);
-      display: none;
-      align-items: flex-start;
-      justify-content: center;
-      padding-top: 15vh;
-      z-index: 1000;
-      animation: fadeIn 0.15s ease;
-    }
-
-    .cmd-overlay.active {
-      display: flex;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .cmd-modal {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      width: 100%;
-      max-width: 640px;
-      max-height: 70vh;
-      overflow: hidden;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      animation: slideUp 0.2s ease;
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    .cmd-input-wrap {
-      padding: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .cmd-input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      font-size: 18px;
-      color: var(--text);
-      outline: none;
-    }
-
-    .cmd-input::placeholder {
-      color: var(--text-muted);
-    }
-
-    .cmd-results {
-      overflow-y: auto;
-      max-height: calc(70vh - 60px);
-    }
-
-    .cmd-group {
-      padding: 8px 0;
-    }
-
-    .cmd-group-title {
-      padding: 8px 16px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-    }
-
-    .cmd-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      cursor: pointer;
-      transition: background 0.1s;
-    }
-
-    .cmd-item:hover, .cmd-item.selected {
-      background: var(--bg-tertiary);
-    }
-
-    .cmd-item-icon {
-      width: 32px;
-      height: 32px;
-      background: var(--bg-tertiary);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-    }
-
-    .cmd-item-content {
-      flex: 1;
-    }
-
-    .cmd-item-title {
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .cmd-item-desc {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .cmd-item-shortcut {
-      font-size: 11px;
-      color: var(--text-muted);
-      font-family: monospace;
-    }
-
-    /* Main Content */
-    .main {
-      padding: 32px 24px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    /* AI Models Table */
-    .ai-models-table {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 32px;
-    }
-
-    .ai-models-table table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .ai-models-table th, .ai-models-table td {
-      padding: 14px 16px;
-      text-align: left;
-    }
-
-    .ai-models-table th {
-      background: var(--bg-tertiary);
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-    }
-
-    .ai-models-table tr:not(:last-child) td {
-      border-bottom: 1px solid var(--border);
-    }
-
-    .ai-models-table td {
-      font-size: 14px;
-    }
-
-    .ai-models-table td:first-child {
-      font-weight: 500;
-    }
-
-    .section-link {
-      font-size: 14px;
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .section-link:hover {
-      text-decoration: underline;
-    }
-
-    /* Quick Actions */
-    .quick-actions {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px;
-      margin-bottom: 48px;
-    }
-
-    .quick-action {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .quick-action:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    }
-
-    .quick-action-icon {
-      font-size: 28px;
-      margin-bottom: 12px;
-    }
-
-    .quick-action-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .quick-action-desc {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    /* Section Headers */
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-
-    .section-title {
-      font-size: 24px;
-      font-weight: 600;
-    }
-
-    .section-count {
-      font-size: 14px;
-      color: var(--text-muted);
-      background: var(--bg-secondary);
-      padding: 4px 12px;
-      border-radius: 20px;
-    }
-
-    /* Category Tabs */
-    .category-tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 24px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-    }
-
-    .category-tab {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 16px;
-      font-size: 13px;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .category-tab:hover {
-      border-color: var(--text-muted);
-    }
-
-    .category-tab.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #000;
-      font-weight: 600;
-    }
-
-    /* Tools Grid */
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 12px;
-    }
-
-    .tool-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
-      color: inherit;
-      display: block;
-    }
-
-    .tool-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    }
-
-    .tool-icon {
-      font-size: 24px;
-      margin-bottom: 8px;
-    }
-
-    .tool-name {
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-
-    .tool-desc {
-      font-size: 12px;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
-
-    /* Footer */
-    .footer {
-      text-align: center;
-      padding: 48px 24px;
-      color: var(--text-muted);
-      font-size: 13px;
-      border-top: 1px solid var(--border);
-      margin-top: 64px;
-    }
-
-    .footer a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    /* Stats */
-    .stats {
-      display: flex;
-      gap: 32px;
-      margin-bottom: 32px;
-    }
-
-    .stat {
-      text-align: center;
-    }
-
-    .stat-value {
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--accent);
-    }
-
-    .stat-label {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .header {
-        flex-direction: column;
-        gap: 12px;
-        padding: 12px 16px;
-      }
-
-      .cmd-trigger {
-        min-width: 100%;
-      }
-
-      .quick-actions {
-        grid-template-columns: 1fr;
-      }
-
-      .tools-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-  </style>
+  <title>Pablot — Developer Tools &amp; AI Models Gallery</title>
+  <meta name="description" content="Explore 37 AI model architecture diagrams and 24 deep-learning concept visualizations — MoE, MLA, GQA, SWA, Sparse Attention and more — plus 36 live developer tools, curated by Pablot.">
+  <meta name="keywords" content="AI models, LLM architectures, DeepSeek, Qwen3, Llama 4, Gemma, Mistral, Mixture of Experts, Multi-Head Latent Attention, Grouped Query Attention, Sliding Window Attention, developer tools">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="AI Models Gallery — Pablot">
+  <meta property="og:description" content="37 LLM architecture diagrams and 24 concept visualizations. Compare DeepSeek, Qwen3, Llama 4, Mistral, Gemma and more.">
+  <meta property="og:image" content="assets/hero/architecture-gallery-hero.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI Models Gallery — Pablot">
+  <meta name="twitter:description" content="37 LLM architecture diagrams and 24 concept visualizations.">
+  <meta name="twitter:image" content="assets/hero/architecture-gallery-hero.webp">
+  <meta name="theme-color" content="#171717">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23333'>P</text></svg>">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "AI Models Architecture Gallery",
+    "description": "37 LLM architecture diagrams and 24 deep-learning concept visualizations.",
+    "url": "https://pablot.com/#ai-models-gallery",
+    "publisher": { "@type": "Organization", "name": "Pablot", "url": "https://pablot.com" },
+    "hasPart": [
+      { "@type": "ImageGallery", "name": "LLM Architecture Diagrams", "numberOfItems": 37 },
+      { "@type": "ImageGallery", "name": "Deep Learning Concepts", "numberOfItems": 24 }
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <!-- Header -->
   <header class="header">
     <div class="logo">
       <div class="logo-icon">P</div>
-      <div class="logo-text">Pablo<span>t</span></div>
+      <div class="logo-text">Pablot</div>
     </div>
-    <button class="cmd-trigger" id="cmdTrigger">
-      <span>🔍</span>
-      <span>Search tools, actions...</span>
-      <kbd>⌘K</kbd>
-    </button>
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search tools…" aria-label="Search tools">
+      <button class="search-clear" id="searchClear" hidden aria-label="Clear search">✕</button>
+      <span class="search-shortcut" aria-hidden="true">/</span>
+    </div>
   </header>
 
-  <!-- Command Palette -->
-  <div class="cmd-overlay" id="cmdOverlay">
-    <div class="cmd-modal">
-      <div class="cmd-input-wrap">
-        <input type="text" class="cmd-input" id="cmdInput" placeholder="Search tools, actions..." autocomplete="off">
-      </div>
-      <div class="cmd-results" id="cmdResults"></div>
-    </div>
-  </div>
-
-  <!-- Main Content -->
+  <!-- Main -->
   <main class="main">
-    <!-- Stats -->
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-value" id="toolCount">0</div>
-        <div class="stat-label">Tools</div>
-      </div>
-      <div class="stat">
-        <div class="stat-value" id="categoryCount">0</div>
-        <div class="stat-label">Categories</div>
-      </div>
+    <!-- Hero -->
+    <div class="hero">
+      <h1>Developer Tools Hub</h1>
+      <p id="heroSub"></p>
     </div>
 
-    <!-- AI Models Table -->
-    <div class="section-header">
-      <h2 class="section-title">🤖 AI Models</h2>
-      <a href="https://pablobot.com" target="_blank" class="section-link">Full table →</a>
-    </div>
-    <div class="ai-models-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Model</th>
-            <th>Provider</th>
-            <th>Params</th>
-            <th>Context</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Grok 1.5</td><td>xAI</td><td>314B</td><td>128K</td></tr>
-          <tr><td>Llama 3</td><td>Meta</td><td>70B</td><td>128K</td></tr>
-          <tr><td>DeepSeek</td><td>DeepSeek</td><td>236B</td><td>128K</td></tr>
-          <tr><td>Claude</td><td>Anthropic</td><td>—</td><td>200K+</td></tr>
-          <tr><td>Gemini</td><td>Google</td><td>—</td><td>1M+</td></tr>
-          <tr><td>Mistral</td><td>Mistral</td><td>—</td><td>128K</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- AI Models Quick View -->
-    <div class="section-header">
-      <h2 class="section-title">🤖 AI Models</h2>
-      <a href="https://pablobot.com" target="_blank" class="section-link">Full table →</a>
-    </div>
-    <div class="ai-models-table">
-      <table>
-        <thead>
-          <tr><th>Model</th><th>Provider</th><th>Params</th><th>Context</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Grok 1.5</td><td>xAI</td><td>314B</td><td>128K</td></tr>
-          <tr><td>Llama 3</td><td>Meta</td><td>70B</td><td>128K</td></tr>
-          <tr><td>DeepSeek</td><td>DeepSeek</td><td>236B</td><td>128K</td></tr>
-          <tr><td>Claude</td><td>Anthropic</td><td>—</td><td>200K+</td></tr>
-          <tr><td>Gemini</td><td>Google</td><td>—</td><td>1M+</td></tr>
-          <tr><td>Mistral</td><td>Mistral</td><td>—</td><td>128K</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-      <a href="#tools" class="quick-action" data-category="all">
-        <div class="quick-action-icon">🧰</div>
-        <div class="quick-action-title">All Tools</div>
-        <div class="quick-action-desc">Browse 130+ utilities</div>
-      </a>
-      <a href="https://pablobot.com" target="_blank" class="quick-action">
-        <div class="quick-action-icon">🤖</div>
-        <div class="quick-action-title">AI Models</div>
-        <div class="quick-action-desc">Compare all LLMs</div>
-      </a>
-      <a href="https://pablobot.com#c-crypto" target="_blank" class="quick-action">
-        <div class="quick-action-icon">🐋</div>
-        <div class="quick-action-title">Cryptorka</div>
-        <div class="quick-action-desc">Whale tracking</div>
-      </a>
-      <a href="https://github.com/JPGBMR" target="_blank" class="quick-action">
-        <div class="quick-action-icon">💻</div>
-        <div class="quick-action-title">GitHub</div>
-        <div class="quick-action-desc">JPGBMR repos</div>
-      </a>
+    <!-- Quick Links -->
+    <div class="quick-links">
+      <button id="aiModelsBtn" class="quick-link" aria-haspopup="dialog" aria-expanded="false">🤖 AI Models Gallery</button>
+      <button id="cryptoBtn" class="quick-link" aria-haspopup="dialog" aria-expanded="false">🐋 Crypto Blockchain</button>
+      <a href="https://github.com/Catalitium/pablot" target="_blank" rel="noopener noreferrer" class="quick-link">GitHub →</a>
     </div>
 
     <!-- Tools Section -->
-    <div class="section-header">
-      <h2 class="section-title">Tools</h2>
-      <span class="section-count" id="toolCountBadge">0 tools</span>
+    <div class="section" id="toolsSection">
+      <h2 class="section-title" id="sectionTitle">All Tools <span class="tool-count" id="toolCount"></span></h2>
+      <div class="tabs" id="tabs"></div>
+      <div class="tools-grid" id="toolsGrid"></div>
     </div>
 
-    <div class="category-tabs" id="categoryTabs">
-      <button class="category-tab active" data-category="all">All</button>
+    <!-- WIP Tools Section -->
+    <div class="wip-section">
+      <div class="wip-header">
+        <h2 class="wip-title">WIP Tools</h2>
+        <span class="wip-badge">🚧 In Progress</span>
+      </div>
+      <p class="wip-desc">These tools are in early development — no UI yet. Check back soon.</p>
+      <div class="wip-grid" id="wipGrid"></div>
     </div>
-
-    <div class="tools-grid" id="toolsGrid"></div>
   </main>
 
   <!-- Footer -->
   <footer class="footer">
-    <p>Built by <a href="https://github.com/JPGBMR" target="_blank">JPGBMR</a> · Powered by Claude</p>
-    <p>130+ tools · Open source · Free forever</p>
+    <p>© 2026 Built by <a href="https://github.com/Catalitium" target="_blank" rel="noopener noreferrer">Catalitium</a></p>
   </footer>
 
-  <script>
-    // Tool data embedded directly to avoid fetch issues
-    const TOOLS = [
-      {name:"API Builder",slug:"api-builder",category:"developer",icon:"🔗",desc:"Visual API creation platform"},
-      {name:"API Tester",slug:"api-tester",category:"developer",icon:"🧪",desc:"Test and debug APIs"},
-      {name:"ASCII Art",slug:"ascii-art",category:"creative",icon:"🎨",desc:"Generate ASCII art from text"},
-      {name:"Aspect Ratio",slug:"aspect-ratio",category:"utility",icon:"📐",desc:"Image/video dimension calculator"},
-      {name:"Audio Visualizer",slug:"audio-visualizer",category:"visual",icon:"🎵",desc:"Mic-driven 3D frequency bars"},
-      {name:"Auto-Prompter",slug:"auto-prompter",category:"ai",icon:"🤖",desc:"Auto prompt chaining tool"},
-      {name:"Backup Mirror",slug:"backup-mirror",category:"system",icon:"💾",desc:"File backup synchronization"},
-      {name:"Base64",slug:"base64",category:"developer",icon:"🔤",desc:"Base64 encoder/decoder"},
-      {name:"Binary Converter",slug:"binary-converter",category:"developer",icon:"0️⃣",desc:"Binary, decimal, hex converter"},
-      {name:"BMI Calculator",slug:"bmi-calculator",category:"health",icon:"⚖️",desc:"BMI calculator with visualization"},
-      {name:"Cache Cleaner",slug:"cache-cleaner",category:"system",icon:"🧹",desc:"Clear cache and temp files"},
-      {name:"Case Converter",slug:"case-converter",category:"developer",icon:"Aa",desc:"Convert between case formats"},
-      {name:"Color from Image",slug:"color-from-image",category:"creative",icon:"🎭",desc:"Extract colors from images"},
-      {name:"Color Scheme",slug:"color-scheme",category:"creative",icon:"🌈",desc:"Generate color palettes"},
-      {name:"Command Palette",slug:"command-palette",category:"developer",icon:"⌘",desc:"Quick command launcher"},
-      {name:"Complex Plane",slug:"complex-plane",category:"math",icon:"📊",desc:"Argand plane, Julia sets"},
-      {name:"Compliance Auto",slug:"compliance-auto",category:"business",icon:"📋",desc:"GDPR/CCPA automation"},
-      {name:"Context Packer",slug:"context-packer",category:"ai",icon:"📦",desc:"Compress text for LLM context"},
-      {name:"Contract Generator",slug:"contract-generator",category:"business",icon:"📜",desc:"Generate contract documents"},
-      {name:"Conway's Game",slug:"conway-game",category:"game",icon:"🎲",desc:"Cellular automaton simulation"},
-      {name:"Countdown Timer",slug:"countdown-timer",category:"utility",icon:"⏱",desc:"Live countdown to target date"},
-      {name:"CPU Benchmark",slug:"cpu-benchmark",category:"system",icon:"⚡",desc:"Benchmark CPU performance"},
-      {name:"Cron Builder",slug:"cron-builder",category:"developer",icon:"🕐",desc:"Visual cron expression builder"},
-      {name:"CSS Minifier",slug:"css-minifier",category:"developer",icon:"🎀",desc:"Minify and beautify CSS"},
-      {name:"CURL Builder",slug:"curl-builder",category:"developer",icon:"🌐",desc:"Build CURL commands"},
-      {name:"Data Converter",slug:"data-converter",category:"developer",icon:"🔄",desc:"CSV ↔ JSON ↔ YAML converter"},
-      {name:"Dice Roller",slug:"dice-roller",category:"game",icon:"🎲",desc:"Virtual dice for tabletop"},
-      {name:"Directory Snapshot",slug:"directory-snapshot",category:"system",icon:"📁",desc:"Snapshot directory contents"},
-      {name:"Disk Health",slug:"disk-health-reporter",category:"system",icon:"💿",desc:"Report disk health status"},
-      {name:"DNA Helix",slug:"dna-helix",category:"visual",icon:"🧬",desc:"3D rotating DNA helix"},
-      {name:"Docker Manager",slug:"docker-manager",category:"developer",icon:"🐳",desc:"Manage Docker containers"},
-      {name:"Duplicate Finder",slug:"duplicate-finder",category:"system",icon:"🔎",desc:"Find duplicate files"},
-      {name:"Euro Castles",slug:"euro-castles",category:"travel",icon:"🏰",desc:"European castles guide"},
-      {name:"Fake Data Gen",slug:"fake-data-gen",category:"developer",icon:"🎭",desc:"Generate fake test data"},
-      {name:"Fattest Folders",slug:"fattest-folders",category:"system",icon:"🐘",desc:"Find largest folders"},
-      {name:"Fluid Simulation",slug:"fluid-sim",category:"visual",icon:"💧",desc:"2D Navier-Stokes fluid"},
-      {name:"Fourier Visualizer",slug:"fourier-visualizer",category:"math",icon:"〰️",desc:"FFT wave decomposition"},
-      {name:"Fractal Tree",slug:"fractal-tree",category:"visual",icon:"🌳",desc:"3D generative fractal trees"},
-      {name:"Git Helper",slug:"git-helper",category:"developer",icon:"🔀",desc:"Git commands helper"},
-      {name:"Gradient Generator",slug:"gradient-generator",category:"creative",icon:"🌅",desc:"Create CSS gradients"},
-      {name:"Graphing Calculator",slug:"graphing-calculator",category:"math",icon:"📈",desc:"Plot mathematical functions"},
-      {name:"Gravity Simulation",slug:"gravity-sim",category:"physics",icon:"🪐",desc:"N-body gravity simulation"},
-      {name:"Hash Generator",slug:"hash-generator",category:"developer",icon:"#️⃣",desc:"MD5/SHA hash generator"},
-      {name:"Hex Palette",slug:"hex-palette",category:"creative",icon:"🎨",desc:"Hex color mood palette"},
-      {name:"Hex Viewer",slug:"hex-viewer",category:"developer",icon:"🔢",desc:"View file in hex format"},
-      {name:"HTTP Status Codes",slug:"http-status-codes",category:"developer",icon:"📡",desc:"HTTP status code reference"},
-      {name:"Image Compressor",slug:"image-compressor",category:"utility",icon:"🖼️",desc:"Compress images in browser"},
-      {name:"Invoice Generator",slug:"invoice-generator",category:"business",icon:"💰",desc:"Create and export invoices"},
-      {name:"JSON Formatter",slug:"json-formatter",category:"developer",icon:"{ }",desc:"Format, minify, validate JSON"},
-      {name:"JSON Schema Gen",slug:"json-schema-gen",category:"developer",icon:"📝",desc:"Generate JSON schemas"},
-      {name:"JWT Decoder",slug:"jwt-decoder",category:"developer",icon:"🔐",desc:"Decode JWT tokens"},
-      {name:"Laplace Visualizer",slug:"laplace-visualizer",category:"math",icon:"📉",desc:"Pole-zero, Bode plots"},
-      {name:"Large Files Hunter",slug:"large-files-hunter",category:"system",icon:"🦅",desc:"Find large files"},
-      {name:"Linear Solver",slug:"linear-solver",category:"math",icon:"➗",desc:"Gaussian elimination solver"},
-      {name:"LLM Cost Tracker",slug:"llm-cost-tracker",category:"ai",icon:"💸",desc:"Track LLM API costs"},
-      {name:"LocalStorage TODO",slug:"localstorage-todo-app",category:"productivity",icon:"✅",desc:"TODO app with persistence"},
-      {name:"Lorem Generator",slug:"lorem-generator",category:"developer",icon:"📄",desc:"Generate placeholder text"},
-      {name:"Lorenz Attractor",slug:"lorenz-attractor",category:"visual",icon:"🌀",desc:"3D Lorenz attractor"},
-      {name:"Markdown Preview",slug:"markdown-preview",category:"developer",icon:"📑",desc:"Live markdown editor"},
-      {name:"Matrix Calculator",slug:"matrix-calculator",category:"math",icon:"🔢",desc:"NxN matrix operations"},
-      {name:"Matrix Rain 3D",slug:"matrix-rain-3d",category:"visual",icon:"💚",desc:"Matrix digital rain 3D"},
-      {name:"Maze Master",slug:"maze-master",category:"game",icon:"🌀",desc:"Generate and solve mazes"},
-      {name:"MD2HTML",slug:"md2html",category:"developer",icon:"➡️",desc:"Convert Markdown to HTML"},
-      {name:"Mini Agents",slug:"mini-agents",category:"ai",icon:"🤖",desc:"AI agent playground"},
-      {name:"Morse Translator",slug:"morse-translator",category:"utility",icon:"📇",desc:"Morse code translator"},
-      {name:"Niche Job Board",slug:"niche-job-board",category:"business",icon:"💼",desc:"Vertical job marketplace"},
-      {name:"Particle Galaxy",slug:"particle-galaxy",category:"visual",icon:"🌌",desc:"3D spiral galaxy simulation"},
-      {name:"Password Generator",slug:"password-generator",category:"security",icon:"🔐",desc:"Generate secure passwords"},
-      {name:"Pixel Art Editor",slug:"pixel-art-editor",category:"creative",icon:"🎮",desc:"Draw pixel art"},
-      {name:"Pomodoro Timer",slug:"pomodoro-timer",category:"productivity",icon:"🍅",desc:"Productivity timer"},
-      {name:"Prompt Tester",slug:"prompt-tester",category:"ai",icon:"🧪",desc:"Test and refine prompts"},
-      {name:"QR Generator",slug:"qr-generator",category:"utility",icon:"⬛",desc:"Generate QR codes"},
-      {name:"Reading Estimator",slug:"reading-estimator",category:"utility",icon:"📖",desc:"Estimate reading time"},
-      {name:"Regex Tester",slug:"regex-tester",category:"developer",icon:".*",desc:"Test regex patterns"},
-      {name:"Repo Bootstrap",slug:"repo-bootstrap",category:"developer",icon:"🚀",desc:"Bootstrap new repositories"},
-      {name:"RSA Keygen",slug:"rsa-keygen",category:"security",icon:"🔐",desc:"Generate RSA keypairs"},
-      {name:"Screenshot Docs",slug:"screenshot-docs",category:"developer",icon:"📸",desc:"Docs from screenshots"},
-      {name:"Secure Vault",slug:"secure-vault",category:"security",icon:"🔒",desc:"Encrypted file vault"},
-      {name:"SEO Intel",slug:"seo-intel",category:"business",icon:"🔍",desc:"SEO intelligence tool"},
-      {name:"Simon Says",slug:"simon-says",category:"game",icon:"🧠",desc:"Memory game"},
-      {name:"Simple Website",slug:"simple-website",category:"developer",icon:"🌍",desc:"Simple website template"},
-      {name:"Sleep Calculator",slug:"sleep-calculator",category:"health",icon:"😴",desc:"Calculate optimal sleep times"},
-      {name:"Smart Log Rotator",slug:"smart-log-rotator",category:"system",icon:"📜",desc:"Rotate log files"},
-      {name:"Snake Game",slug:"snake-game",category:"game",icon:"🐍",desc:"Classic snake game"},
-      {name:"Social Card",slug:"social-card",category:"creative",icon:"📱",desc:"Design social media cards"},
-      {name:"Solar System",slug:"solar-system",category:"visual",icon:"☀️",desc:"3D solar system"},
-      {name:"SQL Builder",slug:"sql-builder",category:"developer",icon:"🗃️",desc:"Build SQL queries visually"},
-      {name:"System Health",slug:"system-health",category:"system",icon:"❤️",desc:"System health monitor"},
-      {name:"System Monitor",slug:"system-monitor",category:"system",icon:"📊",desc:"Real-time system monitor"},
-      {name:"Terrain Generator",slug:"terrain-generator",category:"visual",icon:"⛰️",desc:"Perlin noise terrain"},
-      {name:"Text Summarizer",slug:"text-summarizer",category:"ai",icon:"📝",desc:"Summarize text with AI"},
-      {name:"Timezone Converter",slug:"timezone-converter",category:"utility",icon:"🌍",desc:"World timezone converter"},
-      {name:"Tip Calculator",slug:"tip-calculator",category:"utility",icon:"💵",desc:"Calculate tips and splits"},
-      {name:"Token Counter",slug:"token-counter",category:"ai",icon:"🔢",desc:"Count LLM tokens"},
-      {name:"Typing Test",slug:"typing-test",category:"productivity",icon:"⌨️",desc:"Test typing speed"},
-      {name:"Unit Converter",slug:"unit-converter",category:"utility",icon:"🔄",desc:"Convert 80+ units"},
-      {name:"URL Parser",slug:"url-parser",category:"developer",icon:"🔗",desc:"Parse URLs into components"},
-      {name:"URL Shortener",slug:"url-shortener",category:"utility",icon:"✂️",desc:"Shorten URLs with QR"},
-      {name:"UUID Generator",slug:"uuid-generator",category:"developer",icon:"🆔",desc:"Generate UUIDs"},
-      {name:"Waitlist Platform",slug:"waitlist-platform",category:"business",icon:"📋",desc:"Product launch waitlist"},
-      {name:"Windows Quick Tools",slug:"windows-quick-tools",category:"system",icon:"🪟",desc:"Windows system utilities"},
-      {name:"Word Counter",slug:"word-counter",category:"utility",icon:"📊",desc:"Count words, chars"},
-      {name:"WS Tester",slug:"ws-tester",category:"developer",icon:"🔌",desc:"Test WebSocket connections"},
-      {name:"YAML Formatter",slug:"yaml-formatter",category:"developer",icon:"📄",desc:"Format and validate YAML"}
-    ];
+  <!-- ============================================================
+       AI MODELS GALLERY OVERLAY
+  ============================================================ -->
+  <div id="aiGallery" class="gallery-overlay" role="dialog" aria-modal="true"
+       aria-label="AI Models Architecture Gallery" aria-hidden="true" tabindex="-1">
 
-    const CATEGORIES = {
-      developer:{name:"Developer",icon:"👨‍💻"},
-      utility:{name:"Utility",icon:"🔧"},
-      creative:{name:"Creative",icon:"🎨"},
-      visual:{name:"Visual",icon:"📊"},
-      ai:{name:"AI",icon:"🤖"},
-      game:{name:"Game",icon:"🎮"},
-      math:{name:"Math",icon:"➗"},
-      system:{name:"System",icon:"💻"},
-      business:{name:"Business",icon:"💼"},
-      security:{name:"Security",icon:"🔐"},
-      health:{name:"Health",icon:"❤️"},
-      productivity:{name:"Productivity",icon:"⚡"},
-      travel:{name:"Travel",icon:"🏰"},
-      physics:{name:"Physics",icon:"🪐"}
-    };
+    <!-- Sticky header -->
+    <header class="gallery-header">
+      <div class="gallery-header-inner">
+        <div class="gallery-header-left">
+          <div class="logo-icon">P</div>
+          <span class="gallery-header-title">AI Models Gallery</span>
+        </div>
+        <button id="galleryClose" class="gallery-close-btn" aria-label="Close gallery">✕</button>
+      </div>
+    </header>
 
-    // State
-    let activeCategory = 'all';
-    let selectedIndex = 0;
-    let searchQuery = '';
+    <!-- Scrollable content -->
+    <div class="gallery-content" id="galleryContent">
 
-    // DOM Elements
-    const cmdTrigger = document.getElementById('cmdTrigger');
-    const cmdOverlay = document.getElementById('cmdOverlay');
-    const cmdInput = document.getElementById('cmdInput');
-    const cmdResults = document.getElementById('cmdResults');
-    const toolsGrid = document.getElementById('toolsGrid');
-    const categoryTabs = document.getElementById('categoryTabs');
-    const toolCount = document.getElementById('toolCount');
-    const categoryCount = document.getElementById('categoryCount');
-    const toolCountBadge = document.getElementById('toolCountBadge');
+      <!-- Hero -->
+      <section class="gallery-hero" aria-label="Gallery hero">
+        <img
+          src="assets/hero/architecture-gallery-hero.webp"
+          alt="Abstract visualization of neural network architectures and large language model families including DeepSeek, Qwen3, Llama 4, and Mistral"
+          class="gallery-hero-img"
+          loading="eager"
+          fetchpriority="high"
+          width="1400"
+          height="500">
+        <div class="gallery-hero-overlay">
+          <h1 class="gallery-hero-title">AI Models Architecture Gallery</h1>
+          <p class="gallery-hero-sub">37 model diagrams &middot; 24 concept visualizations &middot; 14 families</p>
+        </div>
+      </section>
 
-    // Initialize
-    function init() {
-      toolCount.textContent = TOOLS.length;
-      categoryCount.textContent = Object.keys(CATEGORIES).length;
-      toolCountBadge.textContent = `${TOOLS.length} tools`;
+      <!-- Models Section -->
+      <section class="gallery-section" id="modelsSection" aria-labelledby="modelsSectionTitle">
+        <div class="gallery-section-header">
+          <h2 class="gallery-section-title" id="modelsSectionTitle">Model Architectures</h2>
+          <span class="gallery-section-sub">Click any diagram to enlarge</span>
+        </div>
 
-      renderCategoryTabs();
-      renderTools();
-      setupEventListeners();
-    }
-
-    function renderCategoryTabs() {
-      let html = '<button class="category-tab active" data-category="all">All</button>';
-      for (const [key, val] of Object.entries(CATEGORIES)) {
-        const count = TOOLS.filter(t => t.category === key).length;
-        html += `<button class="category-tab" data-category="${key}">${val.icon} ${val.name} (${count})</button>`;
-      }
-      categoryTabs.innerHTML = html;
-    }
-
-    function renderTools() {
-      const filtered = activeCategory === 'all'
-        ? TOOLS
-        : TOOLS.filter(t => t.category === activeCategory);
-
-      let html = '';
-      for (const tool of filtered) {
-        html += `
-          <a href="${tool.slug}/" class="tool-card" target="_blank">
-            <div class="tool-icon">${tool.icon}</div>
-            <div class="tool-name">${tool.name}</div>
-            <div class="tool-desc">${tool.desc}</div>
-          </a>
-        `;
-      }
-      toolsGrid.innerHTML = html;
-      toolCountBadge.textContent = `${filtered.length} tools`;
-    }
-
-    function renderCommandPalette(query = '') {
-      const q = query.toLowerCase().trim();
-      const filtered = q
-        ? TOOLS.filter(t =>
-            t.name.toLowerCase().includes(q) ||
-            t.desc.toLowerCase().includes(q) ||
-            t.category.toLowerCase().includes(q)
-          )
-        : TOOLS.slice(0, 10);
-
-      let html = `
-        <div class="cmd-group">
-          <div class="cmd-group-title">${q ? 'Search Results' : 'Popular Tools'}</div>
-      `;
-
-      for (let i = 0; i < Math.min(filtered.length, 10); i++) {
-        const tool = filtered[i];
-        html += `
-          <div class="cmd-item" data-slug="${tool.slug}">
-            <div class="cmd-item-icon">${tool.icon}</div>
-            <div class="cmd-item-content">
-              <div class="cmd-item-title">${tool.name}</div>
-              <div class="cmd-item-desc">${tool.desc}</div>
-            </div>
-            <div class="cmd-item-shortcut">Enter</div>
+        <div class="gallery-filters" role="group" aria-label="Filter models">
+          <div class="filter-group">
+            <span class="filter-label">Family</span>
+            <div class="filter-chips" id="familyFilters" role="radiogroup" aria-label="Filter by model family"></div>
           </div>
-        `;
-      }
-      html += '</div>';
+          <div class="filter-group">
+            <span class="filter-label">Parameters</span>
+            <div class="filter-chips" id="sizeFilters" role="radiogroup" aria-label="Filter by parameter count">
+              <button class="filter-chip active" data-size="all"    role="radio" aria-checked="true">All sizes</button>
+              <button class="filter-chip"        data-size="small"  role="radio" aria-checked="false">&lt; 10B</button>
+              <button class="filter-chip"        data-size="medium" role="radio" aria-checked="false">10B – 100B</button>
+              <button class="filter-chip"        data-size="large"  role="radio" aria-checked="false">100B – 500B</button>
+              <button class="filter-chip"        data-size="xlarge" role="radio" aria-checked="false">&gt; 500B</button>
+            </div>
+          </div>
+        </div>
 
-      cmdResults.innerHTML = html;
-      selectedIndex = 0;
-    }
+        <div class="gallery-grid" id="modelsGrid" role="list"></div>
+      </section>
 
-    function openCommandPalette() {
-      cmdOverlay.classList.add('active');
-      cmdInput.value = '';
-      cmdInput.focus();
-      renderCommandPalette();
-    }
+      <!-- Concepts Section -->
+      <section class="gallery-section" id="conceptsSection" aria-labelledby="conceptsSectionTitle">
+        <div class="gallery-section-header">
+          <h2 class="gallery-section-title" id="conceptsSectionTitle">Deep Learning Concepts</h2>
+          <span class="gallery-section-sub">Technique visualizations &mdash; click to enlarge</span>
+        </div>
 
-    function closeCommandPalette() {
-      cmdOverlay.classList.remove('active');
-    }
+        <div class="gallery-filters" role="group" aria-label="Filter concepts">
+          <div class="filter-group">
+            <span class="filter-label">Technique</span>
+            <div class="filter-chips" id="conceptFilters" role="radiogroup" aria-label="Filter by technique">
+              <button class="filter-chip active" data-concept="all"    role="radio" aria-checked="true">All</button>
+              <button class="filter-chip"        data-concept="MoE"    role="radio" aria-checked="false">MoE</button>
+              <button class="filter-chip"        data-concept="MLA"    role="radio" aria-checked="false">MLA</button>
+              <button class="filter-chip"        data-concept="GQA"    role="radio" aria-checked="false">GQA</button>
+              <button class="filter-chip"        data-concept="SWA"    role="radio" aria-checked="false">SWA</button>
+              <button class="filter-chip"        data-concept="Sparse" role="radio" aria-checked="false">Sparse Attention</button>
+              <button class="filter-chip"        data-concept="Gated"  role="radio" aria-checked="false">Gated</button>
+              <button class="filter-chip"        data-concept="Other"  role="radio" aria-checked="false">Other</button>
+            </div>
+          </div>
+        </div>
 
-    function executeSelected() {
-      const items = cmdResults.querySelectorAll('.cmd-item');
-      if (items[selectedIndex]) {
-        const slug = items[selectedIndex].dataset.slug;
-        window.open(slug + '/', '_blank');
-        closeCommandPalette();
-      }
-    }
+        <div class="gallery-grid gallery-grid--concepts" id="conceptsGrid" role="list"></div>
+      </section>
 
-    function setupEventListeners() {
-      // Command palette
-      cmdTrigger.addEventListener('click', openCommandPalette);
-      cmdOverlay.addEventListener('click', (e) => {
-        if (e.target === cmdOverlay) closeCommandPalette();
-      });
+    </div><!-- /gallery-content -->
 
-      cmdInput.addEventListener('input', (e) => {
-        renderCommandPalette(e.target.value);
-      });
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox" role="dialog" aria-modal="true"
+         aria-label="Image viewer" aria-hidden="true">
+      <button class="lightbox-close" id="lightboxClose" aria-label="Close image viewer">✕</button>
+      <button class="lightbox-prev"  id="lightboxPrev"  aria-label="Previous image">&#8249;</button>
+      <button class="lightbox-next"  id="lightboxNext"  aria-label="Next image">&#8250;</button>
+      <div class="lightbox-inner">
+        <img id="lightboxImg" src="" alt="" class="lightbox-img" loading="lazy">
+        <div class="lightbox-caption">
+          <p id="lightboxTitle" class="lightbox-caption-title"></p>
+          <p id="lightboxMeta"  class="lightbox-caption-meta"></p>
+        </div>
+      </div>
+      <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+    </div>
 
-      cmdInput.addEventListener('keydown', (e) => {
-        const items = cmdResults.querySelectorAll('.cmd-item');
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
-          updateSelected(items);
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          selectedIndex = Math.max(selectedIndex - 1, 0);
-          updateSelected(items);
-        } else if (e.key === 'Enter') {
-          e.preventDefault();
-          executeSelected();
-        } else if (e.key === 'Escape') {
-          closeCommandPalette();
-        }
-      });
+  </div><!-- /aiGallery -->
 
-      // Command palette item clicks
-      cmdResults.addEventListener('click', (e) => {
-        const item = e.target.closest('.cmd-item');
-        if (item) {
-          window.open(item.dataset.slug + '/', '_blank');
-          closeCommandPalette();
-        }
-      });
+  <!-- ============================================================
+       BLOCKCHAIN ARCHITECTURE OVERLAY
+  ============================================================ -->
+  <div id="cryptoGallery" class="gallery-overlay" role="dialog" aria-modal="true"
+       aria-label="Blockchain Architecture Gallery" aria-hidden="true" tabindex="-1">
 
-      // Category tabs
-      categoryTabs.addEventListener('click', (e) => {
-        const tab = e.target.closest('.category-tab');
-        if (tab) {
-          document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-          activeCategory = tab.dataset.category;
-          renderTools();
-        }
-      });
+    <header class="gallery-header">
+      <div class="gallery-header-inner">
+        <div class="gallery-header-left">
+          <div class="logo-icon">P</div>
+          <span class="gallery-header-title">Blockchain Architecture</span>
+        </div>
+        <button id="cryptoClose" class="gallery-close-btn" aria-label="Close blockchain gallery">✕</button>
+      </div>
+    </header>
 
-      // Keyboard shortcut
-      document.addEventListener('keydown', (e) => {
-        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-          e.preventDefault();
-          openCommandPalette();
-        }
-      });
-    }
+    <div class="gallery-content" id="cryptoContent">
 
-    function updateSelected(items) {
-      items.forEach((item, i) => {
-        item.classList.toggle('selected', i === selectedIndex);
-      });
-    }
+      <section class="gallery-hero crypto-hero" aria-label="Blockchain hero">
+        <div class="crypto-hero-inner">
+          <h1 class="gallery-hero-title">Blockchain Architecture</h1>
+          <p class="gallery-hero-sub">Architecture diagrams &middot; Consensus mechanisms &middot; Official whitepapers</p>
+        </div>
+      </section>
 
-    // Run
-    init();
-  </script>
+      <section class="gallery-section">
+        <div class="gallery-section-header">
+          <h2 class="gallery-section-title" id="chainCount">18 chains</h2>
+        </div>
+
+        <div class="filter-chips" id="chainLayerFilter" role="radiogroup" aria-label="Filter by layer" style="margin-bottom:8px">
+          <button class="filter-chip active" data-layer="all" role="radio" aria-checked="true">All</button>
+          <button class="filter-chip"        data-layer="L1"  role="radio" aria-checked="false">L1</button>
+          <button class="filter-chip"        data-layer="L2"  role="radio" aria-checked="false">L2</button>
+          <button class="filter-chip"        data-layer="L0"  role="radio" aria-checked="false">L0</button>
+        </div>
+
+        <div class="filter-chips" id="chainConsensusFilter" role="radiogroup" aria-label="Filter by consensus">
+          <button class="filter-chip active" data-cons="all"        role="radio" aria-checked="true">All</button>
+          <button class="filter-chip"        data-cons="PoW"        role="radio" aria-checked="false">PoW</button>
+          <button class="filter-chip"        data-cons="PoS"        role="radio" aria-checked="false">PoS</button>
+          <button class="filter-chip"        data-cons="PoH"        role="radio" aria-checked="false">PoH</button>
+          <button class="filter-chip"        data-cons="ZK"         role="radio" aria-checked="false">ZK</button>
+          <button class="filter-chip"        data-cons="Optimistic" role="radio" aria-checked="false">Optimistic</button>
+          <button class="filter-chip"        data-cons="BFT"        role="radio" aria-checked="false">BFT</button>
+        </div>
+
+        <div class="gallery-grid" id="chainGrid" aria-label="Blockchain architecture cards"></div>
+
+      </section>
+
+    </div>
+
+  </div><!-- /cryptoGallery -->
+
+  <script src="main.js"></script>
 </body>
 </html>
