@@ -196,70 +196,54 @@
   </div><!-- /aiGallery -->
 
   <!-- ============================================================
-       CRYPTO BLOCKCHAIN OVERLAY
+       BLOCKCHAIN ARCHITECTURE OVERLAY
   ============================================================ -->
   <div id="cryptoGallery" class="gallery-overlay" role="dialog" aria-modal="true"
-       aria-label="Crypto Blockchain Dashboard" aria-hidden="true" tabindex="-1">
+       aria-label="Blockchain Architecture Gallery" aria-hidden="true" tabindex="-1">
 
     <header class="gallery-header">
       <div class="gallery-header-inner">
         <div class="gallery-header-left">
           <div class="logo-icon">P</div>
-          <span class="gallery-header-title">Crypto Blockchain</span>
+          <span class="gallery-header-title">Blockchain Architecture</span>
         </div>
-        <button id="cryptoClose" class="gallery-close-btn" aria-label="Close crypto dashboard">✕</button>
+        <button id="cryptoClose" class="gallery-close-btn" aria-label="Close blockchain gallery">✕</button>
       </div>
     </header>
 
     <div class="gallery-content" id="cryptoContent">
 
-      <section class="gallery-hero crypto-hero" aria-label="Crypto hero">
+      <section class="gallery-hero crypto-hero" aria-label="Blockchain hero">
         <div class="crypto-hero-inner">
-          <h1 class="gallery-hero-title">Crypto &amp; Blockchain</h1>
-          <p class="gallery-hero-sub" id="cryptoLastUpdated">Live market data &mdash; top coins by market cap</p>
+          <h1 class="gallery-hero-title">Blockchain Architecture</h1>
+          <p class="gallery-hero-sub">Architecture diagrams &middot; Consensus mechanisms &middot; Official whitepapers</p>
         </div>
       </section>
 
       <section class="gallery-section">
         <div class="gallery-section-header">
-          <h2 class="gallery-section-title">Market Overview</h2>
-          <div class="crypto-controls">
-            <div class="filter-chips" id="cryptoCurrencyFilter" role="radiogroup" aria-label="Currency">
-              <button class="filter-chip active" data-currency="usd" role="radio" aria-checked="true">USD</button>
-              <button class="filter-chip"        data-currency="eur" role="radio" aria-checked="false">EUR</button>
-              <button class="filter-chip"        data-currency="gbp" role="radio" aria-checked="false">GBP</button>
-            </div>
-            <button id="cryptoRefresh" class="crypto-refresh-btn" aria-label="Refresh data">↻ Refresh</button>
-          </div>
+          <h2 class="gallery-section-title" id="chainCount">18 chains</h2>
         </div>
 
-        <div id="cryptoError" class="crypto-error" hidden>
-          <span>⚠</span>
-          <span id="cryptoErrorMsg">Unable to load market data. Check your connection and try again.</span>
-          <button onclick="loadCrypto()" class="filter-chip">Retry</button>
+        <div class="filter-chips" id="chainLayerFilter" role="radiogroup" aria-label="Filter by layer" style="margin-bottom:8px">
+          <button class="filter-chip active" data-layer="all" role="radio" aria-checked="true">All</button>
+          <button class="filter-chip"        data-layer="L1"  role="radio" aria-checked="false">L1</button>
+          <button class="filter-chip"        data-layer="L2"  role="radio" aria-checked="false">L2</button>
+          <button class="filter-chip"        data-layer="L0"  role="radio" aria-checked="false">L0</button>
         </div>
 
-        <div id="cryptoLoading" class="crypto-loading">
-          <div class="crypto-spinner"></div>
-          <p>Loading market data…</p>
+        <div class="filter-chips" id="chainConsensusFilter" role="radiogroup" aria-label="Filter by consensus">
+          <button class="filter-chip active" data-cons="all"        role="radio" aria-checked="true">All</button>
+          <button class="filter-chip"        data-cons="PoW"        role="radio" aria-checked="false">PoW</button>
+          <button class="filter-chip"        data-cons="PoS"        role="radio" aria-checked="false">PoS</button>
+          <button class="filter-chip"        data-cons="PoH"        role="radio" aria-checked="false">PoH</button>
+          <button class="filter-chip"        data-cons="ZK"         role="radio" aria-checked="false">ZK</button>
+          <button class="filter-chip"        data-cons="Optimistic" role="radio" aria-checked="false">Optimistic</button>
+          <button class="filter-chip"        data-cons="BFT"        role="radio" aria-checked="false">BFT</button>
         </div>
 
-        <div class="crypto-table-wrap" id="cryptoTableWrap" hidden>
-          <table class="crypto-table" id="cryptoTable" aria-label="Cryptocurrency market data">
-            <thead>
-              <tr>
-                <th class="crypto-th crypto-th--rank">#</th>
-                <th class="crypto-th">Coin</th>
-                <th class="crypto-th crypto-th--num">Price</th>
-                <th class="crypto-th crypto-th--num">24h %</th>
-                <th class="crypto-th crypto-th--num">7d %</th>
-                <th class="crypto-th crypto-th--num">Market Cap</th>
-                <th class="crypto-th crypto-th--num">Volume 24h</th>
-              </tr>
-            </thead>
-            <tbody id="cryptoTbody"></tbody>
-          </table>
-        </div>
+        <div class="gallery-grid" id="chainGrid" aria-label="Blockchain architecture cards"></div>
+
       </section>
 
     </div>

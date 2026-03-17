@@ -614,126 +614,173 @@
     initGallery();
 
     /* ============================================================
-       CRYPTO BLOCKCHAIN — STATE & LOGIC
+       BLOCKCHAIN ARCHITECTURE GALLERY — DATA & LOGIC
     ============================================================ */
 
-    let cryptoCurrency  = "usd";
-    let _cryptoScrollY  = 0;
+    const BLOCKCHAINS = [
+      { name:"Bitcoin",       ticker:"BTC",  layer:"L1", consensus:"PoW",        ecosystem:"Bitcoin",   year:2009, desc:"Original peer-to-peer cash. Nakamoto consensus, UTXO model, SHA-256 mining.",            whitepaper:"https://bitcoin.org/bitcoin.pdf" },
+      { name:"Ethereum",      ticker:"ETH",  layer:"L1", consensus:"PoS",        ecosystem:"Ethereum",  year:2015, desc:"Programmable blockchain. EVM, smart contracts, Gasper proof-of-stake consensus.",        whitepaper:"https://ethereum.org/en/whitepaper/" },
+      { name:"Solana",        ticker:"SOL",  layer:"L1", consensus:"PoH",        ecosystem:"Solana",    year:2020, desc:"High-throughput L1. Proof-of-History clock + Tower BFT. Sealevel parallel VM.",          whitepaper:"https://solana.com/solana-whitepaper.pdf" },
+      { name:"Cardano",       ticker:"ADA",  layer:"L1", consensus:"PoS",        ecosystem:"Cardano",   year:2017, desc:"Peer-reviewed design. Ouroboros PoS, eUTXO model, Plutus smart contracts.",              whitepaper:"https://docs.cardano.org/about-cardano/overview" },
+      { name:"Polkadot",      ticker:"DOT",  layer:"L0", consensus:"NPoS",       ecosystem:"Polkadot",  year:2020, desc:"Multichain relay network. Nominated PoS, parachain sharding, XCM cross-chain messaging.", whitepaper:"https://polkadot.com/papers/polkadot-lightpaper.pdf" },
+      { name:"Avalanche",     ticker:"AVAX", layer:"L1", consensus:"Snowball",   ecosystem:"Avalanche", year:2020, desc:"Triple-chain architecture (X/P/C). Snowflake/Snowball consensus, sub-second finality.",   whitepaper:"https://assets.website-files.com/5d80307810123f5ffbb34d6e/6008d7bc56430d6b8792b8d1_Avalanche%20Platform%20Whitepaper.pdf" },
+      { name:"Cosmos",        ticker:"ATOM", layer:"L0", consensus:"BFT",        ecosystem:"Cosmos",    year:2019, desc:"Internet of Blockchains. Tendermint BFT, IBC protocol, app-specific chain architecture.", whitepaper:"https://cosmos.network/cosmos-whitepaper.pdf" },
+      { name:"BNB Chain",     ticker:"BNB",  layer:"L1", consensus:"PoSA",       ecosystem:"BNB",       year:2020, desc:"EVM-compatible high-throughput chain. Proof-of-Staked-Authority with 21 validators.",      whitepaper:"https://github.com/bnb-chain/whitepaper/blob/master/WHITEPAPER.md" },
+      { name:"NEAR Protocol", ticker:"NEAR", layer:"L1", consensus:"PoS",        ecosystem:"NEAR",      year:2020, desc:"Sharded L1. Nightshade sharding, Doomslug PoS, account-based model, Rainbow Bridge.",    whitepaper:"https://near.org/papers/the-official-near-white-paper/" },
+      { name:"Sui",           ticker:"SUI",  layer:"L1", consensus:"BFT",        ecosystem:"Sui",       year:2023, desc:"Object-centric L1. Mysticeti BFT, Move VM, parallel object execution, DAG mempool.",      whitepaper:"https://docs.sui.io/paper/sui.pdf" },
+      { name:"Aptos",         ticker:"APT",  layer:"L1", consensus:"BFT",        ecosystem:"Aptos",     year:2022, desc:"Move-based L1. Block-STM parallel execution engine, DiemBFT v4 consensus protocol.",      whitepaper:"https://aptos.dev/assets/files/Aptos-Whitepaper-47099b4b907b432f81fc0effd34f3b6a.pdf" },
+      { name:"Arbitrum",      ticker:"ARB",  layer:"L2", consensus:"Optimistic", ecosystem:"Arbitrum",  year:2021, desc:"Optimistic rollup on Ethereum. Nitro engine, interactive fraud proofs, EVM equivalence.",  whitepaper:"https://github.com/OffchainLabs/nitro/blob/master/docs/Nitro-whitepaper.pdf" },
+      { name:"Optimism",      ticker:"OP",   layer:"L2", consensus:"Optimistic", ecosystem:"Optimism",  year:2021, desc:"OP Stack modular rollup. Bedrock architecture, fault proofs, EVM-equivalent execution.",   whitepaper:"https://community.optimism.io/docs/protocol/" },
+      { name:"Polygon",       ticker:"POL",  layer:"L2", consensus:"ZK",         ecosystem:"Polygon",   year:2021, desc:"ZK rollup with zkEVM. Plonky2 proving system, EVM equivalence, AggLayer aggregation.",    whitepaper:"https://polygon.technology/papers/pol-whitepaper" },
+      { name:"Base",          ticker:"BASE", layer:"L2", consensus:"Optimistic", ecosystem:"Base",      year:2023, desc:"Coinbase OP Stack rollup. Bedrock fork, EVM-equivalent execution, no native gas token.",   whitepaper:"https://base.mirror.xyz/jjQnUq_UNTQOk7psnGBFop02-bLgqiqgrn9ZVFkiJj4" },
+      { name:"zkSync Era",    ticker:"ZK",   layer:"L2", consensus:"ZK",         ecosystem:"zkSync",    year:2023, desc:"ZK rollup with zkEVM. Boojum proof system, native account abstraction, zkPorter DA.",      whitepaper:"https://zksync.io/whitepaper.pdf" },
+      { name:"Stellar",       ticker:"XLM",  layer:"L1", consensus:"SCP",        ecosystem:"Stellar",   year:2014, desc:"Federated Byzantine agreement. Stellar Consensus Protocol, built-in DEX, fast payments.",  whitepaper:"https://www.stellar.org/papers/stellar-consensus-protocol" },
+      { name:"Algorand",      ticker:"ALGO", layer:"L1", consensus:"PoS",        ecosystem:"Algorand",  year:2019, desc:"Pure PoS with cryptographic sortition. Immediate finality, no forks, AVM smart contracts.", whitepaper:"https://algorandcom.cdn.prismic.io/algorandcom/d5407f96-8e7d-4418-9ce4-0ce9e42ab087_theoretical.pdf" },
+    ];
 
-    const cryptoGallery = document.getElementById("cryptoGallery");
-    const cryptoLoading = document.getElementById("cryptoLoading");
-    const cryptoTableWrap = document.getElementById("cryptoTableWrap");
-    const cryptoTbody   = document.getElementById("cryptoTbody");
-    const cryptoErrorEl = document.getElementById("cryptoError");
-    const cryptoErrorMsg = document.getElementById("cryptoErrorMsg");
+    const CHAIN_COLORS = {
+      "Bitcoin":   "#f7931a",
+      "Ethereum":  "#627eea",
+      "Solana":    "#9945ff",
+      "Cardano":   "#0033ad",
+      "Polkadot":  "#e6007a",
+      "Avalanche": "#e84142",
+      "Cosmos":    "#2fb4c0",
+      "BNB":       "#f0b90b",
+      "NEAR":      "#00c08b",
+      "Sui":       "#4da2ff",
+      "Aptos":     "#00d1d5",
+      "Arbitrum":  "#28a0f0",
+      "Optimism":  "#ff0420",
+      "Polygon":   "#8247e5",
+      "Base":      "#0052ff",
+      "zkSync":    "#4e529a",
+      "Stellar":   "#08b5e5",
+      "Algorand":  "#00b4d8"
+    };
+
+    let chainActiveLayer     = "all";
+    let chainActiveConsensus = "all";
+    let _cryptoScrollY       = 0;
+    let chainLightboxItems   = [];
+
+    function chainSVG(b) {
+      const c  = CHAIN_COLORS[b.ecosystem] || "#6366f1";
+      const short = b.desc.length > 72 ? b.desc.slice(0, 70) + "…" : b.desc;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260">
+        <rect width="400" height="260" fill="#0f172a"/>
+        <rect width="400" height="260" fill="${c}" fill-opacity=".12"/>
+        <line x1="0" y1="65"  x2="400" y2="65"  stroke="${c}" stroke-opacity=".15" stroke-width="1"/>
+        <line x1="0" y1="130" x2="400" y2="130" stroke="${c}" stroke-opacity=".15" stroke-width="1"/>
+        <line x1="0" y1="195" x2="400" y2="195" stroke="${c}" stroke-opacity=".15" stroke-width="1"/>
+        <line x1="133" y1="0" x2="133" y2="260" stroke="${c}" stroke-opacity=".1"  stroke-width="1"/>
+        <line x1="266" y1="0" x2="266" y2="260" stroke="${c}" stroke-opacity=".1"  stroke-width="1"/>
+        <rect x="0" y="0" width="4" height="260" fill="${c}"/>
+        <text x="200" y="158" text-anchor="middle" font-family="monospace" font-size="88" font-weight="bold" fill="${c}" fill-opacity=".18">${b.ticker}</text>
+        <text x="24"  y="52"  font-family="system-ui,sans-serif" font-size="26" font-weight="700" fill="white">${b.name}</text>
+        <rect x="22"  y="64"  width="${b.consensus.length * 10 + 20}" height="22" rx="11" fill="${c}" fill-opacity=".25"/>
+        <text x="${22 + b.consensus.length * 5 + 10}" y="79" text-anchor="middle" font-family="monospace" font-size="11" font-weight="600" fill="${c}">${b.consensus}</text>
+        <rect x="${22 + b.consensus.length * 10 + 28}" y="64" width="34" height="22" rx="11" fill="white" fill-opacity=".08"/>
+        <text x="${22 + b.consensus.length * 10 + 45}" y="79" text-anchor="middle" font-family="monospace" font-size="11" font-weight="600" fill="white" fill-opacity=".7">${b.layer}</text>
+        <text x="24"  y="208" font-family="system-ui,sans-serif" font-size="12" fill="white" fill-opacity=".55">${short}</text>
+        <text x="376" y="246" text-anchor="end" font-family="monospace" font-size="11" fill="white" fill-opacity=".35">est. ${b.year}</text>
+      </svg>`;
+      return "data:image/svg+xml," + encodeURIComponent(svg);
+    }
+
+    function renderChains() {
+      const list = BLOCKCHAINS.filter(b => {
+        const lm = chainActiveLayer     === "all" || b.layer     === chainActiveLayer;
+        const cm = chainActiveConsensus === "all" || b.consensus === chainActiveConsensus;
+        return lm && cm;
+      });
+
+      chainLightboxItems = list.map(b => ({
+        src:   chainSVG(b),
+        title: b.name,
+        meta:  `${b.ticker} · ${b.layer} · ${b.consensus} · est. ${b.year}`
+      }));
+
+      document.getElementById("chainCount").textContent =
+        list.length === BLOCKCHAINS.length
+          ? `${BLOCKCHAINS.length} chains`
+          : `${list.length} of ${BLOCKCHAINS.length} chains`;
+
+      document.getElementById("chainGrid").innerHTML = list.map((b, i) => {
+        const fc = CHAIN_COLORS[b.ecosystem] || "#6366f1";
+        return `<article class="gallery-card" data-lightbox-index="${i}" style="--fc:${fc}" role="button" tabindex="0" aria-label="${b.name} architecture">
+          <div class="gallery-card-img-wrap">
+            <img class="gallery-card-img" src="${chainSVG(b)}" alt="${b.name} architecture diagram" loading="lazy" width="400" height="260">
+            <div class="gallery-card-img-overlay"><span class="gallery-card-expand" aria-hidden="true">⤢</span></div>
+          </div>
+          <div class="gallery-card-body">
+            <div class="gallery-card-meta">
+              <span class="gallery-card-dot" style="background:${fc}"></span>
+              <span class="gallery-card-family">${b.ticker} · ${b.layer}</span>
+              <span class="gallery-card-size-badge">${b.consensus}</span>
+            </div>
+            <h3 class="gallery-card-name">${b.name}</h3>
+            <a href="${b.whitepaper}" target="_blank" rel="noopener noreferrer"
+               class="chain-wp-btn" aria-label="Read ${b.name} whitepaper"
+               onclick="event.stopPropagation()">Whitepaper ↗</a>
+          </div>
+        </article>`;
+      }).join("");
+    }
 
     function openCrypto() {
       _cryptoScrollY = window.scrollY;
-      cryptoGallery.classList.add("gallery-open");
-      cryptoGallery.setAttribute("aria-hidden", "false");
+      const el = document.getElementById("cryptoGallery");
+      el.classList.add("gallery-open");
+      el.setAttribute("aria-hidden", "false");
       document.getElementById("cryptoBtn").setAttribute("aria-expanded", "true");
       document.body.style.overflow = "hidden";
       document.getElementById("cryptoContent").scrollTop = 0;
-      if (!cryptoGallery.dataset.loaded) { loadCrypto(); }
-      cryptoGallery.focus();
+      if (!el.dataset.loaded) { renderChains(); el.dataset.loaded = "true"; }
+      el.focus();
     }
 
     function closeCrypto() {
-      cryptoGallery.classList.remove("gallery-open");
-      cryptoGallery.setAttribute("aria-hidden", "true");
+      const el = document.getElementById("cryptoGallery");
+      el.classList.remove("gallery-open");
+      el.setAttribute("aria-hidden", "true");
       document.getElementById("cryptoBtn").setAttribute("aria-expanded", "false");
       document.body.style.overflow = "";
       window.scrollTo(0, _cryptoScrollY);
       document.getElementById("cryptoBtn").focus();
     }
 
-    function fmtPrice(n, currency) {
-      if (n === null || n === undefined) return "—";
-      return new Intl.NumberFormat("en-US", {
-        style: "currency", currency: currency.toUpperCase(),
-        minimumFractionDigits: n < 1 ? 4 : n < 100 ? 2 : 0,
-        maximumFractionDigits: n < 1 ? 6 : n < 100 ? 2 : 0
-      }).format(n);
-    }
-
-    function fmtBig(n, currency) {
-      if (n === null || n === undefined) return "—";
-      const sym = { usd:"$", eur:"€", gbp:"£" }[currency] || "$";
-      if (n >= 1e12) return sym + (n / 1e12).toFixed(2) + "T";
-      if (n >= 1e9)  return sym + (n / 1e9).toFixed(2)  + "B";
-      if (n >= 1e6)  return sym + (n / 1e6).toFixed(2)  + "M";
-      return sym + n.toLocaleString();
-    }
-
-    function fmtChange(pct) {
-      if (pct === null || pct === undefined) return '<span class="crypto-change">—</span>';
-      const cls = pct >= 0 ? "crypto-change--pos" : "crypto-change--neg";
-      const arrow = pct >= 0 ? "▲" : "▼";
-      return `<span class="crypto-change ${cls}">${arrow} ${Math.abs(pct).toFixed(2)}%</span>`;
-    }
-
-    async function loadCrypto() {
-      cryptoErrorEl.hidden = true;
-      cryptoTableWrap.hidden = true;
-      cryptoLoading.style.display = "flex";
-
-      const refreshBtn = document.getElementById("cryptoRefresh");
-      refreshBtn.classList.add("spinning");
-
-      try {
-        const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=${cryptoCurrency}&order=market_cap_desc&per_page=50&page=1&sparkline=false&price_change_percentage=24h%2C7d`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const coins = await res.json();
-
-        cryptoTbody.innerHTML = coins.map((c, i) => `
-          <tr class="crypto-row">
-            <td class="crypto-td crypto-td--rank">${i + 1}</td>
-            <td class="crypto-td">
-              <div class="crypto-coin">
-                <img class="crypto-coin-img" src="${c.image}" alt="${c.name} logo" loading="lazy" width="28" height="28">
-                <div>
-                  <div class="crypto-coin-name">${c.name}</div>
-                  <div class="crypto-coin-symbol">${c.symbol}</div>
-                </div>
-              </div>
-            </td>
-            <td class="crypto-td crypto-td--num">${fmtPrice(c.current_price, cryptoCurrency)}</td>
-            <td class="crypto-td crypto-td--num">${fmtChange(c.price_change_percentage_24h)}</td>
-            <td class="crypto-td crypto-td--num">${fmtChange(c.price_change_percentage_7d_in_currency)}</td>
-            <td class="crypto-td crypto-td--num crypto-cap">${fmtBig(c.market_cap, cryptoCurrency)}</td>
-            <td class="crypto-td crypto-td--num crypto-td--vol">${fmtBig(c.total_volume, cryptoCurrency)}</td>
-          </tr>`).join("");
-
-        const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        document.getElementById("cryptoLastUpdated").textContent = `Live market data · Updated ${now}`;
-        cryptoGallery.dataset.loaded = "true";
-        cryptoTableWrap.hidden = false;
-      } catch (err) {
-        cryptoErrorMsg.textContent = `Failed to load market data: ${err.message}. Check your connection and try again.`;
-        cryptoErrorEl.hidden = false;
-      } finally {
-        cryptoLoading.style.display = "none";
-        refreshBtn.classList.remove("spinning");
-      }
-    }
-
-    function initCrypto() {
+    function initChain() {
       document.getElementById("cryptoBtn").addEventListener("click", openCrypto);
       document.getElementById("cryptoClose").addEventListener("click", closeCrypto);
-      document.getElementById("cryptoRefresh").addEventListener("click", loadCrypto);
 
-      document.getElementById("cryptoCurrencyFilter").addEventListener("click", e => {
+      document.getElementById("chainLayerFilter").addEventListener("click", e => {
         const chip = e.target.closest(".filter-chip");
         if (!chip) return;
-        cryptoCurrency = chip.dataset.currency;
-        document.getElementById("cryptoCurrencyFilter").querySelectorAll(".filter-chip").forEach(c => {
-          c.classList.toggle("active", c.dataset.currency === cryptoCurrency);
-          c.setAttribute("aria-checked", c.dataset.currency === cryptoCurrency ? "true" : "false");
-        });
-        cryptoGallery.dataset.loaded = "";
-        loadCrypto();
+        chainActiveLayer = chip.dataset.layer;
+        updateFilterChips("chainLayerFilter", "layer", chainActiveLayer);
+        renderChains();
+      });
+
+      document.getElementById("chainConsensusFilter").addEventListener("click", e => {
+        const chip = e.target.closest(".filter-chip");
+        if (!chip) return;
+        chainActiveConsensus = chip.dataset.cons;
+        updateFilterChips("chainConsensusFilter", "cons", chainActiveConsensus);
+        renderChains();
+      });
+
+      document.getElementById("chainGrid").addEventListener("click", e => {
+        const card = e.target.closest(".gallery-card");
+        if (!card || e.target.closest("a")) return;
+        openLightbox(chainLightboxItems, parseInt(card.dataset.lightboxIndex));
+      });
+
+      document.getElementById("chainGrid").addEventListener("keydown", e => {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        const card = e.target.closest(".gallery-card");
+        if (card) openLightbox(chainLightboxItems, parseInt(card.dataset.lightboxIndex));
       });
     }
 
-    initCrypto();
+    initChain();
