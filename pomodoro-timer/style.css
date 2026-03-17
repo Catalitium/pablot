@@ -1,0 +1,6 @@
+:root{--bg:#f4f7fb;--panel:#fff;--text:#132030;--border:#d2dce8}
+*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Tahoma,sans-serif;background:var(--bg);color:var(--text)}
+.app{max-width:800px;margin:0 auto;padding:1rem;display:grid;gap:1rem}.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1rem}
+.display{text-align:center}.display strong{display:block;font-size:4rem;line-height:1.1}.buttons{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+button,input{font:inherit;padding:.5rem .7rem;border:1px solid var(--border);border-radius:8px}.settings{display:grid;gap:.7rem}
+label{display:grid;gap:.2rem}

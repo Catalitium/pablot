@@ -1,0 +1,26 @@
+{
+  "request_summary": "# Operator Request\n\nReview the selected repository, identify the highest-value improvement based on current git state, implement it safely, run tests, and prepare delivery evidence.",
+  "selected_project": "fake-data-gen",
+  "selected_repo_path": "C:\\Users\\catal\\Desktop\\code-base\\fake-data-gen",
+  "selection_reason": "Fallback selection due to LLM parse/API failure",
+  "goals": [
+    "Deliver a safe MVP improvement based on request"
+  ],
+  "plan_steps": [
+    {
+      "step": 1,
+      "action": "Identify minimal file changes required for request",
+      "priority": "high",
+      "risk": "medium"
+    }
+  ],
+  "constraints": [
+    "Keep changes minimal and reversible"
+  ],
+  "success_criteria": [
+    "Local tests pass",
+    "Commit created"
+  ],
+  "agent": "elena",
+  "status": "planned"
+}

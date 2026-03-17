@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Freelance Contract Generator</title>
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --panel-bg: #0f172a;
+  --panel-surface: #1e293b;
+  --panel-border: #334155;
+  --accent: #2563eb;
+  --accent-light: #3b82f6;
+  --accent-glow: rgba(37,99,235,0.15);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --input-bg: #0f172a;
+  --input-border: #334155;
+  --input-focus: #2563eb;
+  --red: #ef4444;
+  --green: #22c55e;
+  --yellow: #f59e0b;
+  --panel-width: 400px;
+}
+html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+body { display: flex; flex-direction: column; background: #0f172a; color: var(--text-primary); overflow: hidden; }
+
+/* ===== TOP BAR ===== */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #020617; border-bottom: 1px solid var(--panel-border);
+  padding: 0 20px; height: 52px; flex-shrink: 0; z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.logo { font-size: 16px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px; }
+.logo span { color: var(--accent-light); }
+.contract-type-selector { display: flex; align-items: center; gap: 8px; }
+.contract-type-selector label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.contract-type-selector select {
+  background: var(--panel-surface); border: 1px solid var(--panel-border);
+  color: var(--text-primary); padding: 5px 10px; border-radius: 6px;
+  font-size: 13px; cursor: pointer; outline: none;
+}
+.contract-type-selector select:focus { border-color: var(--accent); }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.progress-wrap { display: flex; align-items: center; gap: 8px; }
+.progress-label { font-size: 11px; color: var(--text-muted); }
+.progress-bar-outer { width: 100px; height: 6px; background: var(--panel-border); border-radius: 3px; overflow: hidden; }
+.progress-bar-inner { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s ease; width: 0%; }
+.progress-pct { font-size: 11px; color: var(--accent-light); font-weight: 600; min-width: 28px; }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  cursor: pointer; border: none; transition: all 0.15s ease; white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-light); }
+.btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--panel-border); }
+.btn-ghost:hover { background: var(--panel-surface); color: var(--text-primary); }
+.btn-danger { background: transparent; color: var(--red); border: 1px solid #7f1d1d; }
+.btn-danger:hover { background: #7f1d1d22; }
+.btn-green { background: #166534; color: #86efac; border: 1px solid #166534; }
+.btn-green:hover { background: #15803d; }
+.btn-yellow { background: #78350f; color: #fde68a; border: 1px solid #78350f; }
+.btn-yellow:hover { background: #92400e; }
+
+/* ===== MAIN LAYOUT ===== */
+.main { display: flex; flex: 1; overflow: hidden; }
+
+/* ===== LEFT PANEL ===== */
+.left-panel {
+  width: var(--panel-width); min-width: var(--panel-width);
+  background: var(--panel-bg); border-right: 1px solid var(--panel-border);
+  overflow-y: auto; display: flex; flex-direction: column;
+}
+.left-panel::-webkit-scrollbar { width: 4px; }
+.left-panel::-webkit-scrollbar-track { background: transparent; }
+.left-panel::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 2px; }
+
+.panel-actions {
+  padding: 12px 16px; background: var(--panel-surface);
+  border-bottom: 1px solid var(--panel-border);
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+
+/* ===== COLLAPSIBLE SECTIONS ===== */
+.form-section { border-bottom: 1px solid var(--panel-border); }
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; cursor: pointer; user-select: none;
+  transition: background 0.15s;
+}
+.section-header:hover { background: var(--panel-surface); }
+.section-header-left { display: flex; align-items: center; gap: 10px; }
+.section-icon {
+  width: 28px; height: 28px; border-radius: 6px;
+  background: var(--accent-glow); border: 1px solid rgba(37,99,235,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.section-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.section-chevron {
+  font-size: 10px; color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+.section-chevron.open { transform: rotate(180deg); }
+.section-body { overflow: hidden; transition: max-height 0.3s ease; max-height: 0; }
+.section-body.open { max-height: 2000px; }
+.section-inner { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+/* ===== FORM FIELDS ===== */
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field-row { display: grid; gap: 8px; }
+.field-row-2 { grid-template-columns: 1fr 1fr; }
+.field-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+.field label {
+  font-size: 11px; font-weight: 600; color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.4px;
+  display: flex; align-items: center; gap: 4px;
+}
+.req { color: var(--red); font-size: 10px; }
+.field input, .field select, .field textarea {
+  background: var(--input-bg); border: 1px solid var(--input-border);
+  color: var(--text-primary); padding: 7px 10px; border-radius: 6px;
+  font-size: 13px; outline: none; transition: border-color 0.15s;
+  font-family: inherit; width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--input-focus); box-shadow: 0 0 0 2px var(--accent-glow);
+}
+.field input::placeholder, .field textarea::placeholder { color: var(--text-muted); }
+.field textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+.field select { cursor: pointer; }
+.field-hint { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+/* Tooltip */
+.tooltip-wrap { position: relative; display: inline-flex; align-items: center; }
+.tooltip-icon {
+  width: 14px; height: 14px; border-radius: 50%; background: var(--panel-border);
+  color: var(--text-muted); font-size: 9px; display: flex; align-items: center;
+  justify-content: center; cursor: help; font-weight: 700;
+}
+.tooltip-box {
+  display: none; position: absolute; left: 18px; top: -4px; z-index: 200;
+  background: #1e293b; border: 1px solid var(--panel-border);
+  border-radius: 6px; padding: 8px 10px; font-size: 11px; color: var(--text-secondary);
+  width: 200px; line-height: 1.5; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.tooltip-wrap:hover .tooltip-box { display: block; }
+
+/* Toggle */
+.toggle-field { display: flex; align-items: center; justify-content: space-between; }
+.toggle-label { font-size: 12px; color: var(--text-secondary); }
+.toggle {
+  position: relative; width: 36px; height: 20px;
+  display: inline-flex; align-items: center; cursor: pointer;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; background: var(--panel-border);
+  border-radius: 10px; transition: background 0.2s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute; width: 14px; height: 14px;
+  border-radius: 50%; background: #fff; left: 3px; top: 3px;
+  transition: transform 0.2s;
+}
+.toggle input:checked + .toggle-slider { background: var(--accent); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+/* Deliverables list */
+.deliverables-list { display: flex; flex-direction: column; gap: 4px; }
+.deliverable-item { display: flex; gap: 6px; align-items: center; }
+.deliverable-item input { flex: 1; }
+.deliverable-item .btn-remove {
+  width: 26px; height: 26px; border-radius: 4px; background: #7f1d1d33;
+  border: none; color: var(--red); font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background 0.15s;
+}
+.deliverable-item .btn-remove:hover { background: #7f1d1d66; }
+.btn-add-deliverable {
+  background: var(--accent-glow); border: 1px dashed rgba(37,99,235,0.4);
+  color: var(--accent-light); padding: 6px; border-radius: 6px;
+  font-size: 12px; cursor: pointer; text-align: center; transition: all 0.15s;
+}
+.btn-add-deliverable:hover { background: rgba(37,99,235,0.25); }
+
+/* Payment milestone inputs */
+.milestone-inputs { display: flex; flex-direction: column; gap: 6px; }
+.milestone-row { display: flex; gap: 8px; align-items: center; }
+.milestone-row label { font-size: 11px; color: var(--text-muted); min-width: 80px; }
+.milestone-row input { flex: 1; }
+.milestone-row .pct { font-size: 11px; color: var(--text-muted); }
+
+/* Template slots */
+.template-slots { display: flex; gap: 6px; }
+.template-slot { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.template-slot-label { font-size: 10px; color: var(--text-muted); text-align: center; }
+.template-slot-btns { display: flex; gap: 3px; }
+.template-slot-btns .btn { flex: 1; padding: 4px 6px; font-size: 10px; justify-content: center; }
+
+/* ===== RIGHT PANEL (DOCUMENT) ===== */
+.right-panel {
+  flex: 1; overflow-y: auto; background: #e2e8f0;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 32px 24px;
+}
+.right-panel::-webkit-scrollbar { width: 8px; }
+.right-panel::-webkit-scrollbar-track { background: #cbd5e1; }
+.right-panel::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+
+/* Document toolbar */
+.doc-toolbar {
+  width: 100%; max-width: 760px; display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;
+}
+.doc-toolbar-left { display: flex; align-items: center; gap: 8px; }
+.doc-toolbar-right { display: flex; gap: 8px; }
+.doc-meta { font-size: 11px; color: #64748b; }
+
+/* The document itself */
+.contract-paper {
+  width: 100%; max-width: 760px; background: #fff;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18), 0 1px 4px rgba(0,0,0,0.08);
+  border-radius: 2px; padding: 64px 72px; min-height: 1000px;
+  font-family: Georgia, 'Times New Roman', serif; color: #1a1a1a;
+  line-height: 1.7; font-size: 14px; position: relative;
+}
+
+/* Document typography */
+.doc-watermark {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(-35deg);
+  font-size: 80px; color: rgba(0,0,0,0.03); font-weight: 900;
+  pointer-events: none; user-select: none; letter-spacing: 4px;
+  font-family: -apple-system, sans-serif;
+}
+.doc-header { text-align: center; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 2px solid #1a1a1a; }
+.doc-contract-title { font-size: 22px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; font-family: Georgia, serif; }
+.doc-contract-number { font-size: 11px; color: #666; letter-spacing: 0.5px; font-family: -apple-system, sans-serif; }
+.doc-preamble { font-size: 13.5px; margin-bottom: 28px; color: #333; font-style: italic; }
+.doc-section { margin-bottom: 24px; }
+.doc-section-title {
+  font-size: 13px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: #1a1a1a; margin-bottom: 10px;
+  padding-bottom: 4px; border-bottom: 1px solid #e0e0e0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.doc-numbered-title { display: flex; gap: 8px; }
+.doc-body { font-size: 13.5px; color: #222; line-height: 1.8; }
+.doc-body p { margin-bottom: 10px; }
+.doc-body ul { margin: 8px 0 10px 20px; }
+.doc-body ul li { margin-bottom: 4px; }
+.doc-body strong { color: #111; }
+.doc-subsection { margin: 10px 0; padding-left: 16px; border-left: 2px solid #e0e0e0; }
+
+/* Missing field marker */
+.missing { color: #dc2626; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 3px; padding: 1px 5px; font-style: normal; font-size: 12px; font-family: -apple-system, sans-serif; }
+
+/* Signature block */
+.sig-block { margin-top: 48px; padding-top: 24px; border-top: 1px solid #ddd; }
+.sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 24px; }
+.sig-col { }
+.sig-party { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #555; margin-bottom: 32px; font-family: -apple-system, sans-serif; }
+.sig-line { border-bottom: 1px solid #333; margin-bottom: 6px; height: 40px; }
+.sig-label { font-size: 11px; color: #666; font-family: -apple-system, sans-serif; }
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .topbar, .left-panel, .doc-toolbar, .right-panel > *:not(.contract-paper) { display: none !important; }
+  body { display: block; background: white; overflow: auto; }
+  .main { display: block; }
+  .right-panel {
+    display: block; background: white; padding: 0; overflow: visible;
+  }
+  .contract-paper {
+    box-shadow: none; border-radius: 0; padding: 20mm 25mm;
+    max-width: 100%; min-height: auto; page-break-inside: auto;
+  }
+  .doc-section { page-break-inside: avoid; }
+  .sig-block { page-break-inside: avoid; }
+}
+
+/* ===== MODALS ===== */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  z-index: 1000; align-items: center; justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: var(--panel-surface); border: 1px solid var(--panel-border);
+  border-radius: 12px; padding: 24px; max-width: 400px; width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.modal h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.modal p { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ===== AUTOSAVE INDICATOR ===== */
+.autosave-indicator {
+  font-size: 10px; color: var(--text-muted);
+  display: flex; align-items: center; gap: 4px;
+}
+.autosave-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--text-muted); transition: background 0.3s;
+}
+.autosave-dot.saved { background: var(--green); }
+</style>
+</head>
+<body>
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">Contract<span>Forge</span></div>
+    <div class="contract-type-selector">
+      <label>Type:</label>
+      <select id="contractType" onchange="onContractTypeChange()">
+        <option value="freelance">Freelance Service Agreement</option>
+        <option value="webdev">Web Design &amp; Development Contract</option>
+        <option value="nda">NDA (Non-Disclosure Agreement)</option>
+        <option value="design">Graphic Design Contract</option>
+        <option value="consulting">Consulting Agreement</option>
+        <option value="social">Social Media Management Contract</option>
+      </select>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="autosave-indicator">
+      <div class="autosave-dot" id="autosaveDot"></div>
+      <span id="autosaveLabel">Autosave</span>
+    </div>
+    <div class="progress-wrap">
+      <span class="progress-label">Complete:</span>
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+      <span class="progress-pct" id="progressPct">0%</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ===== LEFT PANEL ===== -->
+<div class="left-panel">
+  <div class="panel-actions">
+    <button class="btn btn-primary" onclick="quickFill()">⚡ Quick Fill</button>
+    <button class="btn btn-ghost" onclick="confirmNewContract()">✦ New</button>
+    <button class="btn btn-ghost" onclick="window.print()">🖨 Print/PDF</button>
+    <button class="btn btn-green" onclick="copyToClipboard()">⎘ Copy</button>
+    <button class="btn btn-yellow" onclick="downloadTxt()">↓ .txt</button>
+  </div>
+
+  <!-- Template Slots -->
+  <div style="padding:10px 16px; border-bottom:1px solid var(--panel-border); background:var(--panel-surface);">
+    <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Saved Templates</div>
+    <div class="template-slots">
+      <div class="template-slot">
+        <div class="template-slot-label">Slot 1</div>
+        <div class="template-slot-btns">
+          <button class="btn btn-ghost" onclick="saveTemplate(1)">Save</button>
+          <button class="btn btn-ghost" onclick="loadTemplate(1)">Load</button>
+        </div>
+      </div>
+      <div class="template-slot">
+        <div class="template-slot-label">Slot 2</div>
+        <div class="template-slot-btns">
+          <button class="btn btn-ghost" onclick="saveTemplate(2)">Save</button>
+          <button class="btn btn-ghost" onclick="loadTemplate(2)">Load</button>
+        </div>
+      </div>
+      <div class="template-slot">
+        <div class="template-slot-label">Slot 3</div>
+        <div class="template-slot-btns">
+          <button class="btn btn-ghost" onclick="saveTemplate(3)">Save</button>
+          <button class="btn btn-ghost" onclick="loadTemplate(3)">Load</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: Your Business -->
+  <div class="form-section">
+    <div class="section-header" onclick="toggleSection('s1')">
+      <div class="section-header-left">
+        <div class="section-icon">🏢</div>
+        <div class="section-title">Your Business</div>
+      </div>
+      <div class="section-chevron open" id="s1-chevron">▼</div>
+    </div>
+    <div class="section-body open" id="s1-body">
+      <div class="section-inner">
+        <div class="field">
+          <label>Full Name / Business Name <span class="req">*</span></label>
+          <input type="text" id="contractorName" placeholder="Jane Smith / Smith Design Co." oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>Business Address</label>
+          <input type="text" id="contractorAddress" placeholder="123 Main Street, Suite 400" oninput="updatePreview()">
+        </div>
+        <div class="field-row field-row-2">
+          <div class="field">
+            <label>City</label>
+            <input type="text" id="contractorCity" placeholder="New York" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>State / Province</label>
+            <input type="text" id="contractorState" placeholder="NY" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="field-row field-row-2">
+          <div class="field">
+            <label>ZIP / Postal Code</label>
+            <input type="text" id="contractorZip" placeholder="10001" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Country</label>
+            <input type="text" id="contractorCountry" placeholder="USA" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="field-row field-row-2">
+          <div class="field">
+            <label>Email <span class="req">*</span></label>
+            <input type="email" id="contractorEmail" placeholder="jane@example.com" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <input type="text" id="contractorPhone" placeholder="+1 212 555 0100" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="field-row field-row-2">
+          <div class="field">
+            <label>Business Reg # <span style="color:var(--text-muted); font-weight:400;">(opt.)</span></label>
+            <input type="text" id="contractorReg" placeholder="LLC-123456" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Website</label>
+            <input type="text" id="contractorWebsite" placeholder="www.example.com" oninput="updatePreview()">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: Client Details -->
+  <div class="form-section">
+    <div class="section-header" onclick="toggleSection('s2')">
+      <div class="section-header-left">
+        <div class="section-icon">👤</div>
+        <div class="section-title">Client Details</div>
+      </div>
+      <div class="section-chevron" id="s2-chevron">▼</div>
+    </div>
+    <div class="section-body" id="s2-body">
+      <div class="section-inner">
+        <div class="field">
+          <label>Client Name / Company <span class="req">*</span></label>
+          <input type="text" id="clientName" placeholder="Acme Corp." oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>Client Address</label>
+          <input type="text" id="clientAddress" placeholder="456 Business Ave" oninput="updatePreview()">
+        </div>
+        <div class="field-row field-row-2">
+          <div class="field">
+            <label>City</label>
+            <input type="text" id="clientCity" placeholder="San Francisco" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>State / Province</label>
+            <input type="text" id="clientState" placeholder="CA" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="field-row field-row-2">
+          <div class="field">
+            <label>ZIP / Postal Code</label>
+            <input type="text" id="clientZip" placeholder="94102" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Country</label>
+            <input type="text" id="clientCountry" placeholder="USA" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Contact Person Name <span style="color:var(--text-muted); font-weight:400;">(if company)</span></label>
+          <input type="text" id="clientContact" placeholder="John Doe, CEO" oninput="updatePreview()">
+        </div>
+        <div class="field-row field-row-2">
+          <div class="field">
+            <label>Client Email</label>
+            <input type="email" id="clientEmail" placeholder="john@acme.com" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Client Phone</label>
+            <input type="text" id="clientPhone" placeholder="+1 415 555 0200" oninput="updatePreview()">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Project Scope -->
+  <div class="form-section" id="section-scope">
+    <div class="section-header" onclick="toggleSection('s3')">
+      <div class="section-header-left">
+        <div class="section-icon">📋</div>
+        <div class="section-title">Project Scope</div>
+      </div>
+      <div class="section-chevron" id="s3-chevron">▼</div>
+    </div>
+    <div class="section-body" id="s3-body">
+      <div class="section-inner">
+        <div class="field">
+          <label>Project Title <span class="req">*</span></label>
+          <input type="text" id="projectTitle" placeholder="Brand Identity Design Package" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>Detailed Description <span class="req">*</span></label>
+          <textarea id="projectDescription" rows="4" placeholder="Describe the full scope of work, goals, and any specific requirements..." oninput="updatePreview()"></textarea>
+        </div>
+        <div class="field">
+          <label>Deliverables
+            <div class="tooltip-wrap">
+              <div class="tooltip-icon">?</div>
+              <div class="tooltip-box">List each specific item you will deliver. Be precise — this protects both parties.</div>
+            </div>
+          </label>
+          <div class="deliverables-list" id="deliverablesList"></div>
+          <button class="btn-add-deliverable" onclick="addDeliverable()">+ Add Deliverable</button>
+        </div>
+        <div class="field-row field-row-2">
+          <div class="field">
+            <label>Start Date <span class="req">*</span></label>
+            <input type="date" id="startDate" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Estimated End Date</label>
+            <input type="date" id="endDate" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="field">
+          <label>Revision Rounds Included
+            <div class="tooltip-wrap">
+              <div class="tooltip-icon">?</div>
+              <div class="tooltip-box">Number of revision rounds included in the price. Additional rounds billed at your hourly rate.</div>
+            </div>
+          </label>
+          <input type="number" id="revisionRounds" placeholder="2" min="0" max="20" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>Additional Out-of-Scope Notes</label>
+          <textarea id="outOfScope" rows="2" placeholder="e.g. Copywriting, photography, printing costs are not included..." oninput="updatePreview()"></textarea>
+        </div>
+        <!-- NDA-specific fields -->
+        <div id="ndaFields" style="display:none;">
+          <div class="field" style="margin-top:4px;">
+            <label>NDA Type</label>
+            <select id="ndaType" onchange="updatePreview()">
+              <option value="mutual">Mutual (Both parties)</option>
+              <option value="oneway">One-Way (Discloser → Recipient)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Confidential Information Definition</label>
+            <textarea id="ndaDefinition" rows="2" placeholder="Business plans, trade secrets, client lists, financial data, technical specifications..." oninput="updatePreview()"></textarea>
+          </div>
+          <div class="field">
+            <label>NDA Term (years)</label>
+            <input type="number" id="ndaTerm" placeholder="3" min="1" max="10" oninput="updatePreview()">
+          </div>
+        </div>
+        <!-- Consulting-specific -->
+        <div id="consultingFields" style="display:none;">
+          <div class="field" style="margin-top:4px;">
+            <label>Non-Compete Clause</label>
+            <select id="nonCompete" onchange="updatePreview()">
+              <option value="none">None</option>
+              <option value="6months">6 Months (same industry)</option>
+              <option value="1year">1 Year (same industry)</option>
+              <option value="custom">Custom (see description)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Expense Reimbursement Policy</label>
+            <select id="expensePolicy" onchange="updatePreview()">
+              <option value="preapproved">Pre-approved expenses only</option>
+              <option value="all">All reasonable expenses</option>
+              <option value="none">No reimbursement</option>
+            </select>
+          </div>
+        </div>
+        <!-- Web Dev specific -->
+        <div id="webdevFields" style="display:none;">
+          <div class="field" style="margin-top:4px;">
+            <label>Hosting Responsibility</label>
+            <select id="hostingResp" onchange="updatePreview()">
+              <option value="client">Client provides hosting</option>
+              <option value="contractor">Contractor provides hosting</option>
+              <option value="recommended">Contractor recommends, client pays</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Browser Compatibility</label>
+            <input type="text" id="browsers" placeholder="Chrome, Firefox, Safari, Edge (latest 2 versions)" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Post-Launch Support Period</label>
+            <select id="postLaunch" onchange="updatePreview()">
+              <option value="30days">30 Days bug fixes</option>
+              <option value="60days">60 Days bug fixes</option>
+              <option value="none">None (as-is delivery)</option>
+              <option value="custom">Custom maintenance agreement</option>
+            </select>
+          </div>
+        </div>
+        <!-- Social Media specific -->
+        <div id="socialFields" style="display:none;">
+          <div class="field" style="margin-top:4px;">
+            <label>Platforms Covered</label>
+            <input type="text" id="socialPlatforms" placeholder="Instagram, Facebook, LinkedIn, TikTok" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Posts Per Month</label>
+            <input type="number" id="postsPerMonth" placeholder="20" min="1" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Content Approval Process</label>
+            <select id="approvalProcess" onchange="updatePreview()">
+              <option value="48h">Client approves 48h before posting</option>
+              <option value="24h">Client approves 24h before posting</option>
+              <option value="auto">Auto-post (no approval needed)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: Payment Terms -->
+  <div class="form-section">
+    <div class="section-header" onclick="toggleSection('s4')">
+      <div class="section-header-left">
+        <div class="section-icon">💰</div>
+        <div class="section-title">Payment Terms</div>
+      </div>
+      <div class="section-chevron" id="s4-chevron">▼</div>
+    </div>
+    <div class="section-body" id="s4-body">
+      <div class="section-inner">
+        <div class="field-row field-row-2">
+          <div class="field">
+            <label>Total Fee <span class="req">*</span></label>
+            <input type="number" id="totalFee" placeholder="5000" min="0" oninput="updatePreview()">
+          </div>
+          <div class="field">
+            <label>Currency</label>
+            <select id="currency" onchange="updatePreview()">
+              <option value="USD">USD $</option>
+              <option value="EUR">EUR €</option>
+              <option value="GBP">GBP £</option>
+              <option value="CAD">CAD $</option>
+              <option value="AUD">AUD $</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Payment Structure</label>
+          <select id="paymentStructure" onchange="onPaymentStructureChange()">
+            <option value="upfront">100% Upfront</option>
+            <option value="50-50">50% Deposit, 50% on Completion</option>
+            <option value="milestone3">3 Milestone Payments</option>
+            <option value="retainer">Monthly Retainer</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div id="milestoneInputs" style="display:none;">
+          <div class="milestone-inputs">
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:4px;">Milestone amounts (must total 100%)</div>
+            <div class="milestone-row">
+              <label>Milestone 1</label>
+              <input type="number" id="m1pct" placeholder="30" min="0" max="100" oninput="updatePreview()">
+              <span class="pct">%</span>
+            </div>
+            <div class="milestone-row">
+              <label>Milestone 2</label>
+              <input type="number" id="m2pct" placeholder="40" min="0" max="100" oninput="updatePreview()">
+              <span class="pct">%</span>
+            </div>
+            <div class="milestone-row">
+              <label>Milestone 3</label>
+              <input type="number" id="m3pct" placeholder="30" min="0" max="100" oninput="updatePreview()">
+              <span class="pct">%</span>
+            </div>
+          </div>
+        </div>
+        <div id="customPaymentInput" style="display:none;">
+          <div class="field">
+            <label>Custom Payment Schedule</label>
+            <textarea id="customPayment" rows="2" placeholder="Describe custom payment schedule..." oninput="updatePreview()"></textarea>
+          </div>
+        </div>
+        <div class="field">
+          <label>Payment Method(s) Accepted</label>
+          <input type="text" id="paymentMethod" placeholder="Bank Transfer, PayPal, Stripe, Wise" oninput="updatePreview()">
+        </div>
+        <div class="field-row field-row-2">
+          <div class="field">
+            <label>Invoice Terms
+              <div class="tooltip-wrap">
+                <div class="tooltip-icon">?</div>
+                <div class="tooltip-box">Number of days the client has to pay from invoice date.</div>
+              </div>
+            </label>
+            <select id="invoiceTerms" onchange="updatePreview()">
+              <option value="7">Net 7</option>
+              <option value="14">Net 14</option>
+              <option value="30" selected>Net 30</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Late Fee (% / month)
+              <div class="tooltip-wrap">
+                <div class="tooltip-icon">?</div>
+                <div class="tooltip-box">Monthly interest charged on overdue invoices. 1.5% is standard.</div>
+              </div>
+            </label>
+            <input type="number" id="lateFee" placeholder="1.5" min="0" max="10" step="0.5" oninput="updatePreview()">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: IP & Rights -->
+  <div class="form-section">
+    <div class="section-header" onclick="toggleSection('s5')">
+      <div class="section-header-left">
+        <div class="section-icon">©️</div>
+        <div class="section-title">Intellectual Property &amp; Rights</div>
+      </div>
+      <div class="section-chevron" id="s5-chevron">▼</div>
+    </div>
+    <div class="section-body" id="s5-body">
+      <div class="section-inner">
+        <div class="field">
+          <label>IP Transfer</label>
+          <select id="ipTransfer" onchange="onIpTransferChange()">
+            <option value="full">Full transfer upon full payment</option>
+            <option value="license">License only (contractor retains copyright)</option>
+          </select>
+        </div>
+        <div id="licenseOptions" style="display:none;">
+          <div class="field" style="margin-top:4px;">
+            <label>License Type</label>
+            <select id="licenseType" onchange="updatePreview()">
+              <option value="exclusive">Exclusive License</option>
+              <option value="nonexclusive">Non-Exclusive License</option>
+              <option value="limited">Limited License (defined scope)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" style="margin-top:4px;">
+          <div class="toggle-field">
+            <span class="toggle-label">Portfolio Rights (show work in portfolio)</span>
+            <label class="toggle">
+              <input type="checkbox" id="portfolioRights" checked onchange="updatePreview()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <!-- Design-specific -->
+        <div id="designFields" style="display:none;">
+          <div class="field" style="margin-top:8px;">
+            <div class="toggle-field">
+              <span class="toggle-label">Include source files (.ai, .psd, .sketch, .fig)</span>
+              <label class="toggle">
+                <input type="checkbox" id="sourceFiles" checked onchange="updatePreview()">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="toggle-field">
+              <span class="toggle-label">Font licensing responsibility (client)</span>
+              <label class="toggle">
+                <input type="checkbox" id="fontLicensing" checked onchange="updatePreview()">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <label>Print-Ready File Formats</label>
+            <input type="text" id="printFormats" placeholder="PDF/X-1a, EPS, PNG 300dpi" oninput="updatePreview()">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: Terms & Conditions -->
+  <div class="form-section">
+    <div class="section-header" onclick="toggleSection('s6')">
+      <div class="section-header-left">
+        <div class="section-icon">⚖️</div>
+        <div class="section-title">Terms &amp; Conditions</div>
+      </div>
+      <div class="section-chevron" id="s6-chevron">▼</div>
+    </div>
+    <div class="section-body" id="s6-body">
+      <div class="section-inner">
+        <div class="field">
+          <label>Contract / Signature Date <span class="req">*</span></label>
+          <input type="date" id="signatureDate" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>Governing Law
+            <div class="tooltip-wrap">
+              <div class="tooltip-icon">?</div>
+              <div class="tooltip-box">The jurisdiction whose laws govern this contract in case of dispute.</div>
+            </div>
+          </label>
+          <select id="governingLaw" onchange="updatePreview()">
+            <optgroup label="USA States">
+              <option value="California, USA">California, USA</option>
+              <option value="New York, USA">New York, USA</option>
+              <option value="Texas, USA">Texas, USA</option>
+              <option value="Florida, USA">Florida, USA</option>
+              <option value="Washington, USA">Washington, USA</option>
+              <option value="Illinois, USA">Illinois, USA</option>
+              <option value="Colorado, USA">Colorado, USA</option>
+              <option value="Georgia, USA">Georgia, USA</option>
+              <option value="Nevada, USA">Nevada, USA</option>
+              <option value="Delaware, USA">Delaware, USA</option>
+            </optgroup>
+            <optgroup label="Countries">
+              <option value="England and Wales, UK">England and Wales, UK</option>
+              <option value="Scotland, UK">Scotland, UK</option>
+              <option value="Ontario, Canada">Ontario, Canada</option>
+              <option value="British Columbia, Canada">British Columbia, Canada</option>
+              <option value="New South Wales, Australia">New South Wales, Australia</option>
+              <option value="Germany">Germany</option>
+              <option value="France">France</option>
+              <option value="Netherlands">Netherlands</option>
+              <option value="Singapore">Singapore</option>
+              <option value="India">India</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="field-row field-row-2">
+          <div class="field">
+            <label>Termination Notice</label>
+            <select id="terminationNotice" onchange="updatePreview()">
+              <option value="7">7 days</option>
+              <option value="14" selected>14 days</option>
+              <option value="30">30 days</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Kill Fee (if client cancels)
+              <div class="tooltip-wrap">
+                <div class="tooltip-icon">?</div>
+                <div class="tooltip-box">% of remaining balance owed if client terminates early. Protects contractor's time.</div>
+              </div>
+            </label>
+            <input type="number" id="killFee" placeholder="25" min="0" max="100" oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="field">
+          <div class="toggle-field">
+            <span class="toggle-label">Include Confidentiality Clause</span>
+            <label class="toggle">
+              <input type="checkbox" id="confidentialityClause" checked onchange="updatePreview()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="toggle-field">
+            <span class="toggle-label">Include Force Majeure Clause</span>
+            <label class="toggle">
+              <input type="checkbox" id="forceMajeure" checked onchange="updatePreview()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="toggle-field">
+            <span class="toggle-label">Include Dispute Resolution / Arbitration</span>
+            <label class="toggle">
+              <input type="checkbox" id="disputeClause" checked onchange="updatePreview()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="toggle-field">
+            <span class="toggle-label">Include Limitation of Liability Clause</span>
+            <label class="toggle">
+              <input type="checkbox" id="liabilityClause" checked onchange="updatePreview()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="toggle-field">
+            <span class="toggle-label">Independent Contractor Status Clause</span>
+            <label class="toggle">
+              <input type="checkbox" id="contractorStatus" checked onchange="updatePreview()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Additional Custom Terms</label>
+          <textarea id="customTerms" rows="3" placeholder="Any additional terms specific to this project..." oninput="updatePreview()"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7: Signatures -->
+  <div class="form-section">
+    <div class="section-header" onclick="toggleSection('s7')">
+      <div class="section-header-left">
+        <div class="section-icon">✍️</div>
+        <div class="section-title">Signatures</div>
+      </div>
+      <div class="section-chevron" id="s7-chevron">▼</div>
+    </div>
+    <div class="section-body" id="s7-body">
+      <div class="section-inner">
+        <div style="font-size:12px; color:var(--text-muted); background:var(--panel-surface); padding:10px; border-radius:6px; border:1px solid var(--panel-border);">
+          Signature lines are auto-populated from the names entered in Sections 1 and 2. Print the document and sign physically, or use an e-signature service.
+        </div>
+        <div class="field">
+          <label>Contractor Signature Label</label>
+          <input type="text" id="sigContractorLabel" placeholder="Auto-filled from your business name" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>Client Signature Label</label>
+          <input type="text" id="sigClientLabel" placeholder="Auto-filled from client name" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>Signature Preamble</label>
+          <select id="sigPreamble" onchange="updatePreview()">
+            <option value="standard">Standard: "By signing below, both parties agree..."</option>
+            <option value="electronic">Electronic: "Electronic signature constitutes binding agreement..."</option>
+            <option value="witnessed">Witnessed: Includes witness signature line</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: 16px; text-align:center; font-size:10px; color:var(--text-muted); line-height:1.6;">
+    ContractForge generates templates for reference purposes.<br>
+    Consult a qualified attorney for legal advice.
+  </div>
+</div>
+<!-- END LEFT PANEL -->
+
+<!-- ===== RIGHT PANEL ===== -->
+<div class="right-panel">
+  <div class="doc-toolbar">
+    <div class="doc-toolbar-left">
+      <span class="doc-meta" id="docMeta">Contract #2026-001 &bull; Last updated: just now</span>
+    </div>
+    <div class="doc-toolbar-right">
+      <button class="btn btn-ghost" onclick="window.print()">🖨 Print / Save PDF</button>
+      <button class="btn btn-green" onclick="copyToClipboard()">⎘ Copy Text</button>
+      <button class="btn btn-yellow" onclick="downloadTxt()">↓ Download .txt</button>
+    </div>
+  </div>
+  <div class="contract-paper" id="contractPaper">
+    <div class="doc-watermark">DRAFT</div>
+    <div id="contractContent">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</div>
+<!-- END RIGHT PANEL -->
+
+</div><!-- end .main -->
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Confirm Action</h3>
+    <p id="modalMessage">Are you sure?</p>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" id="modalConfirmBtn" onclick="">Confirm</button>
+    </div>
+  </div>
+</div>
+<script>
+// ===== STATE =====
+let deliverables = [''];
+let contractNumber = '';
+let lastSaved = null;
+
+// ===== INIT =====
+window.addEventListener('DOMContentLoaded', () => {
+  initContractNumber();
+  initDeliverables();
+  loadFromLocalStorage();
+  updatePreview();
+  setInterval(autoSave, 30000);
+  // open section 1 by default
+  toggleSection('s1', true);
+});
+
+function initContractNumber() {
+  let num = localStorage.getItem('cg_contract_number');
+  if (!num) { num = 1; localStorage.setItem('cg_contract_number', num); }
+  const year = new Date().getFullYear();
+  contractNumber = `${year}-${String(num).padStart(3,'0')}`;
+  document.getElementById('docMeta').textContent = `Contract #${contractNumber} \u2022 Last saved: never`;
+}
+
+function initDeliverables() {
+  deliverables = [''];
+  renderDeliverables();
+}
+
+function renderDeliverables() {
+  const list = document.getElementById('deliverablesList');
+  list.innerHTML = '';
+  deliverables.forEach((d, i) => {
+    const div = document.createElement('div');
+    div.className = 'deliverable-item';
+    div.innerHTML = `<input type="text" placeholder="Deliverable ${i+1}" value="${escHtml(d)}" oninput="deliverables[${i}]=this.value; updatePreview()">
+      <button class="btn-remove" onclick="removeDeliverable(${i})">×</button>`;
+    list.appendChild(div);
+  });
+}
+
+function addDeliverable() {
+  deliverables.push('');
+  renderDeliverables();
+}
+
+function removeDeliverable(i) {
+  if (deliverables.length === 1) { deliverables[0] = ''; renderDeliverables(); return; }
+  deliverables.splice(i, 1);
+  renderDeliverables();
+  updatePreview();
+}
+
+// ===== SECTION TOGGLES =====
+function toggleSection(id, forceOpen) {
+  const body = document.getElementById(`${id}-body`);
+  const chevron = document.getElementById(`${id}-chevron`);
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  if (forceOpen === true || !isOpen) {
+    body.classList.add('open');
+    chevron.classList.add('open');
+  } else {
+    body.classList.remove('open');
+    chevron.classList.remove('open');
+  }
+}
+
+// ===== CONTRACT TYPE CHANGE =====
+function onContractTypeChange() {
+  const t = document.getElementById('contractType').value;
+  document.getElementById('ndaFields').style.display = t === 'nda' ? 'block' : 'none';
+  document.getElementById('consultingFields').style.display = t === 'consulting' ? 'block' : 'none';
+  document.getElementById('webdevFields').style.display = t === 'webdev' ? 'block' : 'none';
+  document.getElementById('socialFields').style.display = t === 'social' ? 'block' : 'none';
+  document.getElementById('designFields').style.display = t === 'design' ? 'block' : 'none';
+  // Hide payment/scope for NDA
+  document.getElementById('section-scope').style.display = '';
+  updatePreview();
+}
+
+function onPaymentStructureChange() {
+  const v = document.getElementById('paymentStructure').value;
+  document.getElementById('milestoneInputs').style.display = v === 'milestone3' ? 'block' : 'none';
+  document.getElementById('customPaymentInput').style.display = v === 'custom' ? 'block' : 'none';
+  updatePreview();
+}
+
+function onIpTransferChange() {
+  const v = document.getElementById('ipTransfer').value;
+  document.getElementById('licenseOptions').style.display = v === 'license' ? 'block' : 'none';
+  updatePreview();
+}
+
+// ===== HELPERS =====
+function v(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function checked(id) { const el = document.getElementById(id); return el ? el.checked : false; }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function M(val, label) {
+  if (!val || val.trim() === '') return `<span class="missing">[${label || 'MISSING'}]</span>`;
+  return `<strong>${escHtml(val)}</strong>`;
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+}
+
+function currSymbol() {
+  const map = {USD:'USD $', EUR:'EUR €', GBP:'GBP £', CAD:'CAD $', AUD:'AUD $'};
+  return map[v('currency')] || 'USD $';
+}
+
+function fmtMoney(n) {
+  const c = v('currency') || 'USD';
+  const symbols = {USD:'$', EUR:'€', GBP:'£', CAD:'CA$', AUD:'A$'};
+  const s = symbols[c] || '$';
+  if (!n) return '';
+  return `${c} ${s}${Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+}
+
+function buildAddress(addr, city, state, zip, country) {
+  const parts = [addr, [city, state].filter(Boolean).join(', '), zip, country].filter(Boolean);
+  return parts.join(', ');
+}
+
+// ===== PROGRESS =====
+function updateProgress() {
+  const requiredFields = ['contractorName','contractorEmail','clientName','projectTitle','projectDescription','startDate','totalFee','signatureDate'];
+  const filled = requiredFields.filter(id => v(id).length > 0).length;
+  const pct = Math.round((filled / requiredFields.length) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+// ===== MAIN PREVIEW RENDERER =====
+function updatePreview() {
+  updateProgress();
+  const type = document.getElementById('contractType').value;
+  let html = '';
+  switch(type) {
+    case 'freelance': html = buildFreelanceContract(); break;
+    case 'webdev':    html = buildWebDevContract(); break;
+    case 'nda':       html = buildNDAContract(); break;
+    case 'design':    html = buildDesignContract(); break;
+    case 'consulting':html = buildConsultingContract(); break;
+    case 'social':    html = buildSocialContract(); break;
+    default:          html = buildFreelanceContract();
+  }
+  document.getElementById('contractContent').innerHTML = html;
+}
+
+// ===== CONTRACT TITLES =====
+const contractTitles = {
+  freelance: 'FREELANCE SERVICE AGREEMENT',
+  webdev: 'WEB DESIGN &amp; DEVELOPMENT CONTRACT',
+  nda: 'NON-DISCLOSURE AGREEMENT',
+  design: 'GRAPHIC DESIGN CONTRACT',
+  consulting: 'CONSULTING AGREEMENT',
+  social: 'SOCIAL MEDIA MANAGEMENT CONTRACT'
+};
+
+// ===== SHARED HEADER =====
+function buildHeader(type) {
+  const sigDate = v('signatureDate') ? fmtDate(v('signatureDate')) : '<span class="missing">[DATE]</span>';
+  const cName = v('contractorName') || '<span class="missing">[CONTRACTOR NAME]</span>';
+  const clName = v('clientName') || '<span class="missing">[CLIENT NAME]</span>';
+  const cAddr = buildAddress(v('contractorAddress'), v('contractorCity'), v('contractorState'), v('contractorZip'), v('contractorCountry'));
+  const clAddr = buildAddress(v('clientAddress'), v('clientCity'), v('clientState'), v('clientZip'), v('clientCountry'));
+  return `
+<div class="doc-header">
+  <div class="doc-contract-title">${contractTitles[type] || 'SERVICE AGREEMENT'}</div>
+  <div class="doc-contract-number">Contract No: ${contractNumber} &nbsp;&bull;&nbsp; Date: ${sigDate}</div>
+</div>
+<div class="doc-preamble">
+  This ${contractTitles[type] ? contractTitles[type].replace(/&amp;/g,'&') : 'Agreement'} ("Agreement") is entered into as of ${sigDate}, by and between:
+</div>
+<div class="doc-section">
+  <div class="doc-body">
+    <p><strong>CONTRACTOR / SERVICE PROVIDER:</strong><br>
+    ${escHtml(v('contractorName')) || '<span class="missing">[YOUR NAME]</span>'}${v('contractorReg') ? ` (Reg: ${escHtml(v('contractorReg'))})` : ''}<br>
+    ${cAddr ? escHtml(cAddr) + '<br>' : ''}
+    ${v('contractorEmail') ? escHtml(v('contractorEmail')) : ''}${v('contractorPhone') ? ' &bull; ' + escHtml(v('contractorPhone')) : ''}
+    ${v('contractorWebsite') ? '<br>' + escHtml(v('contractorWebsite')) : ''}
+    </p>
+    <p><strong>CLIENT:</strong><br>
+    ${escHtml(v('clientName')) || '<span class="missing">[CLIENT NAME]</span>'}
+    ${v('clientContact') ? `<br>Attention: ${escHtml(v('clientContact'))}` : ''}
+    ${clAddr ? '<br>' + escHtml(clAddr) : ''}
+    ${v('clientEmail') ? '<br>' + escHtml(v('clientEmail')) : ''}${v('clientPhone') ? ' &bull; ' + escHtml(v('clientPhone')) : ''}
+    </p>
+    <p>The Contractor and the Client are each referred to herein individually as a "Party" and collectively as the "Parties."</p>
+  </div>
+</div>`;
+}
+
+// ===== SHARED SECTIONS =====
+function buildScopeSection(sectionNum) {
+  const title = v('projectTitle') || '<span class="missing">[PROJECT TITLE]</span>';
+  const desc = v('projectDescription') || '<span class="missing">[PROJECT DESCRIPTION REQUIRED]</span>';
+  const startD = v('startDate') ? fmtDate(v('startDate')) : '<span class="missing">[START DATE]</span>';
+  const endD = v('endDate') ? fmtDate(v('endDate')) : 'to be mutually agreed upon in writing';
+  const revs = v('revisionRounds') || '2';
+  const delItems = deliverables.filter(d => d.trim()).map(d => `<li>${escHtml(d)}</li>`).join('');
+  const oos = v('outOfScope');
+  return `
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>${sectionNum}.</span><span>SCOPE OF WORK</span></div>
+  <div class="doc-body">
+    <p><strong>Project Title:</strong> ${escHtml(v('projectTitle')) || '<span class="missing">[TITLE]</span>'}</p>
+    <p><strong>Description:</strong> ${escHtml(v('projectDescription')) || '<span class="missing">[DESCRIPTION]</span>'}</p>
+    ${delItems ? `<p><strong>Deliverables:</strong></p><ul>${delItems}</ul>` : ''}
+    <p><strong>Project Timeline:</strong> Work shall commence on or about ${startD} and is estimated to be completed by ${endD}. All deadlines are estimates unless explicitly marked as fixed in writing.</p>
+    <p><strong>Revisions:</strong> This Agreement includes up to ${revs} round(s) of revisions. A "revision round" is defined as one consolidated set of changes requested at a single point in time. Additional revision rounds beyond those included shall be billed at the Contractor's standard hourly rate.</p>
+    ${oos ? `<p><strong>Out of Scope:</strong> The following items are expressly excluded from this Agreement and will be billed separately if required: ${escHtml(oos)}</p>` : ''}
+    <p><strong>Contractor's Standard Out-of-Scope Items:</strong> Rush fees may apply for work required with less than 48 hours' notice. Travel, printing, stock photography, third-party software licenses, and other expenses are not included unless explicitly listed above.</p>
+  </div>
+</div>`;
+}
+
+function buildPaymentSection(sectionNum) {
+  const fee = v('totalFee');
+  const feeStr = fee ? fmtMoney(fee) : '<span class="missing">[FEE AMOUNT]</span>';
+  const struct = v('paymentStructure');
+  const method = v('paymentMethod') || 'bank transfer';
+  const terms = v('invoiceTerms') || '30';
+  const late = v('lateFee') || '1.5';
+  let scheduleText = '';
+  if (struct === 'upfront') {
+    scheduleText = `The full project fee of ${feeStr} is due prior to commencement of work. Work will not begin until payment has cleared.`;
+  } else if (struct === '50-50') {
+    const half = fee ? fmtMoney(fee/2) : '[50%]';
+    scheduleText = `A non-refundable deposit of ${half} (50%) of the total project fee of ${feeStr} is due upon signing this Agreement. The remaining ${half} (50%) is due upon final delivery and Client approval of all Deliverables.`;
+  } else if (struct === 'milestone3') {
+    const m1 = v('m1pct') || '30'; const m2 = v('m2pct') || '40'; const m3 = v('m3pct') || '30';
+    const a1 = fee ? fmtMoney(fee*(m1/100)) : `${m1}%`;
+    const a2 = fee ? fmtMoney(fee*(m2/100)) : `${m2}%`;
+    const a3 = fee ? fmtMoney(fee*(m3/100)) : `${m3}%`;
+    scheduleText = `The total project fee of ${feeStr} shall be paid in three (3) milestone installments: (i) Milestone 1: ${a1} (${m1}%) upon signing of this Agreement; (ii) Milestone 2: ${a2} (${m2}%) upon completion and approval of the second milestone; (iii) Milestone 3: ${a3} (${m3}%) upon final delivery.`;
+  } else if (struct === 'retainer') {
+    scheduleText = `The Client agrees to pay a monthly retainer fee of ${feeStr} per month, invoiced on the first day of each calendar month, payable within Net ${terms} days.`;
+  } else {
+    const custom = v('customPayment');
+    scheduleText = custom ? escHtml(custom) : `<span class="missing">[CUSTOM PAYMENT SCHEDULE]</span>`;
+  }
+  return `
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>${sectionNum}.</span><span>PAYMENT TERMS</span></div>
+  <div class="doc-body">
+    <p><strong>Total Fee:</strong> ${feeStr} (${currSymbol()})</p>
+    <p><strong>Payment Schedule:</strong> ${scheduleText}</p>
+    <p><strong>Payment Method:</strong> All invoices shall be payable via ${escHtml(method)}. Payment details will be provided on each invoice.</p>
+    <p><strong>Invoice Terms:</strong> All invoices are due within Net ${terms} days of the invoice date. Invoices shall be submitted electronically to the Client's designated billing contact.</p>
+    <p><strong>Late Payment:</strong> Invoices not paid within the agreed payment period shall accrue interest at a rate of ${late}% per month (${(parseFloat(late||1.5)*12).toFixed(1)}% per annum) on the outstanding balance, calculated from the due date until the date of actual payment. The Contractor reserves the right to suspend work and withhold delivery of final files until all outstanding balances are paid in full.</p>
+    <p><strong>Expenses:</strong> Any pre-approved third-party expenses, including but not limited to stock images, fonts, hosting, domain names, printing, or travel, shall be invoiced to and paid by the Client in addition to the project fee.</p>
+  </div>
+</div>`;
+}
+
+function buildIPSection(sectionNum) {
+  const transfer = v('ipTransfer');
+  const portfolio = checked('portfolioRights');
+  let ipText = '';
+  if (transfer === 'full') {
+    ipText = `Upon receipt of full and final payment of all amounts due under this Agreement, the Contractor hereby assigns to the Client all right, title, and interest in and to the Work Product, including all intellectual property rights therein, worldwide. Prior to full payment, the Contractor retains all intellectual property rights in all Work Product.`;
+  } else {
+    const lt = v('licenseType') || 'non-exclusive';
+    const licDesc = {exclusive:'an exclusive, worldwide, perpetual', nonexclusive:'a non-exclusive, worldwide', limited:'a limited, non-exclusive'}[lt] || 'a non-exclusive';
+    ipText = `Upon receipt of full payment, the Contractor grants the Client ${licDesc} license to use the Work Product for the purposes described in this Agreement. The Contractor retains all underlying intellectual property rights, including copyright. The Client may not sublicense, sell, or transfer the Work Product without prior written consent from the Contractor.`;
+  }
+  return `
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>${sectionNum}.</span><span>INTELLECTUAL PROPERTY &amp; OWNERSHIP</span></div>
+  <div class="doc-body">
+    <p><strong>Ownership of Work Product:</strong> ${ipText}</p>
+    <p><strong>Pre-Existing Materials:</strong> The Contractor retains ownership of all pre-existing tools, frameworks, methodologies, and intellectual property used in the creation of the Work Product ("Background IP"). The Client receives no rights to Background IP except as necessary to use the Work Product as permitted under this Agreement.</p>
+    <p><strong>Third-Party Assets:</strong> The Work Product may incorporate third-party materials (including stock images, fonts, open-source code, or licensed software). The Client acknowledges that such assets are subject to their respective third-party licenses. The Contractor will notify the Client of any such assets and associated licensing requirements. The Client is responsible for ensuring appropriate licenses are obtained for their ongoing use.</p>
+    ${portfolio ? `<p><strong>Portfolio Rights:</strong> The Contractor retains the right to display the Work Product in the Contractor's portfolio, website, social media, and promotional materials, subject to any confidentiality obligations under this Agreement.</p>` : ''}
+    <p><strong>Moral Rights:</strong> The Contractor asserts their moral rights in the Work Product. Any credit or attribution requested by the Contractor shall be provided in a mutually agreed format.</p>
+  </div>
+</div>`;
+}
+
+function buildConfidentialitySection(sectionNum) {
+  if (!checked('confidentialityClause')) return '';
+  return `
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>${sectionNum}.</span><span>CONFIDENTIALITY</span></div>
+  <div class="doc-body">
+    <p>Each Party acknowledges that it may have access to confidential, proprietary, or trade secret information of the other Party ("Confidential Information"). "Confidential Information" includes, without limitation: business strategies, financial information, client lists, technical data, product plans, personnel information, and any other information designated as confidential.</p>
+    <p>Each Party agrees to: (i) hold all Confidential Information in strict confidence; (ii) not disclose Confidential Information to any third party without prior written consent; (iii) use Confidential Information solely for the purposes of performing obligations under this Agreement; and (iv) protect Confidential Information with at least the same degree of care used to protect its own confidential information, but in no event less than reasonable care.</p>
+    <p>This obligation shall not apply to information that: (a) is or becomes publicly available through no fault of the receiving Party; (b) was known to the receiving Party before disclosure; (c) is independently developed without use of the Confidential Information; or (d) is required to be disclosed by law or court order, provided prompt written notice is given to the disclosing Party.</p>
+    <p>These confidentiality obligations shall survive termination of this Agreement for a period of three (3) years.</p>
+  </div>
+</div>`;
+}
+
+function buildTerminationSection(sectionNum) {
+  const notice = v('terminationNotice') || '14';
+  const kill = v('killFee') || '25';
+  return `
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>${sectionNum}.</span><span>TERM &amp; TERMINATION</span></div>
+  <div class="doc-body">
+    <p><strong>Term:</strong> This Agreement shall commence on the effective date set forth above and shall continue until all Deliverables have been completed and final payment received, or until earlier terminated as provided herein.</p>
+    <p><strong>Termination by Either Party:</strong> Either Party may terminate this Agreement for any reason upon ${notice} days' prior written notice to the other Party.</p>
+    <p><strong>Termination for Cause:</strong> Either Party may terminate this Agreement immediately upon written notice if the other Party: (i) materially breaches this Agreement and fails to cure such breach within ten (10) days of receiving written notice; (ii) becomes insolvent or files for bankruptcy protection; or (iii) engages in fraudulent, illegal, or grossly negligent conduct.</p>
+    <p><strong>Kill Fee:</strong> In the event the Client terminates this Agreement without cause after work has commenced, the Client shall pay: (i) all fees for work completed up to the termination date, based on the Contractor's pro-rata daily rate; and (ii) a kill fee equal to ${kill}% of the remaining unpaid balance of the total project fee, to compensate the Contractor for lost business opportunity and project ramp-down costs.</p>
+    <p><strong>Effect of Termination:</strong> Upon termination, the Client shall promptly pay all outstanding invoices. The Contractor shall deliver all completed Work Product to the Client upon receipt of full payment. Incomplete Work Product shall be delivered in its current state with no representation as to fitness for purpose.</p>
+  </div>
+</div>`;
+}
+
+function buildMiscSection(sectionNum) {
+  const law = v('governingLaw') || 'California, USA';
+  const customTerms = v('customTerms');
+  let misc = `
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>${sectionNum}.</span><span>GENERAL PROVISIONS</span></div>
+  <div class="doc-body">`;
+  if (checked('contractorStatus')) {
+    misc += `<p><strong>Independent Contractor:</strong> The Contractor is an independent contractor, not an employee, agent, partner, or joint venturer of the Client. The Contractor is solely responsible for all taxes, insurance, workers' compensation, and other obligations arising from the Contractor's self-employment. The Contractor has no authority to bind the Client to any agreements or obligations.</p>`;
+  }
+  if (checked('liabilityClause')) {
+    misc += `<p><strong>Limitation of Liability:</strong> In no event shall either Party be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or related to this Agreement, even if advised of the possibility of such damages. The Contractor's total aggregate liability under this Agreement shall not exceed the total fees paid by the Client in the three (3) months preceding the claim.</p>`;
+  }
+  if (checked('forceMajeure')) {
+    misc += `<p><strong>Force Majeure:</strong> Neither Party shall be in breach of this Agreement or liable for delays caused by circumstances beyond their reasonable control, including but not limited to: acts of God, natural disasters, pandemic or epidemic (including COVID-19 and related variants), government actions, war, terrorism, civil unrest, power outages, internet outages, or labor disputes. The affected Party shall notify the other Party promptly and use reasonable efforts to resume performance.</p>`;
+  }
+  if (checked('disputeClause')) {
+    misc += `<p><strong>Dispute Resolution:</strong> In the event of any dispute arising from this Agreement, the Parties agree to first attempt to resolve the dispute through good-faith negotiation. If not resolved within thirty (30) days, the Parties agree to submit the dispute to non-binding mediation before a mutually agreed mediator. If mediation fails, disputes shall be resolved by binding arbitration in accordance with the rules of the American Arbitration Association (or equivalent body in the applicable jurisdiction), with the hearing to take place in ${escHtml(law)}.</p>`;
+  }
+  misc += `<p><strong>Governing Law:</strong> This Agreement shall be governed by and construed in accordance with the laws of ${escHtml(law)}, without regard to conflict of law principles.</p>
+    <p><strong>Entire Agreement:</strong> This Agreement, including all attachments and exhibits, constitutes the entire agreement between the Parties with respect to the subject matter hereof and supersedes all prior negotiations, representations, warranties, and understandings. No modification shall be binding unless made in writing and signed by both Parties.</p>
+    <p><strong>Severability:</strong> If any provision of this Agreement is found to be unenforceable, the remaining provisions shall continue in full force and effect. The unenforceable provision shall be modified to the minimum extent necessary to make it enforceable.</p>
+    <p><strong>Waiver:</strong> Failure by either Party to enforce any provision of this Agreement shall not constitute a waiver of that Party's right to enforce such provision in the future.</p>
+    <p><strong>Notices:</strong> All notices under this Agreement shall be in writing and delivered by email with confirmation of receipt, to the addresses specified above. Notices shall be effective upon confirmed receipt.</p>
+    <p><strong>Counterparts:</strong> This Agreement may be executed in counterparts, each of which shall be deemed an original. Electronic signatures and electronically transmitted copies shall be deemed valid and binding.</p>`;
+  if (customTerms) {
+    misc += `<p><strong>Additional Terms:</strong> ${escHtml(customTerms)}</p>`;
+  }
+  misc += `</div></div>`;
+  return misc;
+}
+
+function buildSignatureBlock() {
+  const cName = v('sigContractorLabel') || v('contractorName') || '[CONTRACTOR NAME]';
+  const clName = v('sigClientLabel') || v('clientName') || '[CLIENT NAME]';
+  const preamble = v('sigPreamble') || 'standard';
+  let preambleText = '';
+  if (preamble === 'standard') {
+    preambleText = 'By signing below, both Parties acknowledge that they have read, understood, and agree to be bound by the terms and conditions of this Agreement.';
+  } else if (preamble === 'electronic') {
+    preambleText = 'The Parties agree that electronic signatures shall be deemed valid, binding, and legally equivalent to handwritten signatures for all purposes under this Agreement, including applicable electronic signature laws.';
+  } else {
+    preambleText = 'By signing below in the presence of a witness, both Parties acknowledge that they have read, understood, and agree to be bound by the terms and conditions of this Agreement.';
+  }
+  let witnessLines = preamble === 'witnessed' ? `
+    <div style="margin-top:32px;">
+      <div class="sig-party">Witness</div>
+      <div class="sig-line"></div>
+      <div class="sig-label">Witness Signature</div>
+      <div style="margin-top:16px;"><div class="sig-line" style="width:50%;"></div><div class="sig-label">Date</div></div>
+    </div>` : '';
+  return `
+<div class="sig-block">
+  <div class="doc-section-title">SIGNATURES</div>
+  <p class="doc-body" style="font-size:13px; color:#444; margin-top:10px;">${preambleText}</p>
+  <div class="sig-grid">
+    <div class="sig-col">
+      <div class="sig-party">For the Contractor</div>
+      <div class="sig-line"></div>
+      <div class="sig-label">Signature</div>
+      <div style="margin-top:16px;"><strong>${escHtml(cName)}</strong></div>
+      <div class="sig-label">Printed Name</div>
+      <div style="margin-top:16px;"><div class="sig-line"></div><div class="sig-label">Date</div></div>
+      ${v('contractorEmail') ? `<div style="margin-top:8px;font-size:11px;color:#666;">${escHtml(v('contractorEmail'))}</div>` : ''}
+    </div>
+    <div class="sig-col">
+      <div class="sig-party">For the Client</div>
+      <div class="sig-line"></div>
+      <div class="sig-label">Signature</div>
+      <div style="margin-top:16px;"><strong>${escHtml(clName)}</strong></div>
+      <div class="sig-label">Printed Name &amp; Title</div>
+      <div style="margin-top:16px;"><div class="sig-line"></div><div class="sig-label">Date</div></div>
+      ${v('clientEmail') ? `<div style="margin-top:8px;font-size:11px;color:#666;">${escHtml(v('clientEmail'))}</div>` : ''}
+    </div>
+  </div>
+  ${witnessLines}
+</div>`;
+}
+
+// ===== CONTRACT BUILDERS =====
+
+function buildFreelanceContract() {
+  let n = 1;
+  return buildHeader('freelance') +
+    buildScopeSection(n++) +
+    buildPaymentSection(n++) +
+    buildIPSection(n++) +
+    `<div class="doc-section">
+      <div class="doc-section-title doc-numbered-title"><span>${n++}.</span><span>CLIENT RESPONSIBILITIES</span></div>
+      <div class="doc-body">
+        <p>The Client agrees to: (i) provide timely feedback and approvals within five (5) business days of receiving any work for review; (ii) supply all necessary materials, content, access credentials, and information required for the Contractor to perform the Services; (iii) designate a single point of contact for all project communications; and (iv) ensure that all materials provided to the Contractor do not infringe any third-party rights.</p>
+        <p><strong>Delays:</strong> If the Client fails to provide required materials, feedback, or approvals within ten (10) business days, the Contractor may: (i) adjust the project timeline accordingly; (ii) invoice for work completed to date; or (iii) treat the delay as a material breach. Timeline extensions due to Client delays shall not entitle the Client to any reduction in fees.</p>
+      </div>
+    </div>` +
+    buildConfidentialitySection(n++) +
+    buildTerminationSection(n++) +
+    buildMiscSection(n++) +
+    buildSignatureBlock();
+}
+
+function buildWebDevContract() {
+  let n = 1;
+  const hostingResp = v('hostingResp') || 'client';
+  const browsers = v('browsers') || 'Chrome, Firefox, Safari, and Edge (latest two major versions)';
+  const postLaunch = v('postLaunch') || '30days';
+  const postLaunchMap = {'30days':'30 days','60days':'60 days','none':'none (as-is delivery)','custom':'as specified in a separate maintenance agreement'};
+  const hostingMap = {'client':'The Client shall obtain and maintain hosting at their own expense. The Contractor will provide deployment assistance.',
+    'contractor':'The Contractor shall provide hosting on mutually agreed infrastructure for the first year. Ongoing hosting fees shall be invoiced separately.',
+    'recommended':'The Contractor shall recommend a hosting provider. The Client shall establish and pay for their own hosting account.'};
+  return buildHeader('webdev') +
+    buildScopeSection(n++) +
+    buildPaymentSection(n++) +
+    `<div class="doc-section">
+      <div class="doc-section-title doc-numbered-title"><span>${n++}.</span><span>TECHNICAL SPECIFICATIONS</span></div>
+      <div class="doc-body">
+        <p><strong>Browser Compatibility:</strong> The website shall be tested and function correctly in the following browsers: ${escHtml(browsers)}. The Contractor does not guarantee compatibility with older browsers (e.g., Internet Explorer) unless explicitly agreed in writing.</p>
+        <p><strong>Mobile Responsiveness:</strong> The website shall be responsive and functional across standard screen sizes (mobile, tablet, desktop) unless otherwise agreed. Testing will be conducted on common screen breakpoints.</p>
+        <p><strong>Hosting &amp; Deployment:</strong> ${hostingMap[hostingResp]}</p>
+        <p><strong>Domain Names:</strong> Domain registration and renewal are the sole responsibility of the Client. The Contractor may assist with initial configuration at no additional charge.</p>
+        <p><strong>Content Management System (CMS):</strong> If a CMS is included in the scope, the Contractor shall provide up to two (2) hours of CMS training upon launch. Additional training is available at the Contractor's standard hourly rate.</p>
+        <p><strong>Post-Launch Support:</strong> The Contractor will provide bug fixes for issues directly caused by the Contractor's work for a period of ${postLaunchMap[postLaunch]} following the live launch date. This warranty does not cover issues arising from Client modifications, third-party plugins, or hosting environment changes.</p>
+        <p><strong>Performance Targets:</strong> The Contractor shall make reasonable efforts to optimize the website for standard web performance. Specific performance benchmarks (e.g., Google PageSpeed scores) must be agreed in writing prior to project commencement.</p>
+      </div>
+    </div>` +
+    buildIPSection(n++) +
+    buildConfidentialitySection(n++) +
+    buildTerminationSection(n++) +
+    buildMiscSection(n++) +
+    buildSignatureBlock();
+}
+
+function buildNDAContract() {
+  const ndaType = v('ndaType') || 'mutual';
+  const ndaDef = v('ndaDefinition') || 'business plans, trade secrets, financial data, client lists, technical specifications, product roadmaps, and any information marked as confidential';
+  const ndaYears = v('ndaTerm') || '3';
+  const sigDate = v('signatureDate') ? fmtDate(v('signatureDate')) : '<span class="missing">[DATE]</span>';
+  const cName = v('contractorName') || '<span class="missing">[PARTY A]</span>';
+  const clName = v('clientName') || '<span class="missing">[PARTY B]</span>';
+  const law = v('governingLaw') || 'California, USA';
+  const mutual = ndaType === 'mutual';
+  return `
+<div class="doc-header">
+  <div class="doc-contract-title">NON-DISCLOSURE AGREEMENT</div>
+  <div class="doc-contract-number">Agreement No: ${contractNumber} &nbsp;&bull;&nbsp; Date: ${sigDate}</div>
+</div>
+<div class="doc-preamble">
+  This ${mutual ? 'Mutual ' : ''}Non-Disclosure Agreement ("Agreement") is entered into as of ${sigDate}, by and between <strong>${escHtml(v('contractorName')) || '<span class="missing">[PARTY A]</span>'}</strong> ("${mutual ? 'Party A' : 'Disclosing Party'}") and <strong>${escHtml(v('clientName')) || '<span class="missing">[PARTY B]</span>'}</strong> ("${mutual ? 'Party B' : 'Receiving Party'}") (collectively, the "Parties").
+</div>
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>1.</span><span>PURPOSE</span></div>
+  <div class="doc-body">
+    <p>The Parties wish to explore a potential business relationship or collaboration (the "Purpose") and, in connection therewith, ${mutual ? 'each Party' : 'the Disclosing Party'} may disclose certain confidential and proprietary information to ${mutual ? 'the other Party' : 'the Receiving Party'}.</p>
+    ${v('projectDescription') ? `<p><strong>Specific Purpose:</strong> ${escHtml(v('projectDescription'))}</p>` : ''}
+  </div>
+</div>
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>2.</span><span>DEFINITION OF CONFIDENTIAL INFORMATION</span></div>
+  <div class="doc-body">
+    <p>"Confidential Information" means any and all non-public information disclosed by ${mutual ? 'either Party to the other' : 'the Disclosing Party to the Receiving Party'}, whether orally, in writing, electronically, or by any other means, that is designated as confidential or that reasonably should be understood to be confidential given the nature of the information and circumstances of disclosure, including but not limited to: ${escHtml(ndaDef)}.</p>
+    <p>Confidential Information shall also include the existence and terms of this Agreement.</p>
+  </div>
+</div>
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>3.</span><span>EXCLUSIONS FROM CONFIDENTIAL INFORMATION</span></div>
+  <div class="doc-body">
+    <p>The obligations of this Agreement shall not apply to information that the Receiving Party can demonstrate: (a) was or becomes publicly known through no act or omission of the Receiving Party; (b) was rightfully known by the Receiving Party before disclosure hereunder; (c) was independently developed by the Receiving Party without reference to or use of the Confidential Information; (d) was rightfully obtained from a third party under no obligation of confidentiality; or (e) is required to be disclosed by applicable law, regulation, or court order, provided that the Receiving Party gives prompt written notice to the Disclosing Party before such disclosure and cooperates with efforts to seek a protective order.</p>
+  </div>
+</div>
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>4.</span><span>OBLIGATIONS OF ${mutual ? 'EACH PARTY' : 'RECEIVING PARTY'}</span></div>
+  <div class="doc-body">
+    <p>${mutual ? 'Each Party' : 'The Receiving Party'} agrees to: (i) hold all Confidential Information in strict confidence; (ii) not disclose Confidential Information to any third party without prior written consent; (iii) use the Confidential Information solely for the Purpose; (iv) limit access to Confidential Information to those employees, contractors, and advisors who have a legitimate need to know and who are bound by confidentiality obligations no less restrictive than those in this Agreement; and (v) notify the ${mutual ? 'other Party' : 'Disclosing Party'} promptly upon discovering any unauthorized disclosure or use of Confidential Information.</p>
+  </div>
+</div>
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>5.</span><span>TERM</span></div>
+  <div class="doc-body">
+    <p>This Agreement shall be effective as of the date first written above and shall remain in force for a period of ${ndaYears} year(s) from that date (the "Term"). The confidentiality obligations herein shall survive expiration or termination of this Agreement for an additional period of ${ndaYears} year(s) with respect to Confidential Information disclosed during the Term.</p>
+  </div>
+</div>
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>6.</span><span>REMEDIES</span></div>
+  <div class="doc-body">
+    <p>The Parties acknowledge that breach of this Agreement would cause irreparable harm to the ${mutual ? 'other Party' : 'Disclosing Party'} for which monetary damages would be an inadequate remedy. Accordingly, in addition to any other remedies available at law or in equity, the ${mutual ? 'non-breaching Party' : 'Disclosing Party'} shall be entitled to seek injunctive or other equitable relief without the requirement of posting a bond or other security.</p>
+    <p>Nothing in this Agreement shall be construed to limit the Disclosing Party's other remedies in the event of a breach, including claims for monetary damages.</p>
+  </div>
+</div>
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>7.</span><span>RETURN OF INFORMATION</span></div>
+  <div class="doc-body">
+    <p>Upon the written request of the ${mutual ? 'disclosing Party' : 'Disclosing Party'}, ${mutual ? 'the receiving Party' : 'the Receiving Party'} shall promptly return or destroy all Confidential Information and any copies, abstracts, or summaries thereof, and certify in writing that such return or destruction has been completed.</p>
+  </div>
+</div>
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>8.</span><span>NO LICENSE OR OTHER RIGHTS</span></div>
+  <div class="doc-body">
+    <p>Nothing in this Agreement grants ${mutual ? 'either Party' : 'the Receiving Party'} any license or right under any patent, copyright, trademark, trade secret, or other intellectual property right of the ${mutual ? 'other Party' : 'Disclosing Party'}. No obligation to enter into any further agreement is created hereby.</p>
+  </div>
+</div>
+<div class="doc-section">
+  <div class="doc-section-title doc-numbered-title"><span>9.</span><span>GENERAL PROVISIONS</span></div>
+  <div class="doc-body">
+    <p><strong>Governing Law:</strong> This Agreement shall be governed by the laws of ${escHtml(law)}.</p>
+    <p><strong>Entire Agreement:</strong> This Agreement constitutes the entire agreement between the Parties with respect to its subject matter and supersedes all prior agreements.</p>
+    <p><strong>Amendments:</strong> This Agreement may only be modified in writing signed by both Parties.</p>
+    <p><strong>Severability:</strong> If any provision is unenforceable, the remaining provisions shall remain in full force.</p>
+    <p><strong>Counterparts &amp; Electronic Signatures:</strong> This Agreement may be executed electronically, and such signatures shall be deemed valid and binding.</p>
+  </div>
+</div>` +
+    buildSignatureBlock();
+}
+
+function buildDesignContract() {
+  let n = 1;
+  const sf = checked('sourceFiles');
+  const fl = checked('fontLicensing');
+  const pf = v('printFormats') || 'PDF/X-1a, EPS vector, PNG (300 DPI)';
+  return buildHeader('design') +
+    buildScopeSection(n++) +
+    buildPaymentSection(n++) +
+    `<div class="doc-section">
+      <div class="doc-section-title doc-numbered-title"><span>${n++}.</span><span>DESIGN DELIVERABLES &amp; FILE FORMATS</span></div>
+      <div class="doc-body">
+        <p><strong>Final File Formats:</strong> Upon completion and full payment, the Contractor shall deliver the following file formats: ${escHtml(pf)}${sf ? ', plus editable source files in native application format (e.g., .ai, .psd, .indd, .fig, or .sketch)' : ''}.</p>
+        ${sf ? `<p><strong>Source Files:</strong> Source files are included in the project fee. Source files shall be delivered in the Contractor's working application format. The Client acknowledges that continued use of source files may require appropriate software licenses. Minor modifications to source files post-delivery are not covered under this Agreement.</p>` : `<p><strong>Source Files:</strong> Source files are not included in the project fee. Source files may be purchased separately at the Contractor's standard rate.</p>`}
+        <p><strong>Color Profiles:</strong> Print files will be prepared in CMYK color mode unless otherwise specified. Digital files will be prepared in RGB. The Contractor is not responsible for color variations between on-screen and printed output, as this is subject to printer calibration and paper stock.</p>
+        ${fl ? `<p><strong>Font Licensing:</strong> Fonts used in the design may be subject to commercial licensing requirements for the Client's use. The Client is responsible for obtaining all necessary font licenses for commercial use, printing, and embedding. The Contractor will identify all custom fonts used and provide purchase information.</p>` : ''}
+        <p><strong>Archiving:</strong> The Contractor will archive project files for a period of twelve (12) months following project completion. File retrieval after the archive period may incur a fee. The Client is advised to maintain their own backup copies of all delivered files.</p>
+      </div>
+    </div>` +
+    buildIPSection(n++) +
+    `<div class="doc-section">
+      <div class="doc-section-title doc-numbered-title"><span>${n++}.</span><span>DESIGN APPROVAL PROCESS</span></div>
+      <div class="doc-body">
+        <p>The Contractor will present design concepts for the Client's review and approval. The Client shall provide consolidated, specific feedback in writing within five (5) business days. Approval may be given in writing via email.</p>
+        <p><strong>Deemed Approval:</strong> If the Client fails to respond to a design submission within ten (10) business days, the design shall be deemed approved for that stage. Project timelines will be adjusted accordingly for any delayed feedback.</p>
+        <p><strong>Significant Changes After Approval:</strong> Changes that require a fundamental redesign after a stage has been approved constitute new work and will be scoped and priced separately.</p>
+        <p><strong>Print Proofing:</strong> The Client is responsible for approving final print-ready files before production. The Contractor is not liable for print errors on approved files.</p>
+      </div>
+    </div>` +
+    buildConfidentialitySection(n++) +
+    buildTerminationSection(n++) +
+    buildMiscSection(n++) +
+    buildSignatureBlock();
+}
+
+function buildConsultingContract() {
+  let n = 1;
+  const nc = v('nonCompete') || 'none';
+  const ep = v('expensePolicy') || 'preapproved';
+  const ncMap = {none:'No non-compete restriction applies.', '6months':'For a period of six (6) months following termination, Consultant shall not directly compete with Client in the same industry vertical.', '1year':'For a period of one (1) year following termination, Consultant shall not directly compete with Client in the same industry vertical.', custom:'Non-compete terms as separately described.'};
+  const epMap = {preapproved:'Only pre-approved expenses shall be reimbursed. The Consultant must obtain written approval for any single expense exceeding $100 before incurring it.', all:'All reasonable and necessary business expenses incurred in the performance of services shall be reimbursed within Net 30 days of submission of receipts.', none:'No expense reimbursement is provided. All Consultant expenses are included in the project fee.'};
+  return buildHeader('consulting') +
+    buildScopeSection(n++) +
+    buildPaymentSection(n++) +
+    `<div class="doc-section">
+      <div class="doc-section-title doc-numbered-title"><span>${n++}.</span><span>CONSULTING SERVICES &amp; DELIVERABLES</span></div>
+      <div class="doc-body">
+        <p>The Consultant agrees to provide professional consulting and advisory services as described in this Agreement. The Consultant shall perform the Services with the degree of skill and care reasonably expected of a qualified professional in the relevant field.</p>
+        <p><strong>Advisory Nature:</strong> The Parties acknowledge that the Consultant provides advice and recommendations based on available information. The Client retains sole responsibility for all business decisions made in reliance on the Consultant's advice. The Consultant's recommendations do not constitute legal, financial, tax, or regulatory advice unless the Consultant is a licensed professional in those fields.</p>
+        <p><strong>Availability:</strong> The Consultant shall be reasonably available for scheduled meetings, calls, and communications during normal business hours. The Consultant is not required to be exclusively available to the Client and may work with other clients concurrently.</p>
+      </div>
+    </div>` +
+    `<div class="doc-section">
+      <div class="doc-section-title doc-numbered-title"><span>${n++}.</span><span>EXPENSES &amp; REIMBURSEMENT</span></div>
+      <div class="doc-body">
+        <p>${epMap[ep]}</p>
+        <p>All expense claims must be submitted with original receipts or documentation within thirty (30) days of the expense being incurred.</p>
+      </div>
+    </div>` +
+    `<div class="doc-section">
+      <div class="doc-section-title doc-numbered-title"><span>${n++}.</span><span>CONFLICT OF INTEREST &amp; NON-SOLICITATION</span></div>
+      <div class="doc-body">
+        <p><strong>Conflict of Interest:</strong> The Consultant shall disclose to the Client any actual or potential conflicts of interest prior to commencing Services. The Consultant agrees not to provide services to the Client's direct competitors on matters that are directly related to the specific services being provided under this Agreement, without the Client's prior written consent.</p>
+        <p><strong>Non-Solicitation:</strong> During the term of this Agreement and for one (1) year thereafter, neither Party shall directly solicit or hire the other Party's employees or independent contractors who were involved in performing services under this Agreement, without prior written consent.</p>
+        <p><strong>Non-Compete:</strong> ${ncMap[nc]}</p>
+      </div>
+    </div>` +
+    buildIPSection(n++) +
+    buildConfidentialitySection(n++) +
+    buildTerminationSection(n++) +
+    buildMiscSection(n++) +
+    buildSignatureBlock();
+}
+
+function buildSocialContract() {
+  let n = 1;
+  const platforms = v('socialPlatforms') || '<span class="missing">[PLATFORMS]</span>';
+  const posts = v('postsPerMonth') || '<span class="missing">[NUMBER]</span>';
+  const approval = v('approvalProcess') || '48h';
+  const approvalMap = {'48h':'All content must be submitted to Client for approval at least forty-eight (48) hours before scheduled posting. Client shall respond within twenty-four (24) hours. Silence constitutes approval.', '24h':'All content must be submitted to Client for approval at least twenty-four (24) hours before scheduled posting. Silence for more than twelve (12) hours constitutes approval.', auto:'Content may be posted without prior Client approval, based on agreed brand guidelines. The Client will be notified after posting.'};
+  return buildHeader('social') +
+    buildScopeSection(n++) +
+    `<div class="doc-section">
+      <div class="doc-section-title doc-numbered-title"><span>${n++}.</span><span>SOCIAL MEDIA SERVICES &amp; DELIVERABLES</span></div>
+      <div class="doc-body">
+        <p><strong>Platforms:</strong> The Contractor shall manage the Client's presence on the following social media platform(s): ${escHtml(v('socialPlatforms')) || '<span class="missing">[PLATFORMS]</span>'}.</p>
+        <p><strong>Content Volume:</strong> The Contractor shall create and publish up to ${posts} posts per month across the agreed platforms. Additional posts beyond this volume shall be billed at a per-post rate to be agreed in writing.</p>
+        <p><strong>Content Types:</strong> Services include creation of graphics, copywriting, hashtag research, and scheduling. Video production, paid advertising management, and influencer outreach are not included unless explicitly stated in the Scope.</p>
+        <p><strong>Content Approval:</strong> ${approvalMap[approval]}</p>
+        <p><strong>Brand Guidelines:</strong> The Client shall provide brand guidelines, logos, color palettes, and any existing creative assets. The Contractor shall adhere to these guidelines. If guidelines are not provided, the Contractor will create content in good faith based on the Client's apparent brand identity.</p>
+        <p><strong>Community Management:</strong> Basic comment moderation (deleting spam, hiding offensive comments) is included. Responding to comments, DMs, and customer service inquiries is not included unless separately agreed.</p>
+      </div>
+    </div>` +
+    `<div class="doc-section">
+      <div class="doc-section-title doc-numbered-title"><span>${n++}.</span><span>ACCOUNT ACCESS &amp; SECURITY</span></div>
+      <div class="doc-body">
+        <p>The Client shall provide the Contractor with appropriate access credentials or platform Manager/Admin roles for the accounts to be managed. The Client retains full ownership of all social media accounts at all times.</p>
+        <p><strong>Security:</strong> The Contractor agrees to maintain the security of any access credentials provided and not to share them with unauthorized third parties. The Contractor will use secure password management practices.</p>
+        <p><strong>Two-Factor Authentication:</strong> If the Client's accounts are protected by 2FA, the Client shall make reasonable arrangements to facilitate Contractor access for posting purposes.</p>
+        <p><strong>Account Ownership:</strong> All social media accounts, followers, and content published thereon remain the sole property of the Client. Upon termination, the Contractor shall immediately revoke their own access and return or delete any stored credentials.</p>
+      </div>
+    </div>` +
+    `<div class="doc-section">
+      <div class="doc-section-title doc-numbered-title"><span>${n++}.</span><span>PERFORMANCE &amp; REPORTING</span></div>
+      <div class="doc-body">
+        <p>The Contractor shall provide the Client with a monthly performance report summarizing key metrics including: follower growth, post engagement (likes, comments, shares), reach and impressions, and other platform-specific metrics as available.</p>
+        <p><strong>Performance Expectations:</strong> The Parties acknowledge that social media growth depends on many factors outside the Contractor's control, including platform algorithm changes, market conditions, and content virality. The Contractor does not guarantee specific follower counts, engagement rates, or business outcomes. The Contractor commits to professional-quality content and strategic best practices.</p>
+        <p><strong>Paid Advertising:</strong> Paid advertising (boosted posts, ads) is separate from this Agreement. Any advertising budget shall be provided by the Client and managed transparently with a clear accounting of spend.</p>
+      </div>
+    </div>` +
+    buildPaymentSection(n++) +
+    buildIPSection(n++) +
+    buildConfidentialitySection(n++) +
+    buildTerminationSection(n++) +
+    buildMiscSection(n++) +
+    buildSignatureBlock();
+}
+
+// ===== QUICK FILL =====
+function quickFill() {
+  const type = document.getElementById('contractType').value;
+  // Common fields
+  setVal('contractorName', 'Jane Smith Design Studio');
+  setVal('contractorAddress', '742 Creative Avenue, Suite 12');
+  setVal('contractorCity', 'New York');
+  setVal('contractorState', 'NY');
+  setVal('contractorZip', '10001');
+  setVal('contractorCountry', 'USA');
+  setVal('contractorEmail', 'jane@janesmith.design');
+  setVal('contractorPhone', '+1 (212) 555-0147');
+  setVal('contractorReg', 'LLC-20241234');
+  setVal('contractorWebsite', 'www.janesmith.design');
+  setVal('clientName', 'Acme Technologies Inc.');
+  setVal('clientAddress', '1600 Market Street, 25th Floor');
+  setVal('clientCity', 'San Francisco');
+  setVal('clientState', 'CA');
+  setVal('clientZip', '94102');
+  setVal('clientCountry', 'USA');
+  setVal('clientContact', 'Michael Chen, VP of Marketing');
+  setVal('clientEmail', 'mchen@acmetech.com');
+  setVal('clientPhone', '+1 (415) 555-0222');
+  setVal('signatureDate', getTodayDate());
+  setVal('governingLaw', 'New York, USA');
+  setVal('killFee', '25');
+  setVal('terminationNotice', '14');
+  setVal('lateFee', '1.5');
+  setVal('invoiceTerms', '30');
+  setVal('currency', 'USD');
+  document.getElementById('portfolioRights').checked = true;
+  document.getElementById('confidentialityClause').checked = true;
+  document.getElementById('forceMajeure').checked = true;
+  document.getElementById('disputeClause').checked = true;
+  document.getElementById('liabilityClause').checked = true;
+  document.getElementById('contractorStatus').checked = true;
+
+  if (type === 'freelance') {
+    setVal('projectTitle', 'Brand Identity & Visual Design Package');
+    setVal('projectDescription', 'Design and deliver a complete brand identity system for Acme Technologies Inc., including logo design, color palette, typography system, brand guidelines document, and business card design. All deliverables to be provided in print and digital formats.');
+    setVal('totalFee', '8500');
+    setVal('paymentStructure', '50-50');
+    setVal('paymentMethod', 'Bank Transfer (ACH), PayPal, or Wise');
+    setVal('startDate', getOffsetDate(7));
+    setVal('endDate', getOffsetDate(45));
+    setVal('revisionRounds', '3');
+    setVal('outOfScope', 'Photography, copywriting, website development, and printing costs are not included.');
+    setVal('ipTransfer', 'full');
+    deliverables = [
+      'Primary logo in horizontal and stacked variants',
+      'Color palette with hex, RGB, CMYK, and Pantone values',
+      'Typography system (primary and secondary typefaces)',
+      'Brand guidelines PDF (25+ pages)',
+      'Business card design (front and back)',
+      'Letterhead and email signature template'
+    ];
+  } else if (type === 'webdev') {
+    setVal('projectTitle', 'E-Commerce Website Redesign');
+    setVal('projectDescription', 'Design and develop a fully responsive e-commerce website on Shopify platform, including custom theme development, product catalog setup (up to 50 products), payment gateway integration, and mobile optimization.');
+    setVal('totalFee', '12000');
+    setVal('paymentStructure', 'milestone3');
+    setVal('m1pct', '30'); setVal('m2pct', '40'); setVal('m3pct', '30');
+    setVal('paymentMethod', 'Bank Transfer (ACH) or Stripe');
+    setVal('startDate', getOffsetDate(14));
+    setVal('endDate', getOffsetDate(75));
+    setVal('revisionRounds', '2');
+    setVal('browsers', 'Chrome, Firefox, Safari, Edge (latest 2 major versions)');
+    setVal('hostingResp', 'recommended');
+    setVal('postLaunch', '30days');
+    setVal('outOfScope', 'Copywriting, photography, SEO content writing, and third-party app subscription fees are excluded.');
+    deliverables = [
+      'Custom Shopify theme (responsive, mobile-first)',
+      'Up to 50 products configured with variants',
+      'Payment gateway integration (Shopify Payments + PayPal)',
+      'Contact form and basic email notifications',
+      'Google Analytics 4 integration',
+      'Basic SEO meta tags and sitemap',
+      '2-hour CMS training session'
+    ];
+  } else if (type === 'nda') {
+    setVal('projectTitle', 'Product Development Collaboration');
+    setVal('projectDescription', 'Exploration of a potential co-development partnership for a SaaS analytics product.');
+    setVal('ndaType', 'mutual');
+    setVal('ndaDefinition', 'business plans, product roadmaps, financial projections, trade secrets, client lists, pricing strategies, technical specifications, source code, and all information exchanged during partnership discussions');
+    setVal('ndaTerm', '3');
+    deliverables = [];
+  } else if (type === 'design') {
+    setVal('projectTitle', 'Annual Report & Marketing Collateral Design');
+    setVal('projectDescription', 'Design Acme Technologies 2026 Annual Report (40 pages), trade show booth graphics, and a suite of marketing collateral including brochures and presentation templates.');
+    setVal('totalFee', '9800');
+    setVal('paymentStructure', '50-50');
+    setVal('paymentMethod', 'Bank Transfer or PayPal');
+    setVal('startDate', getOffsetDate(7));
+    setVal('endDate', getOffsetDate(60));
+    setVal('revisionRounds', '3');
+    setVal('printFormats', 'PDF/X-1a, EPS, PNG 300 DPI, JPEG 300 DPI');
+    document.getElementById('sourceFiles').checked = true;
+    document.getElementById('fontLicensing').checked = true;
+    deliverables = [
+      'Annual Report — 40-page print-ready PDF (A4, PDF/X-1a)',
+      'Trade show booth graphic (10ft x 8ft retractable banner)',
+      'Tri-fold brochure (design + print-ready files)',
+      'PowerPoint presentation template (20 master slides)',
+      'All source files (.ai, .indd, .psd)',
+      'Font and asset list with license information'
+    ];
+  } else if (type === 'consulting') {
+    setVal('projectTitle', 'Go-to-Market Strategy Consulting');
+    setVal('projectDescription', 'Provide strategic consulting on product launch strategy, competitive analysis, pricing model optimization, and channel partner development for Acme\'s new analytics platform launching Q3 2026.');
+    setVal('totalFee', '15000');
+    setVal('paymentStructure', 'milestone3');
+    setVal('m1pct', '33'); setVal('m2pct', '33'); setVal('m3pct', '34');
+    setVal('paymentMethod', 'Bank Transfer (ACH)');
+    setVal('startDate', getOffsetDate(7));
+    setVal('endDate', getOffsetDate(90));
+    setVal('nonCompete', '6months');
+    setVal('expensePolicy', 'preapproved');
+    setVal('revisionRounds', '2');
+    deliverables = [
+      'Competitive landscape analysis report',
+      'Go-to-market strategy document (20+ pages)',
+      'Pricing model analysis with 3 recommended scenarios',
+      'Channel partner opportunity assessment',
+      'Monthly executive strategy sessions (x3)',
+      'Final recommendations presentation (board-ready deck)'
+    ];
+  } else if (type === 'social') {
+    setVal('projectTitle', 'Social Media Management — Growth Package');
+    setVal('projectDescription', 'Full-service social media management across Instagram, LinkedIn, and X (Twitter), including content creation, scheduling, community management, and monthly analytics reporting.');
+    setVal('totalFee', '2500');
+    setVal('paymentStructure', 'retainer');
+    setVal('paymentMethod', 'Bank Transfer or Stripe');
+    setVal('startDate', getOffsetDate(7));
+    setVal('socialPlatforms', 'Instagram, LinkedIn, X (Twitter)');
+    setVal('postsPerMonth', '24');
+    setVal('approvalProcess', '48h');
+    setVal('revisionRounds', '2');
+    deliverables = [
+      '24 original posts per month (8 per platform)',
+      'Custom graphics/visuals for each post',
+      'Hashtag research and optimization',
+      'Content calendar (delivered by the 25th of each month)',
+      'Monthly analytics report with KPIs',
+      'Story/Reel content: 4 per month (Instagram only)'
+    ];
+  }
+  renderDeliverables();
+  onContractTypeChange();
+  onPaymentStructureChange();
+  onIpTransferChange();
+  updatePreview();
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+
+function getTodayDate() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function getOffsetDate(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split('T')[0];
+}
+
+// ===== LOCAL STORAGE =====
+function getFormData() {
+  return {
+    contractType: document.getElementById('contractType').value,
+    contractorName: v('contractorName'), contractorAddress: v('contractorAddress'),
+    contractorCity: v('contractorCity'), contractorState: v('contractorState'),
+    contractorZip: v('contractorZip'), contractorCountry: v('contractorCountry'),
+    contractorEmail: v('contractorEmail'), contractorPhone: v('contractorPhone'),
+    contractorReg: v('contractorReg'), contractorWebsite: v('contractorWebsite'),
+    clientName: v('clientName'), clientAddress: v('clientAddress'),
+    clientCity: v('clientCity'), clientState: v('clientState'),
+    clientZip: v('clientZip'), clientCountry: v('clientCountry'),
+    clientContact: v('clientContact'), clientEmail: v('clientEmail'), clientPhone: v('clientPhone'),
+    projectTitle: v('projectTitle'), projectDescription: v('projectDescription'),
+    startDate: v('startDate'), endDate: v('endDate'), revisionRounds: v('revisionRounds'),
+    outOfScope: v('outOfScope'), deliverables: [...deliverables],
+    ndaType: v('ndaType'), ndaDefinition: v('ndaDefinition'), ndaTerm: v('ndaTerm'),
+    nonCompete: v('nonCompete'), expensePolicy: v('expensePolicy'),
+    hostingResp: v('hostingResp'), browsers: v('browsers'), postLaunch: v('postLaunch'),
+    socialPlatforms: v('socialPlatforms'), postsPerMonth: v('postsPerMonth'), approvalProcess: v('approvalProcess'),
+    totalFee: v('totalFee'), currency: v('currency'), paymentStructure: v('paymentStructure'),
+    m1pct: v('m1pct'), m2pct: v('m2pct'), m3pct: v('m3pct'), customPayment: v('customPayment'),
+    paymentMethod: v('paymentMethod'), invoiceTerms: v('invoiceTerms'), lateFee: v('lateFee'),
+    ipTransfer: v('ipTransfer'), licenseType: v('licenseType'),
+    portfolioRights: checked('portfolioRights'), sourceFiles: checked('sourceFiles'),
+    fontLicensing: checked('fontLicensing'), printFormats: v('printFormats'),
+    signatureDate: v('signatureDate'), governingLaw: v('governingLaw'),
+    terminationNotice: v('terminationNotice'), killFee: v('killFee'),
+    confidentialityClause: checked('confidentialityClause'), forceMajeure: checked('forceMajeure'),
+    disputeClause: checked('disputeClause'), liabilityClause: checked('liabilityClause'),
+    contractorStatus: checked('contractorStatus'), customTerms: v('customTerms'),
+    sigContractorLabel: v('sigContractorLabel'), sigClientLabel: v('sigClientLabel'), sigPreamble: v('sigPreamble')
+  };
+}
+
+function applyFormData(data) {
+  if (!data) return;
+  const checkboxFields = ['portfolioRights','sourceFiles','fontLicensing','confidentialityClause','forceMajeure','disputeClause','liabilityClause','contractorStatus'];
+  for (const [k, val] of Object.entries(data)) {
+    if (k === 'deliverables') { deliverables = Array.isArray(val) ? val : ['']; renderDeliverables(); continue; }
+    if (k === 'contractType') { document.getElementById('contractType').value = val; continue; }
+    const el = document.getElementById(k);
+    if (!el) continue;
+    if (checkboxFields.includes(k)) { el.checked = !!val; }
+    else { el.value = val || ''; }
+  }
+  onContractTypeChange();
+  onPaymentStructureChange();
+  onIpTransferChange();
+}
+
+function autoSave() {
+  const data = getFormData();
+  localStorage.setItem('cg_autosave', JSON.stringify(data));
+  lastSaved = new Date();
+  const dot = document.getElementById('autosaveDot');
+  const label = document.getElementById('autosaveLabel');
+  dot.classList.add('saved');
+  label.textContent = 'Saved';
+  const meta = document.getElementById('docMeta');
+  meta.textContent = `Contract #${contractNumber} \u2022 Autosaved ${lastSaved.toLocaleTimeString()}`;
+  setTimeout(() => { dot.classList.remove('saved'); label.textContent = 'Autosave'; }, 2000);
+}
+
+function loadFromLocalStorage() {
+  const saved = localStorage.getItem('cg_autosave');
+  if (saved) {
+    try { applyFormData(JSON.parse(saved)); } catch(e) {}
+  }
+}
+
+function saveTemplate(slot) {
+  const data = getFormData();
+  localStorage.setItem(`cg_template_${slot}`, JSON.stringify(data));
+  showToast(`Template saved to Slot ${slot}`);
+}
+
+function loadTemplate(slot) {
+  const saved = localStorage.getItem(`cg_template_${slot}`);
+  if (!saved) { showToast(`Slot ${slot} is empty`); return; }
+  try {
+    applyFormData(JSON.parse(saved));
+    updatePreview();
+    showToast(`Template loaded from Slot ${slot}`);
+  } catch(e) { showToast('Failed to load template'); }
+}
+
+// ===== NEW CONTRACT =====
+function confirmNewContract() {
+  showModal('Start New Contract?', 'This will clear all current fields. This action cannot be undone.', () => {
+    newContract();
+  });
+}
+
+function newContract() {
+  // Increment contract number
+  let num = parseInt(localStorage.getItem('cg_contract_number') || '1');
+  num++;
+  localStorage.setItem('cg_contract_number', num);
+  const year = new Date().getFullYear();
+  contractNumber = `${year}-${String(num).padStart(3,'0')}`;
+  // Reset all fields
+  const inputs = document.querySelectorAll('.left-panel input, .left-panel select, .left-panel textarea');
+  inputs.forEach(el => {
+    if (el.type === 'checkbox') el.checked = ['portfolioRights','confidentialityClause','forceMajeure','disputeClause','liabilityClause','contractorStatus'].includes(el.id);
+    else el.value = '';
+  });
+  deliverables = [''];
+  renderDeliverables();
+  document.getElementById('contractType').value = 'freelance';
+  onContractTypeChange();
+  onPaymentStructureChange();
+  onIpTransferChange();
+  updatePreview();
+  closeModal();
+}
+
+// ===== COPY / DOWNLOAD =====
+function getPlainTextContract() {
+  const el = document.getElementById('contractContent');
+  let text = el.innerText || el.textContent;
+  return text;
+}
+
+function copyToClipboard() {
+  const text = getPlainTextContract();
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Contract copied to clipboard!');
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('Contract copied to clipboard!');
+  });
+}
+
+function downloadTxt() {
+  const text = getPlainTextContract();
+  const type = document.getElementById('contractType').value;
+  const title = (v('projectTitle') || type).replace(/[^a-z0-9]/gi,'_').toLowerCase();
+  const filename = `contract_${contractNumber}_${title}.txt`;
+  const blob = new Blob([text], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Contract downloaded as .txt');
+}
+
+// ===== MODAL =====
+let modalCallback = null;
+function showModal(title, message, onConfirm) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalMessage').textContent = message;
+  modalCallback = onConfirm;
+  document.getElementById('modalConfirmBtn').onclick = () => { if(modalCallback) modalCallback(); closeModal(); };
+  document.getElementById('modalOverlay').classList.add('active');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  modalCallback = null;
+}
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+
+// ===== TOAST =====
+function showToast(msg) {
+  let toast = document.getElementById('toastEl');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toastEl';
+    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#f1f5f9;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;border:1px solid #334155;box-shadow:0 4px 16px rgba(0,0,0,0.4);transition:opacity 0.3s;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+}
+</script>
+</body>
+</html>

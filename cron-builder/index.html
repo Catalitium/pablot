@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cron Builder</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3352;
+    --accent: #7c6af7; --text: #e2e8f0; --muted: #8892b0;
+    --success: #56d4a0; --error: #ff5572; --warn: #f78c6c;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+  header { padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  header h1 { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+  header span { color: var(--muted); font-size: 0.875rem; }
+  .expression-bar { padding: 1rem 2rem; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .expr-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; white-space: nowrap; }
+  .expr-input {
+    flex: 1; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 1.2rem;
+    padding: 0.5rem 1rem; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--accent); outline: none; min-width: 200px; font-weight: 700;
+  }
+  .expr-input:focus { border-color: var(--accent); }
+  .btn {
+    padding: 0.45rem 1rem; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .main { flex: 1; display: grid; grid-template-columns: 1fr 320px; gap: 0; }
+  .builder { padding: 1.5rem 2rem; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; }
+  .field-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .field-header { padding: 0.75rem 1rem; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .field-name { font-size: 0.85rem; font-weight: 700; color: var(--accent); min-width: 80px; }
+  .field-value { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.85rem; color: var(--text); background: var(--bg); padding: 0.2rem 0.6rem; border-radius: 4px; }
+  .field-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .mode-tabs { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  .mode-tab {
+    padding: 0.3rem 0.75rem; border-radius: 5px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted); font-size: 0.78rem; cursor: pointer; transition: all 0.15s;
+  }
+  .mode-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .mode-options { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+  select, .small-input {
+    padding: 0.35rem 0.6rem; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 5px; color: var(--text); font-size: 0.85rem; outline: none; cursor: pointer;
+  }
+  select:focus, .small-input:focus { border-color: var(--accent); }
+  .small-input { width: 70px; cursor: text; }
+  .chip-grid { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+  .chip {
+    padding: 0.25rem 0.5rem; border-radius: 4px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted); font-size: 0.75rem; cursor: pointer; transition: all 0.12s;
+  }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  /* Sidebar */
+  .sidebar { border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; }
+  .sidebar-section { padding: 1rem; border-bottom: 1px solid var(--border); }
+  .sidebar-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.75rem; }
+  .description-box { padding: 0.75rem; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); font-size: 0.9rem; color: var(--success); line-height: 1.5; min-height: 60px; }
+  .next-runs { display: flex; flex-direction: column; gap: 0.4rem; }
+  .next-run-item { font-size: 0.8rem; color: var(--text); padding: 0.4rem 0.6rem; background: var(--surface2); border-radius: 5px; font-family: 'Cascadia Code', monospace; }
+  .presets-list { display: flex; flex-direction: column; gap: 0.4rem; }
+  .preset-item { padding: 0.5rem 0.75rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+  .preset-item:hover { border-color: var(--accent); }
+  .preset-expr { font-family: 'Cascadia Code', monospace; font-size: 0.78rem; color: var(--accent); }
+  .preset-desc { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
+  .error-msg { font-size: 0.8rem; color: var(--error); padding: 0.4rem 0.6rem; background: rgba(255,85,114,0.1); border-radius: 5px; border: 1px solid var(--error); }
+  @media (max-width: 800px) { .main { grid-template-columns: 1fr; } .sidebar { border-left: none; border-top: 1px solid var(--border); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>⏱ Cron Builder</h1>
+  <span>Build and explain cron expressions visually</span>
+</header>
+
+<div class="expression-bar">
+  <span class="expr-label">Expression</span>
+  <input class="expr-input" id="exprInput" value="0 * * * *" oninput="parseExpression()" spellcheck="false">
+  <button class="btn" onclick="copyExpr()">Copy</button>
+  <button class="btn primary" onclick="parseExpression()">Parse →</button>
+</div>
+
+<div class="main">
+  <div class="builder" id="builder">
+    <!-- Fields rendered by JS -->
+  </div>
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Human Description</div>
+      <div class="description-box" id="description">Loading...</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Next 5 Run Times</div>
+      <div class="next-runs" id="nextRuns"></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Common Presets</div>
+      <div class="presets-list">
+        <div class="preset-item" onclick="setExpr('* * * * *')"><div class="preset-expr">* * * * *</div><div class="preset-desc">Every minute</div></div>
+        <div class="preset-item" onclick="setExpr('0 * * * *')"><div class="preset-expr">0 * * * *</div><div class="preset-desc">Every hour</div></div>
+        <div class="preset-item" onclick="setExpr('0 0 * * *')"><div class="preset-expr">0 0 * * *</div><div class="preset-desc">Daily at midnight</div></div>
+        <div class="preset-item" onclick="setExpr('0 9 * * *')"><div class="preset-expr">0 9 * * *</div><div class="preset-desc">Daily at 9 AM</div></div>
+        <div class="preset-item" onclick="setExpr('0 0 * * 1')"><div class="preset-expr">0 0 * * 1</div><div class="preset-desc">Weekly on Monday</div></div>
+        <div class="preset-item" onclick="setExpr('0 0 1 * *')"><div class="preset-expr">0 0 1 * *</div><div class="preset-desc">Monthly on 1st</div></div>
+        <div class="preset-item" onclick="setExpr('0 0 1 1 *')"><div class="preset-expr">0 0 1 1 *</div><div class="preset-desc">Yearly on Jan 1st</div></div>
+        <div class="preset-item" onclick="setExpr('*/5 * * * *')"><div class="preset-expr">*/5 * * * *</div><div class="preset-desc">Every 5 minutes</div></div>
+        <div class="preset-item" onclick="setExpr('0 9-17 * * 1-5')"><div class="preset-expr">0 9-17 * * 1-5</div><div class="preset-desc">Hourly, Mon-Fri 9-5</div></div>
+        <div class="preset-item" onclick="setExpr('30 2 * * 0')"><div class="preset-expr">30 2 * * 0</div><div class="preset-desc">Weekly Sunday 2:30 AM</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const FIELDS = [
+  { id: 'min',  label: 'Minute',       min: 0, max: 59, names: null },
+  { id: 'hour', label: 'Hour',         min: 0, max: 23, names: null },
+  { id: 'dom',  label: 'Day of Month', min: 1, max: 31, names: null },
+  { id: 'mon',  label: 'Month',        min: 1, max: 12, names: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] },
+  { id: 'dow',  label: 'Day of Week',  min: 0, max: 6,  names: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] },
+];
+
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DOW_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+let parts = ['0','*','*','*','*'];
+let fieldModes = ['specific','every','every','every','every'];
+let rangeVals = [{a:0,b:59},{a:0,b:23},{a:1,b:31},{a:1,b:12},{a:0,b:6}];
+let stepVals = [1,1,1,1,1];
+let specificVals = [new Set([0]), new Set(), new Set(), new Set(), new Set()];
+
+function buildUI() {
+  const builder = document.getElementById('builder');
+  builder.innerHTML = '';
+  FIELDS.forEach((f, i) => {
+    const card = document.createElement('div');
+    card.className = 'field-card';
+    card.innerHTML = `
+      <div class="field-header">
+        <span class="field-name">${f.label}</span>
+        <span class="field-value" id="val-${f.id}">${parts[i]}</span>
+      </div>
+      <div class="field-body">
+        <div class="mode-tabs">
+          <button class="mode-tab ${fieldModes[i]==='every'?'active':''}" onclick="setMode(${i},'every')">Every</button>
+          <button class="mode-tab ${fieldModes[i]==='specific'?'active':''}" onclick="setMode(${i},'specific')">Specific</button>
+          <button class="mode-tab ${fieldModes[i]==='range'?'active':''}" onclick="setMode(${i},'range')">Range</button>
+          <button class="mode-tab ${fieldModes[i]==='step'?'active':''}" onclick="setMode(${i},'step')">Step</button>
+        </div>
+        <div class="mode-options" id="opts-${f.id}"></div>
+      </div>`;
+    builder.appendChild(card);
+    renderModeOptions(i);
+  });
+}
+
+function renderModeOptions(i) {
+  const f = FIELDS[i];
+  const mode = fieldModes[i];
+  const container = document.getElementById('opts-' + f.id);
+  container.innerHTML = '';
+
+  if (mode === 'every') {
+    container.innerHTML = `<span style="color:var(--muted);font-size:0.85rem;">Runs every ${f.label.toLowerCase()}</span>`;
+  } else if (mode === 'step') {
+    const sel = document.createElement('span');
+    sel.innerHTML = `<span style="color:var(--muted);font-size:0.85rem;">Every</span>
+      <input class="small-input" type="number" min="1" max="${f.max}" value="${stepVals[i]}" oninput="stepVals[${i}]=this.value;buildPart(${i});updateAll()">
+      <span style="color:var(--muted);font-size:0.85rem;">${f.label.toLowerCase()}(s)</span>`;
+    container.appendChild(sel);
+  } else if (mode === 'range') {
+    container.innerHTML = `<span style="color:var(--muted);font-size:0.85rem;">From</span>
+      <input class="small-input" type="number" min="${f.min}" max="${f.max}" value="${rangeVals[i].a}" oninput="rangeVals[${i}].a=+this.value;buildPart(${i});updateAll()">
+      <span style="color:var(--muted);font-size:0.85rem;">to</span>
+      <input class="small-input" type="number" min="${f.min}" max="${f.max}" value="${rangeVals[i].b}" oninput="rangeVals[${i}].b=+this.value;buildPart(${i});updateAll()">`;
+  } else if (mode === 'specific') {
+    const grid = document.createElement('div');
+    grid.className = 'chip-grid';
+    for (let v = f.min; v <= f.max; v++) {
+      const chip = document.createElement('button');
+      chip.className = 'chip' + (specificVals[i].has(v) ? ' active' : '');
+      chip.textContent = f.names ? f.names[v - f.min] : String(v).padStart(i===0||i===1?2:1,'0');
+      chip.onclick = () => {
+        if (specificVals[i].has(v)) specificVals[i].delete(v);
+        else specificVals[i].add(v);
+        chip.classList.toggle('active', specificVals[i].has(v));
+        buildPart(i); updateAll();
+      };
+      grid.appendChild(chip);
+    }
+    container.appendChild(grid);
+  }
+}
+
+function setMode(i, mode) {
+  fieldModes[i] = mode;
+  if (mode === 'specific' && specificVals[i].size === 0) specificVals[i].add(FIELDS[i].min);
+  buildPart(i);
+  buildUI();
+  updateAll();
+}
+
+function buildPart(i) {
+  const mode = fieldModes[i];
+  if (mode === 'every') { parts[i] = '*'; }
+  else if (mode === 'step') { parts[i] = '*/' + (stepVals[i] || 1); }
+  else if (mode === 'range') { parts[i] = rangeVals[i].a + '-' + rangeVals[i].b; }
+  else if (mode === 'specific') {
+    if (specificVals[i].size === 0) { parts[i] = '*'; }
+    else { parts[i] = [...specificVals[i]].sort((a,b)=>a-b).join(','); }
+  }
+  const el = document.getElementById('val-' + FIELDS[i].id);
+  if (el) el.textContent = parts[i];
+  document.getElementById('exprInput').value = parts.join(' ');
+}
+
+function updateAll() {
+  document.getElementById('exprInput').value = parts.join(' ');
+  describe();
+  calcNextRuns();
+}
+
+function setExpr(expr) {
+  document.getElementById('exprInput').value = expr;
+  parseExpression();
+}
+
+function parseExpression() {
+  const raw = document.getElementById('exprInput').value.trim();
+  const p = raw.split(/\s+/);
+  if (p.length !== 5) {
+    document.getElementById('description').textContent = 'Invalid: must have exactly 5 fields';
+    document.getElementById('description').style.color = 'var(--error)';
+    return;
+  }
+  document.getElementById('description').style.color = 'var(--success)';
+  parts = p;
+  // Parse modes
+  FIELDS.forEach((f, i) => {
+    const part = parts[i];
+    if (part === '*') { fieldModes[i] = 'every'; }
+    else if (part.startsWith('*/')) { fieldModes[i] = 'step'; stepVals[i] = parseInt(part.slice(2)) || 1; }
+    else if (part.includes('-') && !part.includes(',')) { fieldModes[i] = 'range'; const [a,b] = part.split('-').map(Number); rangeVals[i] = {a,b}; }
+    else { fieldModes[i] = 'specific'; specificVals[i] = new Set(part.split(',').map(Number)); }
+  });
+  buildUI();
+  describe();
+  calcNextRuns();
+}
+
+function describe() {
+  const [min, hour, dom, mon, dow] = parts;
+  let desc = 'Runs ';
+  // Minute
+  if (min === '*') desc += 'every minute';
+  else if (min.startsWith('*/')) desc += `every ${min.slice(2)} minutes`;
+  else desc += `at minute ${min}`;
+  // Hour
+  if (hour === '*') desc += ', every hour';
+  else if (hour.startsWith('*/')) desc += `, every ${hour.slice(2)} hours`;
+  else {
+    const hrs = hour.split(',').map(h => {
+      const n = parseInt(h); const ampm = n < 12 ? 'AM' : 'PM'; const h12 = n % 12 || 12;
+      return `${h12}:${(min==='*'?'00':min.padStart(2,'0'))} ${ampm}`;
+    });
+    desc = `Runs at ${hrs.join(', ')}`;
+  }
+  // Day of month
+  if (dom !== '*') desc += `, on day ${dom} of the month`;
+  // Month
+  if (mon !== '*') {
+    const ms = mon.split(',').map(m => MONTH_NAMES[parseInt(m)-1] || m);
+    desc += ` in ${ms.join(', ')}`;
+  }
+  // Day of week
+  if (dow !== '*') {
+    const ds = dow.split(',').map(d => DOW_NAMES[parseInt(d)] || d);
+    desc += `, on ${ds.join(' and ')}`;
+  }
+  document.getElementById('description').textContent = desc;
+}
+
+function matchesPart(part, val, min, max) {
+  if (part === '*') return true;
+  if (part.startsWith('*/')) { const step = parseInt(part.slice(2)); return (val - min) % step === 0; }
+  if (part.includes('-')) { const [a,b] = part.split('-').map(Number); return val >= a && val <= b; }
+  return part.split(',').map(Number).includes(val);
+}
+
+function calcNextRuns() {
+  const [minP, hourP, domP, monP, dowP] = parts;
+  const results = [];
+  const now = new Date();
+  let dt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() + 1, 0, 0);
+  let tries = 0;
+  while (results.length < 5 && tries < 100000) {
+    tries++;
+    const mo = dt.getMonth() + 1, d = dt.getDate(), h = dt.getHours(), m = dt.getMinutes(), dw = dt.getDay();
+    if (matchesPart(monP, mo, 1, 12) && matchesPart(domP, d, 1, 31) && matchesPart(dowP, dw, 0, 6) && matchesPart(hourP, h, 0, 23) && matchesPart(minP, m, 0, 59)) {
+      results.push(new Date(dt));
+    }
+    dt = new Date(dt.getTime() + 60000);
+  }
+  const container = document.getElementById('nextRuns');
+  container.innerHTML = '';
+  results.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'next-run-item';
+    div.textContent = r.toLocaleString();
+    container.appendChild(div);
+  });
+  if (results.length === 0) container.innerHTML = '<div style="font-size:0.8rem;color:var(--error)">Could not calculate — check expression</div>';
+}
+
+function copyExpr() {
+  navigator.clipboard.writeText(document.getElementById('exprInput').value).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// Init
+parseExpression();
+</script>
+</body>
+</html>

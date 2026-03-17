@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cURL Builder</title>
+  <style>
+    :root { --bg: #0d1117; --surface: #161b22; --border: #30363d; --text: #c9d1d9; --muted: #8b949e; --green: #3fb950; --red: #f85149; --blue: #58a6ff; --purple: #a371f7; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; padding: 1.5rem; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    h1 { font-size: 1.2rem; color: var(--purple); margin-bottom: 1.5rem; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+    label { display: block; color: var(--muted); font-size: 0.75rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    input, select, textarea { width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.9rem; margin-bottom: 1rem; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); }
+    .row { display: flex; gap: 0.5rem; }
+    .row > * { flex: 1; }
+    button { padding: 0.7rem 1.2rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+    .btn-build { background: var(--blue); color: #000; }
+    .btn-copy { background: var(--green); color: #000; }
+    .btn-clear { background: var(--border); color: var(--text); }
+    .output { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-size: 0.85rem; color: var(--green); white-space: pre-wrap; word-break: break-all; min-height: 60px; }
+    .presets { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .preset { padding: 0.35rem 0.7rem; border-radius: 6px; background: var(--border); color: var(--muted); font-size: 0.75rem; cursor: pointer; }
+    .preset:hover { color: var(--blue); }
+    .tabs { display: flex; gap: 0.3rem; margin-bottom: 1rem; }
+    .tab { padding: 0.5rem 1rem; border-radius: 6px; background: var(--bg); color: var(--muted); font-size: 0.8rem; cursor: pointer; border: 1px solid var(--border); }
+    .tab.active { background: var(--blue); color: #000; border-color: var(--blue); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚡ cURL Builder</h1>
+
+    <div class="grid">
+      <div class="panel">
+        <label>Method</label>
+        <div class="row">
+          <select id="method"><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option><option>PATCH</option><option>HEAD</option></select>
+          <input type="text" id="url" placeholder="https://api.example.com/endpoint">
+        </div>
+
+        <label>Presets</label>
+        <div class="presets">
+          <span class="preset" onclick="preset('json')">JSON</span>
+          <span class="preset" onclick="preset('form')">Form</span>
+          <span class="preset" onclick="preset('auth')">Auth</span>
+          <span class="preset" onclick="preset('upload')">Upload</span>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active" onclick="setTab('headers')">Headers</div>
+          <div class="tab" onclick="setTab('body')">Body</div>
+          <div class="tab" onclick="setTab('auth')">Auth</div>
+        </div>
+
+        <div id="headers-tab">
+          <input type="text" placeholder="Header: Value" id="header1">
+          <input type="text" placeholder="Header: Value" id="header2">
+          <input type="text" placeholder="Header: Value" id="header3">
+        </div>
+
+        <div id="body-tab" style="display:none">
+          <textarea id="body" placeholder='{"key": "value"}' rows="5"></textarea>
+        </div>
+
+        <div id="auth-tab" style="display:none">
+          <select id="authType" onchange="toggleAuth()">
+            <option value="">No Auth</option>
+            <option value="bearer">Bearer Token</option>
+            <option value="basic">Basic Auth</option>
+            <option value="apiKey">API Key</option>
+          </select>
+          <input type="text" id="authValue" placeholder="Token / Username:Password">
+        </div>
+
+        <button class="btn-build" onclick="build()">Build cURL</button>
+      </div>
+
+      <div class="panel">
+        <label>Generated cURL</label>
+        <div class="output" id="output">curl -X GET "https://api.example.com"</div>
+        <div class="row" style="margin-top:1rem">
+          <button class="btn-copy" onclick="copy()">Copy</button>
+          <button class="btn-clear" onclick="clear()">Clear</button>
+        </div>
+
+        <label style="margin-top:1.5rem">Quick Copy</label>
+        <div class="row">
+          <button class="btn-clear" onclick="copyJS()">fetch()</button>
+          <button class="btn-clear" onclick="copyPython()">Python</button>
+          <button class="btn-clear" onclick="copyNode()">Node.js</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentTab = 'headers';
+
+    function setTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('headers-tab').style.display = tab === 'headers' ? 'block' : 'none';
+      document.getElementById('body-tab').style.display = tab === 'body' ? 'block' : 'none';
+      document.getElementById('auth-tab').style.display = tab === 'auth' ? 'block' : 'none';
+    }
+
+    function preset(type) {
+      if (type === 'json') {
+        document.getElementById('method').value = 'POST';
+        document.getElementById('header1').value = 'Content-Type: application/json';
+        document.getElementById('body').value = '{\n  "key": "value"\n}';
+      } else if (type === 'form') {
+        document.getElementById('method').value = 'POST';
+        document.getElementById('header1').value = 'Content-Type: application/x-www-form-urlencoded';
+        document.getElementById('body').value = 'key=value&other=data';
+      } else if (type === 'auth') {
+        setTab('auth');
+        document.getElementById('authType').value = 'bearer';
+        document.getElementById('authValue').placeholder = 'your-token-here';
+      }
+    }
+
+    function toggleAuth() {}
+
+    function build() {
+      const method = document.getElementById('method').value;
+      let url = document.getElementById('url').value || 'https://api.example.com';
+
+      let curl = `curl -X ${method} "${url}"`;
+
+      // Headers
+      const headers = ['header1', 'header2', 'header3'].map(id => document.getElementById(id).value).filter(h => h);
+      headers.forEach(h => {
+        const [key, val] = h.split(':').map(s => s.trim());
+        if (key) curl += ` \\\n  -H "${key}: ${val}"`;
+      });
+
+      // Auth
+      const authType = document.getElementById('authType').value;
+      const authVal = document.getElementById('authValue').value;
+      if (authType === 'bearer' && authVal) {
+        curl += ` \\\n  -H "Authorization: Bearer ${authVal}"`;
+      } else if (authType === 'basic' && authVal) {
+        curl += ` \\\n  -u ${authVal}`;
+      } else if (authType === 'apiKey' && authVal) {
+        curl += ` \\\n  -H "X-API-Key: ${authVal}"`;
+      }
+
+      // Body
+      const body = document.getElementById('body').value.trim();
+      if (body && ['POST', 'PUT', 'PATCH'].includes(method)) {
+        curl += ` \\\n  -d '${body.replace(/'/g, "\\'")}'`;
+      }
+
+      document.getElementById('output').textContent = curl;
+    }
+
+    function copy() {
+      navigator.clipboard.writeText(document.getElementById('output').textContent);
+    }
+
+    function clear() {
+      document.getElementById('url').value = '';
+      document.getElementById('header1').value = '';
+      document.getElementById('header2').value = '';
+      document.getElementById('header3').value = '';
+      document.getElementById('body').value = '';
+      build();
+    }
+
+    function copyJS() {
+      const method = document.getElementById('method').value;
+      const url = document.getElementById('url').value || 'https://api.example.com';
+      const body = document.getElementById('body').value.trim();
+      const headers = {};
+      ['header1', 'header2', 'header3'].forEach(id => {
+        const h = document.getElementById(id).value;
+        if (h) {
+          const [k, v] = h.split(':').map(s => s.trim());
+          headers[k] = v;
+        }
+      });
+      const opts = { method, headers: JSON.stringify(headers, null, 2) };
+      if (body && ['POST', 'PUT', 'PATCH'].includes(method)) opts.body = JSON.stringify(JSON.parse(body), null, 2);
+      document.getElementById('output').textContent = `fetch("${url}", ${JSON.stringify(opts, null, 2)})`;
+    }
+
+    function copyPython() {
+      const method = document.getElementById('method').value;
+      const url = document.getElementById('url').value || 'https://api.example.com';
+      const code = `import requests
+
+response = requests.${method.toLowerCase()}(
+    "${url}"${getPythonHeaders()}
+${getPythonBody()}
+)
+
+print(response.json())`;
+      document.getElementById('output').textContent = code;
+    }
+
+    function getPythonHeaders() {
+      const headers = [];
+      ['header1', 'header2', 'header3'].forEach(id => {
+        const h = document.getElementById(id).value;
+        if (h) {
+          const [k, v] = h.split(':').map(s => s.trim());
+          headers.push(`    "${k}": "${v}"`);
+        }
+      });
+      return headers.length ? ',\n    headers={\n' + headers.join(',\n') + '\n    }' : '';
+    }
+
+    function getPythonBody() {
+      const body = document.getElementById('body').value.trim();
+      return body ? `,\n    json=${body}` : '';
+    }
+
+    function copyNode() {
+      const method = document.getElementById('method').value;
+      const url = document.getElementById('url').value || 'https://api.example.com';
+      const code = `const fetch = require('node-fetch');
+
+fetch("${url}", {
+  method: "${method}"${getNodeHeaders()}${getNodeBody()}
+})
+  .then(res => res.json())
+  .then(data => console.log(data));`;
+      document.getElementById('output').textContent = code;
+    }
+
+    function getNodeHeaders() {
+      const headers = [];
+      ['header1', 'header2', 'header3'].forEach(id => {
+        const h = document.getElementById(id).value;
+        if (h) {
+          const [k, v] = h.split(':').map(s => s.trim());
+          headers.push(`    "${k}": "${v}"`);
+        }
+      });
+      return headers.length ? ',\n  headers: {\n' + headers.join(',\n') + '\n  }' : '';
+    }
+
+    function getNodeBody() {
+      const body = document.getElementById('body').value.trim();
+      return body ? `,\n  body: JSON.stringify(${body})` : '';
+    }
+
+    build();
+  </script>
+</body>
+</html>

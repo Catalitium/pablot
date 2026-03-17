@@ -1,0 +1,44 @@
+{
+  "status": "ok",
+  "files": {
+    "main.py": "import tkinter as tk\nfrom tkinter import filedialog, messagebox, ttk\nfrom PIL import Image, ImageTk\nimport os\n\n# Default ASCII character set\nDEFAULT_CHARSET = \"@%#*+=-:. \"\n\n# Function to load and process the image\ndef load_image(filepath):\n    try:\n        image = Image.open(filepath).convert(\"L\")  # Convert to grayscale\n        return image\n    except Exception as e:\n        messagebox.showerror(\"Error\", f\"Failed to load image: {e}\")\n        return None\n\n# Function to resize the image for ASCII conversion\ndef resize_image(image, width):\n    aspect_ratio = image.height / image.width\n    new_height = int(width * aspect_ratio * 0.55)  # Adjust height for ASCII proportions\n    return image.resize((width, new_height))\n\n# Function to map brightness to ASCII characters\ndef map_to_ascii(image, charset):\n    pixels = image.getdata()\n    ascii_chars = [charset[int((pixel / 255) * (len(charset) - 1))] for pixel in pixels]\n    ascii_art = \"\\n\".join(\n        [\"\".join(ascii_chars[i:i + image.width]) for i in range(0, len(ascii_chars), image.width)]\n    )\n    return ascii_art\n\n# Function to display ASCII art in the text area\ndef display_ascii(ascii_art):\n    text_area.delete(1.0, tk.END)\n    text_area.insert(tk.END, ascii_art)\n\n# Function to save ASCII art to a .txt file\ndef save_ascii_art(ascii_art):\n    filepath = filedialog.asksaveasfilename(defaultextension=\".txt\",\n                                            filetypes=[(\"Text files\", \"*.txt\")])\n    if filepath:\n        try:\n            with open(filepath, \"w\") as file:\n                file.write(ascii_art)\n            messagebox.showinfo(\"Success\", f\"ASCII art saved as {os.path.basename(filepath)}\")\n        except Exception as e:\n            messagebox.showerror(\"Error\", f\"Failed to save ASCII art: {e}\")\n\n# Function triggered by the \"Generate ASCII\" button\ndef on_generate_click():\n    filepath = filedialog.askopenfilename(filetypes=[(\"Image files\", \"*.jpg *.png *.bmp\")])\n    if not filepath:\n        return\n    image = load_image(filepath)\n    if image is None:\n        return\n\n    # Resize and generate ASCII art\n    resized_image = resize_image(image, resolution_scale.get())\n    ascii_art = map_to_ascii(resized_image, charset_entry.get() or DEFAULT_CHARSET)\n    display_ascii(ascii_art)\n    global current_ascii_art\n    current_ascii_art = ascii_art\n\n# Function triggered by the \"Save As\" button\ndef on_save_click():\n    if current_ascii_art:\n        save_ascii_art(current_ascii_art)\n    else:\n        messagebox.showerror(\"Error\", \"No ASCII art to save!\")\n\n# Initialize the main Tkinter window\nroot = tk.Tk()\nroot.title(\"ASCII Art Generator\")\nroot.geometry(\"800x600\")\nroot.resizable(False, False)\n\n# Left panel for controls\ncontrol_frame = tk.Frame(root)\ncontrol_frame.pack(side=tk.LEFT, fill=tk.Y, padx=10, pady=10)\n\n# ASCII charset input\ntk.Label(control_frame, text=\"Custom Charset:\", font=(\"Arial\", 12)).pack(pady=5)\ncharset_entry = tk.Entry(control_frame, font=(\"Arial\", 12))\ncharset_entry.insert(0, DEFAULT_CHARSET)\ncharset_entry.pack(pady=5)\n\n# Resolution scale\ntk.Label(control_frame, text=\"Resolution:\", font=(\"Arial\", 12)).pack(pady=5)\nresolution_scale = tk.Scale(control_frame, from_=10, to_=150, orient=tk.HORIZONTAL, font=(\"Arial\", 10))\nresolution_scale.set(50)\nresolution_scale.pack(pady=5)\n\n# Generate and Save buttons\ngenerate_button = tk.Button(control_frame, text=\"Generate ASCII\", font=(\"Arial\", 12), command=on_generate_click)\ngenerate_button.pack(pady=10)\n\nsave_button = tk.Button(control_frame, text=\"Save As\", font=(\"Arial\", 12), command=on_save_click)\nsave_button.pack(pady=10)\n\n# Right panel for ASCII art display\ntext_area = tk.Text(root, wrap=tk.WORD, font=(\"Courier\", 10), bg=\"black\", fg=\"white\")\ntext_area.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10, pady=10)\n\n# Variable to store the current ASCII art\ncurrent_ascii_art = None\n\n# Start the Tkinter event loop\nroot.mainloop()\n"
+  },
+  "test_commands": [
+    "python main.py"
+  ],
+  "execution": {
+    "repo_path": "C:\\Users\\catal\\Desktop\\code-base\\ascii-art",
+    "branch": "fleet/ascii-art-v-006",
+    "owner": "JPGBMR",
+    "repo": "pyAsciiArt",
+    "files_written": [
+      {
+        "path": "main.py",
+        "bytes": 3896,
+        "status": "ok"
+      }
+    ],
+    "test_results": [
+      {
+        "command": "python main.py",
+        "success": true,
+        "output": ""
+      }
+    ],
+    "commit": {
+      "success": false,
+      "sha": null,
+      "message": "fatal: could not open '.git/COMMIT_EDITMSG': Permission denied"
+    },
+    "push": {
+      "success": false,
+      "message": "push disabled"
+    },
+    "github_actions": {
+      "triggered": false,
+      "workflow": null,
+      "message": "disabled"
+    },
+    "issues_created": []
+  }
+}

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base64 Tool</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3352;
+    --accent: #7c6af7; --accent2: #56d4a0; --text: #e2e8f0; --muted: #8892b0;
+    --error: #ff5572; --success: #56d4a0;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+  header { padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
+  header h1 { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+  header span { color: var(--muted); font-size: 0.875rem; }
+  .options-bar { padding: 0.6rem 1.5rem; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+  .option-label { font-size: 0.8rem; color: var(--muted); display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+  .option-label input { accent-color: var(--accent); }
+  .main { flex: 1; display: grid; grid-template-columns: 1fr auto 1fr; gap: 0; }
+  .panel { display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+  .panel:last-child { border-right: none; }
+  .panel-header { padding: 0.75rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .panel-title { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .panel-meta { font-size: 0.75rem; color: var(--muted); }
+  textarea {
+    flex: 1; background: var(--surface); border: none; outline: none; color: var(--text);
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 0.85rem;
+    padding: 1rem; resize: none; line-height: 1.6; min-height: 350px; width: 100%;
+  }
+  .toolbar { padding: 0.75rem 1rem; background: var(--bg); border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .btn {
+    padding: 0.45rem 1rem; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { opacity: 0.85; }
+  .btn.success { border-color: var(--success); color: var(--success); }
+  .btn.success:hover { background: var(--success); color: #000; }
+  .btn.danger { border-color: var(--error); color: var(--error); }
+  .btn.danger:hover { background: var(--error); color: #fff; }
+  .middle { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem 0.5rem; gap: 1rem; border-right: 1px solid var(--border); background: var(--bg); }
+  .arrow-btn {
+    padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 1.1rem; cursor: pointer;
+    transition: all 0.15s; writing-mode: horizontal-tb;
+  }
+  .arrow-btn:hover { background: var(--accent); border-color: var(--accent); }
+  .status-bar { padding: 0.4rem 1rem; background: var(--surface); border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--muted); }
+  .status-ok { color: var(--success); }
+  .status-err { color: var(--error); }
+  .file-input { display: none; }
+  @media (max-width: 700px) {
+    .main { grid-template-columns: 1fr; }
+    .middle { flex-direction: row; border-right: none; border-bottom: 1px solid var(--border); padding: 0.5rem 1rem; }
+    .panel { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>⬡ Base64 Tool</h1>
+  <span>Encode · Decode · Files</span>
+</header>
+
+<div class="options-bar">
+  <label class="option-label">
+    <input type="checkbox" id="urlSafe"> URL-safe Base64
+  </label>
+  <label class="option-label">
+    <input type="checkbox" id="lineBreaks"> Line breaks (76 chars)
+  </label>
+</div>
+
+<div class="main">
+  <!-- Plain Text Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Plain Text</span>
+      <span class="panel-meta" id="plainMeta">0 chars</span>
+    </div>
+    <textarea id="plainText" placeholder="Type or paste plain text here...&#10;&#10;Or upload a file using the button below." spellcheck="false"></textarea>
+    <div class="toolbar">
+      <button class="btn primary" onclick="encode()">Encode →</button>
+      <button class="btn" onclick="copyText('plainText')">Copy</button>
+      <button class="btn" onclick="clearPanel('plainText','plainMeta')">Clear</button>
+      <input type="file" id="fileInput" class="file-input" onchange="readFile(event)">
+      <button class="btn success" onclick="document.getElementById('fileInput').click()">Upload File</button>
+    </div>
+    <div class="status-bar" id="plainStatus">Ready</div>
+  </div>
+
+  <!-- Middle arrows -->
+  <div class="middle">
+    <button class="arrow-btn" title="Encode" onclick="encode()">→</button>
+    <button class="arrow-btn" title="Swap" onclick="swap()" style="font-size:0.9rem;">⇅</button>
+    <button class="arrow-btn" title="Decode" onclick="decode()">←</button>
+  </div>
+
+  <!-- Base64 Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Base64</span>
+      <span class="panel-meta" id="b64Meta">0 chars</span>
+    </div>
+    <textarea id="b64Text" placeholder="Base64 encoded string will appear here...&#10;&#10;Or paste Base64 here and click Decode ←" spellcheck="false" style="font-family:'Cascadia Code','Fira Code','Consolas',monospace;word-break:break-all;"></textarea>
+    <div class="toolbar">
+      <button class="btn primary" onclick="decode()">← Decode</button>
+      <button class="btn" onclick="copyText('b64Text')">Copy</button>
+      <button class="btn" onclick="clearPanel('b64Text','b64Meta')">Clear</button>
+      <button class="btn success" onclick="downloadDecoded()">Download Decoded</button>
+    </div>
+    <div class="status-bar" id="b64Status">Ready</div>
+  </div>
+</div>
+
+<script>
+const plainText = document.getElementById('plainText');
+const b64Text = document.getElementById('b64Text');
+const plainMeta = document.getElementById('plainMeta');
+const b64Meta = document.getElementById('b64Meta');
+const plainStatus = document.getElementById('plainStatus');
+const b64Status = document.getElementById('b64Status');
+const urlSafe = document.getElementById('urlSafe');
+const lineBreaks = document.getElementById('lineBreaks');
+
+let lastDecodedBytes = null;
+
+function toUrlSafe(str) {
+  return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function fromUrlSafe(str) {
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (str.length % 4) str += '=';
+  return str;
+}
+function addLineBreaks(str, len = 76) {
+  return str.match(new RegExp(`.{1,${len}}`, 'g')).join('\n');
+}
+
+function encode() {
+  const text = plainText.value;
+  if (!text) { setStatus(plainStatus, 'error', 'Nothing to encode'); return; }
+  try {
+    let encoded = btoa(unescape(encodeURIComponent(text)));
+    if (urlSafe.checked) encoded = toUrlSafe(encoded);
+    if (lineBreaks.checked && !urlSafe.checked) encoded = addLineBreaks(encoded);
+    b64Text.value = encoded;
+    updateMeta();
+    setStatus(plainStatus, 'ok', `Encoded ${text.length} chars → ${encoded.length} chars`);
+    setStatus(b64Status, 'ok', 'Encoded');
+  } catch (e) {
+    setStatus(plainStatus, 'error', e.message);
+  }
+}
+
+function decode() {
+  let b64 = b64Text.value.trim().replace(/\s/g, '');
+  if (!b64) { setStatus(b64Status, 'error', 'Nothing to decode'); return; }
+  try {
+    if (urlSafe.checked || b64.includes('-') || b64.includes('_')) b64 = fromUrlSafe(b64);
+    const decoded = decodeURIComponent(escape(atob(b64)));
+    plainText.value = decoded;
+    updateMeta();
+    setStatus(b64Status, 'ok', `Decoded ${b64.length} chars → ${decoded.length} chars`);
+    setStatus(plainStatus, 'ok', 'Decoded');
+  } catch (e) {
+    setStatus(b64Status, 'error', 'Invalid Base64: ' + e.message);
+  }
+}
+
+function swap() {
+  const tmp = plainText.value;
+  plainText.value = b64Text.value;
+  b64Text.value = tmp;
+  updateMeta();
+  setStatus(plainStatus, '', 'Swapped');
+  setStatus(b64Status, '', 'Swapped');
+}
+
+function copyText(id) {
+  const el = document.getElementById(id);
+  if (!el.value) return;
+  navigator.clipboard.writeText(el.value).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+function clearPanel(id, metaId) {
+  document.getElementById(id).value = '';
+  document.getElementById(metaId).textContent = '0 chars';
+}
+
+function readFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const arr = new Uint8Array(e.target.result);
+    let binary = '';
+    arr.forEach(b => binary += String.fromCharCode(b));
+    let encoded = btoa(binary);
+    if (urlSafe.checked) encoded = toUrlSafe(encoded);
+    if (lineBreaks.checked) encoded = addLineBreaks(encoded);
+    b64Text.value = encoded;
+    plainText.value = `[File: ${file.name} · ${formatBytes(file.size)}]`;
+    updateMeta();
+    setStatus(plainStatus, 'ok', `File: ${file.name} (${formatBytes(file.size)})`);
+    setStatus(b64Status, 'ok', `Encoded file → ${encoded.length} chars`);
+  };
+  reader.readAsArrayBuffer(file);
+  event.target.value = '';
+}
+
+function downloadDecoded() {
+  let b64 = b64Text.value.trim().replace(/\s/g, '');
+  if (!b64) return;
+  try {
+    if (urlSafe.checked || b64.includes('-') || b64.includes('_')) b64 = fromUrlSafe(b64);
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const blob = new Blob([bytes]);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'decoded_file';
+    a.click();
+    setStatus(b64Status, 'ok', 'Downloaded');
+  } catch (e) {
+    setStatus(b64Status, 'error', 'Cannot decode: ' + e.message);
+  }
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(1) + ' MB';
+}
+
+function updateMeta() {
+  plainMeta.textContent = `${plainText.value.length} chars`;
+  b64Meta.textContent = `${b64Text.value.length} chars`;
+}
+
+function setStatus(el, type, msg) {
+  el.className = 'status-bar' + (type === 'ok' ? ' status-ok' : type === 'error' ? ' status-err' : '');
+  el.textContent = msg;
+}
+
+plainText.addEventListener('input', updateMeta);
+b64Text.addEventListener('input', updateMeta);
+</script>
+</body>
+</html>

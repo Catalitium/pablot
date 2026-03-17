@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lorem Generator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3352;
+    --accent: #7c6af7; --text: #e2e8f0; --muted: #8892b0;
+    --error: #ff5572; --success: #56d4a0;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+  header { padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
+  header h1 { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+  header span { color: var(--muted); font-size: 0.875rem; }
+  .controls { padding: 1.25rem 2rem; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .control-group { display: flex; align-items: center; gap: 0.5rem; }
+  label { font-size: 0.85rem; color: var(--muted); }
+  input[type=number] {
+    width: 80px; padding: 0.4rem 0.6rem; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-size: 0.9rem; outline: none;
+  }
+  input[type=number]:focus { border-color: var(--accent); }
+  select {
+    padding: 0.4rem 0.6rem; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-size: 0.9rem; outline: none; cursor: pointer;
+  }
+  select:focus { border-color: var(--accent); }
+  .option-label { font-size: 0.85rem; color: var(--muted); display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+  .option-label input { accent-color: var(--accent); }
+  .btn {
+    padding: 0.5rem 1.25rem; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { opacity: 0.85; }
+  .output-area { flex: 1; padding: 1.5rem 2rem; display: flex; flex-direction: column; gap: 1rem; }
+  .output-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+  .output-meta { font-size: 0.8rem; color: var(--muted); }
+  .output-actions { display: flex; gap: 0.5rem; }
+  textarea {
+    flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: Georgia, 'Times New Roman', serif; font-size: 1rem;
+    padding: 1.25rem; resize: vertical; line-height: 1.8; min-height: 350px; outline: none;
+  }
+  textarea:focus { border-color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>¶ Lorem Generator</h1>
+  <span>Placeholder text for designers & developers</span>
+</header>
+
+<div class="controls">
+  <div class="control-group">
+    <label>Amount:</label>
+    <input type="number" id="amount" value="3" min="1" max="100">
+  </div>
+  <div class="control-group">
+    <label>Type:</label>
+    <select id="type">
+      <option value="paragraphs">Paragraphs</option>
+      <option value="sentences">Sentences</option>
+      <option value="words">Words</option>
+    </select>
+  </div>
+  <label class="option-label">
+    <input type="checkbox" id="startLorem" checked> Start with "Lorem ipsum..."
+  </label>
+  <label class="option-label">
+    <input type="checkbox" id="htmlOutput"> Wrap in &lt;p&gt; tags
+  </label>
+  <button class="btn primary" onclick="generate()">Generate</button>
+</div>
+
+<div class="output-area">
+  <div class="output-header">
+    <div class="output-meta" id="meta">—</div>
+    <div class="output-actions">
+      <button class="btn" onclick="copyOutput()">Copy</button>
+      <button class="btn" onclick="clearOutput()">Clear</button>
+    </div>
+  </div>
+  <textarea id="output" readonly placeholder="Click Generate to produce Lorem Ipsum text..."></textarea>
+</div>
+
+<script>
+const WORDS = `lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt neque porro quisquam est qui dolorem ipsum quia dolor sit amet consectetur adipisci velit sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem ut enim ad minima veniam quis nostrum exercitationem ullam corporis suscipit laboriosam nisi ut aliquid ex ea commodi consequatur quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur vel illum qui dolorem eum fugiat quo voluptas nulla pariatur`.split(' ');
+
+const LOREM_START = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+
+function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+function getWords(count) {
+  const result = [];
+  for (let i = 0; i < count; i++) result.push(WORDS[rand(0, WORDS.length - 1)]);
+  return result;
+}
+
+function makeSentence() {
+  const wordCount = rand(8, 20);
+  const words = getWords(wordCount);
+  // Add occasional commas
+  if (wordCount > 10) {
+    const commaPos = rand(3, 7);
+    words[commaPos] = words[commaPos] + ',';
+  }
+  return capitalize(words.join(' ')) + '.';
+}
+
+function makeParagraph() {
+  const sentenceCount = rand(4, 8);
+  const sentences = [];
+  for (let i = 0; i < sentenceCount; i++) sentences.push(makeSentence());
+  return sentences.join(' ');
+}
+
+function generate() {
+  const amount = Math.max(1, Math.min(100, parseInt(document.getElementById('amount').value) || 3));
+  const type = document.getElementById('type').value;
+  const startLorem = document.getElementById('startLorem').checked;
+  const htmlOut = document.getElementById('htmlOutput').checked;
+  const result = [];
+
+  if (type === 'words') {
+    const words = getWords(amount);
+    if (startLorem && amount >= 2) { words[0] = 'Lorem'; if (amount >= 2) words[1] = 'ipsum'; }
+    const text = words.join(' ');
+    document.getElementById('output').value = htmlOut ? `<p>${text}</p>` : text;
+    document.getElementById('meta').textContent = `${amount} words`;
+  } else if (type === 'sentences') {
+    for (let i = 0; i < amount; i++) result.push(makeSentence());
+    if (startLorem) result[0] = LOREM_START;
+    const text = result.join(' ');
+    document.getElementById('output').value = htmlOut ? `<p>${text}</p>` : text;
+    document.getElementById('meta').textContent = `${amount} sentence${amount > 1 ? 's' : ''} · ${text.split(' ').length} words`;
+  } else {
+    for (let i = 0; i < amount; i++) result.push(makeParagraph());
+    if (startLorem) result[0] = LOREM_START + ' ' + result[0];
+    const paras = htmlOut ? result.map(p => `<p>${p}</p>`) : result;
+    const text = paras.join(htmlOut ? '\n\n' : '\n\n');
+    document.getElementById('output').value = text;
+    const wordCount = result.join(' ').split(' ').length;
+    document.getElementById('meta').textContent = `${amount} paragraph${amount > 1 ? 's' : ''} · ~${wordCount} words`;
+  }
+}
+
+function copyOutput() {
+  const text = document.getElementById('output').value;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+function clearOutput() {
+  document.getElementById('output').value = '';
+  document.getElementById('meta').textContent = '—';
+}
+
+// Generate on load
+generate();
+</script>
+</body>
+</html>

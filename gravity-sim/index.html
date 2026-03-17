@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gravity Sim</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="scene" aria-label="Gravity simulation"></canvas>
+
+  <aside class="dock">
+    <h1>Gravity Sim</h1>
+
+    <label>Body Count
+      <input id="bodyCount" type="number" min="2" max="120" value="40">
+    </label>
+
+    <label>Mass Scale
+      <input id="massScale" type="range" min="0.5" max="4" step="0.1" value="1.6">
+      <span id="massLabel">1.6</span>
+    </label>
+
+    <label>Time Step (dt)
+      <input id="dt" type="range" min="0.002" max="0.03" step="0.001" value="0.012">
+      <span id="dtLabel">0.012</span>
+    </label>
+
+    <div class="actions">
+      <button id="toggle" type="button">Pause</button>
+      <button id="reset" type="button">Reset</button>
+    </div>
+
+    <p id="status" class="status neutral">Running with safe defaults.</p>
+    <p id="warning" class="status warn" hidden>Values were clamped to stability limits.</p>
+  </aside>
+
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

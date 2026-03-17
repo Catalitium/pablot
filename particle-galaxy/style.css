@@ -1,0 +1,80 @@
+:root {
+  --bg: #020611;
+  --panel: rgba(7, 17, 40, 0.84);
+  --text: #e2e8f0;
+  --border: rgba(148, 163, 184, 0.35);
+  --ok: #22c55e;
+  --warn: #f59e0b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: radial-gradient(circle at 20% 20%, #1e293b, #020611 55%);
+  color: var(--text);
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+
+.panel {
+  position: fixed;
+  top: 0.8rem;
+  left: 0.8rem;
+  width: min(320px, calc(100vw - 1.6rem));
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem;
+  backdrop-filter: blur(8px);
+}
+
+h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+  font-size: 0.88rem;
+}
+
+input,
+button {
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.55rem;
+  background: rgba(15, 23, 42, 0.92);
+  color: var(--text);
+}
+
+button {
+  width: 100%;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.status {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  font-size: 0.86rem;
+}
+
+.status.neutral { background: rgba(30, 64, 175, 0.25); border-color: rgba(96, 165, 250, 0.45); }
+.status.success { background: rgba(22, 163, 74, 0.2); border-color: rgba(74, 222, 128, 0.45); }
+.status.warn { background: rgba(245, 158, 11, 0.16); border-color: rgba(245, 158, 11, 0.45); color: #fcd34d; }
+
+@media (max-width: 700px) {
+  .panel { width: calc(100vw - 1rem); left: 0.5rem; top: 0.5rem; }
+}

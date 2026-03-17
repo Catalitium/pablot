@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Fluid Sim</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<main class="app">
+  <h1>Fluid Sim MVP</h1>
+  <section class="card controls">
+    <label>Quality
+      <select id="quality">
+        <option value="low">Low (64x64)</option>
+        <option value="medium" selected>Medium (96x96)</option>
+        <option value="high">High (128x128)</option>
+      </select>
+    </label>
+    <label>Iterations
+      <input id="iterations" type="number" min="1" max="25" value="10">
+    </label>
+    <button id="resetBtn" type="button">Reset</button>
+    <p id="status"></p>
+  </section>
+  <section class="card"><canvas id="sim" width="720" height="420"></canvas></section>
+</main>
+<script src="app.js"></script>
+</body></html>

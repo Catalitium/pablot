@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graphing Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <section class="controls">
+      <h1>Graphing Calculator</h1>
+      <label for="expression">Expression f(x)</label>
+      <input id="expression" type="text" value="sin(x) + x / 4" autocomplete="off">
+      <p class="hint">Supported: + - * / ^, parentheses, sin cos tan log ln sqrt abs, variable x</p>
+
+      <div class="button-row">
+        <button id="plotBtn" type="button">Plot</button>
+        <button id="resetBtn" type="button">Reset View</button>
+      </div>
+
+      <div class="button-row">
+        <button id="zoomInBtn" type="button">Zoom In</button>
+        <button id="zoomOutBtn" type="button">Zoom Out</button>
+      </div>
+
+      <div class="button-row">
+        <button id="panLeftBtn" type="button">Pan Left</button>
+        <button id="panRightBtn" type="button">Pan Right</button>
+      </div>
+
+      <div class="button-row">
+        <button id="panUpBtn" type="button">Pan Up</button>
+        <button id="panDownBtn" type="button">Pan Down</button>
+      </div>
+
+      <section class="root-card">
+        <h2>Root Approximation</h2>
+        <button id="rootBtn" type="button">Approximate Root In View</button>
+        <p id="rootResult" class="status neutral">No root computed yet.</p>
+      </section>
+
+      <section>
+        <h2>Validation</h2>
+        <p id="status" class="status neutral">Ready.</p>
+      </section>
+    </section>
+
+    <section class="plot-wrap">
+      <canvas id="plotCanvas" width="960" height="600" aria-label="Function plot"></canvas>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

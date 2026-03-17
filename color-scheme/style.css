@@ -1,0 +1,127 @@
+:root {
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --text: #1f2937;
+  --muted: #5b6472;
+  --border: #d3dae6;
+  --focus: #0f62fe;
+  --ok: #117a37;
+  --shadow: 0 8px 30px rgba(16, 24, 40, 0.08);
+  --radius: 14px;
+  --space-1: 0.5rem;
+  --space-2: 0.75rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(180deg, #f7f9ff 0%, #eef2f8 100%);
+  color: var(--text);
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-4);
+}
+
+.header p {
+  color: var(--muted);
+}
+
+.controls {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  color: var(--text);
+}
+
+button:hover {
+  border-color: #98a3b8;
+}
+
+button:focus-visible,
+.lock-btn:focus-visible,
+.copy-btn:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.palette-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: var(--space-3);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.swatch {
+  height: 140px;
+}
+
+.card-body {
+  padding: var(--space-3);
+}
+
+.hex {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  margin: 0 0 var(--space-2);
+}
+
+.row {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.lock-btn,
+.copy-btn {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.lock-btn.is-locked {
+  background: #ffe9b5;
+  border-color: #e09e00;
+  color: #603b00;
+}
+
+.status {
+  min-height: 1.5rem;
+  margin-top: var(--space-3);
+  color: var(--ok);
+}
+
+@media (max-width: 700px) {
+  .app {
+    padding: var(--space-3);
+  }
+
+  .swatch {
+    height: 120px;
+  }
+}

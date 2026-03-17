@@ -1,0 +1,38 @@
+{
+  "repo_path": "C:\\Users\\catal\\Desktop\\code-base\\ascii-art",
+  "branch": "fleet/ascii-art-ci-update",
+  "branch_result": {
+    "success": true,
+    "branch": "fleet/ascii-art-ci-update",
+    "message": "A\t.github/workflows/ci.yml\nD\tREADME.mc\nA\tREADME.md\nA\t__pycache__/main.cpython-310.pyc\nA\tascii-art/hello-world/.github/workflows/ci.yml\nA\tascii-art/hello-world/.gitignore\nA\tascii-art/hello-world/README.md\nA\tascii-art/hello-world/hello.py\nA\thello-world/.github/workflows/ci.yml\nA\thello-world/.gitignore\nA\thello-world/README.md\nA\thello-world/hello.py\nA\ttests/__pycache__/test_main.cpython-310-pytest-8.4.2.pyc\nA\ttests/test_main.py"
+  },
+  "files_written": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "status": "ok",
+      "bytes": 760
+    }
+  ],
+  "test_results": [
+    {
+      "command": "python -m pytest -q",
+      "success": false,
+      "output": "Command 'python -m pytest -q' timed out after 180 seconds"
+    }
+  ],
+  "git_status": "AM .github/workflows/ci.yml\nR  README.mc -> README.md\nA  __pycache__/main.cpython-310.pyc\nA  ascii-art/hello-world/.github/workflows/ci.yml\nA  ascii-art/hello-world/.gitignore\nA  ascii-art/hello-world/README.md\nA  ascii-art/hello-world/hello.py\nA  hello-world/.github/workflows/ci.yml\nA  hello-world/.gitignore\nA  hello-world/README.md\nA  hello-world/hello.py\nA  tests/__pycache__/test_main.cpython-310-pytest-8.4.2.pyc\nA  tests/test_main.py",
+  "commit": {
+    "success": false,
+    "sha": null,
+    "message": "fatal: could not open '.git/COMMIT_EDITMSG': Permission denied"
+  },
+  "push": {
+    "success": false,
+    "message": "push disabled"
+  },
+  "remote": {
+    "owner": "JPGBMR",
+    "repo": "pyAsciiArt",
+    "remote": "https://github.com/JPGBMR/pyAsciiArt.git"
+  }
+}

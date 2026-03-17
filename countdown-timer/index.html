@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Countdown Timer</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0f17; --surface: #161925; --surface2: #1e2235; --border: #2a2f45;
+    --accent: #6c63ff; --accent2: #ff6584; --text: #e8eaf6; --muted: #6b7280;
+    --success: #10b981; --radius: 12px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; min-height: 100vh; padding: 24px 16px; }
+  h1 { text-align: center; font-size: clamp(1.4rem, 4vw, 2rem); font-weight: 700; letter-spacing: -0.5px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 28px; }
+  .container { max-width: 860px; margin: 0 auto; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+  .card h2 { font-size: 1rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 18px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
+  label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; }
+  input[type="text"], input[type="datetime-local"] { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.95rem; padding: 10px 14px; outline: none; transition: border-color 0.2s; color-scheme: dark; }
+  input:focus { border-color: var(--accent); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--accent), #8b5cf6); color: #fff; border: none; border-radius: 8px; padding: 11px 22px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s, transform 0.1s; white-space: nowrap; }
+  .btn:hover { opacity: 0.88; } .btn:active { transform: scale(0.97); }
+  .btn-sm { padding: 6px 12px; font-size: 0.78rem; border-radius: 6px; font-weight: 500; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
+  .btn-danger { background: transparent; border: 1px solid #be123c44; color: #f87171; }
+  .btn-danger:hover { border-color: #f87171; opacity: 1; }
+  .form-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+  #active-section { display: none; }
+  .active-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  .active-event-name { font-size: clamp(1.1rem, 3vw, 1.6rem); font-weight: 700; }
+  .active-target-date { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+  .active-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .digits-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  @media (max-width: 480px) { .digits-row { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+  .digit-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 20px 10px 14px; text-align: center; position: relative; overflow: hidden; }
+  .digit-block::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--border); opacity: 0.6; }
+  .digit-value { font-size: clamp(2.4rem, 7vw, 4rem); font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -2px; background: linear-gradient(160deg, #fff 30%, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; transition: transform 0.12s ease, opacity 0.12s ease; display: block; }
+  .digit-value.flip { transform: translateY(-6px); opacity: 0.3; }
+  .digit-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 10px; }
+  .progress-wrap { margin-bottom: 20px; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; }
+  .progress-bar-bg { background: var(--surface2); border-radius: 999px; height: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .progress-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 1s linear; width: 0%; }
+  .saved-list { display: flex; flex-direction: column; gap: 10px; }
+  .saved-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; transition: border-color 0.2s, background 0.2s; flex-wrap: wrap; }
+  .saved-item:hover { border-color: var(--accent); background: var(--surface); }
+  .saved-item.active-item { border-color: var(--accent); }
+  .saved-item-left { flex: 1; min-width: 0; }
+  .saved-item-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .saved-item-date { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .saved-item-badge { font-size: 0.72rem; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; flex-shrink: 0; }
+  .badge-future { background: #6c63ff22; color: var(--accent); border: 1px solid #6c63ff44; }
+  .badge-past { background: #f8718422; color: var(--accent2); border: 1px solid #f8718444; }
+  .badge-now { background: #10b98122; color: var(--success); border: 1px solid #10b98144; }
+  .saved-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .empty-state { text-align: center; padding: 32px 16px; color: var(--muted); font-size: 0.9rem; }
+  #toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--accent); color: var(--text); padding: 10px 22px; border-radius: 999px; font-size: 0.85rem; font-weight: 500; pointer-events: none; opacity: 0; transition: opacity 0.3s, transform 0.3s; z-index: 9000; white-space: nowrap; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+  .since-label { font-size: 0.75rem; color: var(--accent2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<div id="toast"></div>
+<div class="container">
+  <h1>Countdown Timer</h1>
+  <div class="card">
+    <h2>New Countdown</h2>
+    <div class="form-row">
+      <div><label for="inp-name">Event name</label><input id="inp-name" type="text" placeholder="e.g. New Year 2027" maxlength="60" /></div>
+      <div><label for="inp-date">Target date &amp; time</label><input id="inp-date" type="datetime-local" /></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" id="btn-save">+ Add Countdown</button>
+      <button class="btn btn-ghost btn-sm" id="btn-cancel" style="display:none;">Cancel</button>
+    </div>
+  </div>
+  <div class="card" id="active-section">
+    <div id="since-label" class="since-label" style="display:none;">Time Since</div>
+    <div class="active-header">
+      <div><div class="active-event-name" id="active-name"></div><div class="active-target-date" id="active-target"></div></div>
+      <div class="active-actions">
+        <button class="btn btn-ghost btn-sm" id="btn-share">Share</button>
+        <button class="btn btn-ghost btn-sm" id="btn-edit">Edit</button>
+      </div>
+    </div>
+    <div class="digits-row">
+      <div class="digit-block"><span class="digit-value" id="d-days">00</span><div class="digit-label">Days</div></div>
+      <div class="digit-block"><span class="digit-value" id="d-hours">00</span><div class="digit-label">Hours</div></div>
+      <div class="digit-block"><span class="digit-value" id="d-minutes">00</span><div class="digit-label">Minutes</div></div>
+      <div class="digit-block"><span class="digit-value" id="d-seconds">00</span><div class="digit-label">Seconds</div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-meta"><span id="progress-label">Time elapsed</span><span id="progress-pct">0%</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    </div>
+  </div>
+  <div class="card" id="list-card">
+    <h2>Saved Countdowns</h2>
+    <div class="saved-list" id="saved-list"></div>
+  </div>
+</div>
+<script>
+(function () {
+  var countdowns = load();
+  var activeId = null, tickInterval = null, editingId = null, confettiTriggered = {};
+  var inpName=document.getElementById('inp-name'), inpDate=document.getElementById('inp-date');
+  var btnSave=document.getElementById('btn-save'), btnCancel=document.getElementById('btn-cancel');
+  var btnShare=document.getElementById('btn-share'), btnEdit=document.getElementById('btn-edit');
+  var activeSection=document.getElementById('active-section'), activeName=document.getElementById('active-name');
+  var activeTarget=document.getElementById('active-target'), sinceLabel=document.getElementById('since-label');
+  var dDays=document.getElementById('d-days'), dHours=document.getElementById('d-hours');
+  var dMinutes=document.getElementById('d-minutes'), dSeconds=document.getElementById('d-seconds');
+  var progressFill=document.getElementById('progress-fill'), progressPct=document.getElementById('progress-pct');
+  var progressLabel=document.getElementById('progress-label'), savedList=document.getElementById('saved-list');
+
+  function load() { try { return JSON.parse(localStorage.getItem('countdowns')||'[]'); } catch(e) { return []; } }
+  function save() { localStorage.setItem('countdowns', JSON.stringify(countdowns)); }
+  function genId() { return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  function pad(n) { return String(Math.floor(Math.abs(n))).padStart(2,'0'); }
+  function formatDate(ts) { return new Date(ts).toLocaleString(undefined,{weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function diffParts(ms) { var s=Math.floor(ms/1000); return {days:Math.floor(s/86400),hours:Math.floor((s%86400)/3600),minutes:Math.floor((s%3600)/60),seconds:s%60}; }
+  function toast(msg) { var el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(function(){el.classList.remove('show');},2600); }
+  function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // URL share import
+  (function(){var p=new URLSearchParams(location.search),ts=p.get('ts'),name=p.get('name');if(ts&&name){var t=parseInt(ts,10);if(!isNaN(t)){var ex=countdowns.find(function(c){return c.target===t&&c.name===name;});if(!ex){var id=genId();countdowns.unshift({id:id,name:name,target:t,created:Date.now()});save();renderList();setActive(id);toast('Countdown loaded from link!');}else{setActive(ex.id);}history.replaceState({},'',location.pathname);}}}());
+
+  var prev={days:null,hours:null,minutes:null,seconds:null};
+  function flipDigit(el,key,val){if(prev[key]===val)return;prev[key]=val;el.classList.add('flip');setTimeout(function(){el.textContent=val;el.classList.remove('flip');},120);}
+
+  function tick(){
+    var cd=countdowns.find(function(c){return c.id===activeId;});
+    if(!cd)return;
+    var now=Date.now(),diff=cd.target-now,isPast=diff<=0,ms=Math.abs(diff),parts=diffParts(ms);
+    if(!isPast&&diff<1000&&!confettiTriggered[cd.id]){confettiTriggered[cd.id]=true;launchConfetti();}
+    flipDigit(dDays,'days',pad(parts.days));flipDigit(dHours,'hours',pad(parts.hours));
+    flipDigit(dMinutes,'minutes',pad(parts.minutes));flipDigit(dSeconds,'seconds',pad(parts.seconds));
+    sinceLabel.style.display=isPast?'block':'none';
+    var total=cd.target-cd.created;
+    if(total>0){var pct=Math.min(100,Math.max(0,(now-cd.created)/total*100));progressFill.style.width=pct.toFixed(2)+'%';progressPct.textContent=pct.toFixed(1)+'%';}
+    else{progressFill.style.width='100%';progressPct.textContent='100%';}
+    progressLabel.textContent=isPast?'Time since event':'Time elapsed';
+    var badge=document.querySelector('.saved-item[data-id="'+cd.id+'"] .saved-item-badge');
+    if(badge){if(Math.abs(diff)<500){badge.className='saved-item-badge badge-now';badge.textContent='Now!';}
+    else if(isPast){badge.className='saved-item-badge badge-past';badge.textContent=parts.days===0?'Today':parts.days+'d ago';}
+    else{badge.className='saved-item-badge badge-future';badge.textContent=parts.days===0?'Today':'In '+parts.days+'d';}}
+  }
+
+  function setActive(id){
+    activeId=id;var cd=countdowns.find(function(c){return c.id===id;});if(!cd)return;
+    prev.days=prev.hours=prev.minutes=prev.seconds=null;
+    activeName.textContent=cd.name;activeTarget.textContent='Target: '+formatDate(cd.target);
+    activeSection.style.display='block';clearInterval(tickInterval);tick();tickInterval=setInterval(tick,1000);
+    document.querySelectorAll('.saved-item').forEach(function(el){el.classList.toggle('active-item',el.dataset.id===id);});
+    activeSection.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+
+  function renderList(){
+    if(!countdowns.length){savedList.innerHTML='<div class="empty-state">No countdowns yet. Add one above!</div>';return;}
+    savedList.innerHTML='';
+    countdowns.forEach(function(cd){
+      var now=Date.now(),diff=cd.target-now,isPast=diff<0,parts=diffParts(Math.abs(diff));
+      var bc,bt;
+      if(Math.abs(diff)<500){bc='badge-now';bt='Now!';}
+      else if(isPast){bc='badge-past';bt=parts.days===0?'Today':parts.days+'d ago';}
+      else{bc='badge-future';bt=parts.days===0?'Today':'In '+parts.days+'d';}
+      var item=document.createElement('div');
+      item.className='saved-item'+(cd.id===activeId?' active-item':'');item.dataset.id=cd.id;
+      item.innerHTML='<div class="saved-item-left"><div class="saved-item-name">'+escHtml(cd.name)+'</div><div class="saved-item-date">'+formatDate(cd.target)+'</div></div>'+
+        '<span class="saved-item-badge '+bc+'">'+bt+'</span>'+
+        '<div class="saved-item-actions"><button class="btn btn-ghost btn-sm" data-action="view" data-id="'+cd.id+'">View</button><button class="btn btn-danger btn-sm" data-action="delete" data-id="'+cd.id+'">Delete</button></div>';
+      savedList.appendChild(item);
+    });
+  }
+
+  btnSave.addEventListener('click',function(){
+    var name=inpName.value.trim(),dateVal=inpDate.value;
+    if(!name){inpName.focus();toast('Please enter an event name.');return;}
+    if(!dateVal){inpDate.focus();toast('Please pick a date and time.');return;}
+    var target=new Date(dateVal).getTime();if(isNaN(target)){toast('Invalid date.');return;}
+    if(editingId){
+      var cd=countdowns.find(function(c){return c.id===editingId;});
+      if(cd){cd.name=name;cd.target=target;}save();var eid=editingId;stopEdit();renderList();setActive(eid);
+    }else{
+      var id=genId();countdowns.unshift({id:id,name:name,target:target,created:Date.now()});save();renderList();setActive(id);inpName.value='';setDefaultDate();
+    }
+  });
+
+  btnCancel.addEventListener('click',stopEdit);
+  function stopEdit(){editingId=null;btnSave.textContent='+ Add Countdown';btnCancel.style.display='none';inpName.value='';setDefaultDate();}
+
+  btnEdit.addEventListener('click',function(){
+    var cd=countdowns.find(function(c){return c.id===activeId;});if(!cd)return;
+    editingId=cd.id;inpName.value=cd.name;
+    var d=new Date(cd.target),local=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+    inpDate.value=local;btnSave.textContent='Update Countdown';btnCancel.style.display='inline-flex';
+    document.querySelector('.card').scrollIntoView({behavior:'smooth'});inpName.focus();
+  });
+
+  btnShare.addEventListener('click',function(){
+    var cd=countdowns.find(function(c){return c.id===activeId;});if(!cd)return;
+    var url=location.origin+location.pathname+'?ts='+cd.target+'&name='+encodeURIComponent(cd.name);
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){toast('Share link copied!');}).catch(function(){prompt('Copy this link:',url);});}
+    else{prompt('Copy this link:',url);}
+  });
+
+  savedList.addEventListener('click',function(e){
+    var btn=e.target.closest('[data-action]');
+    if(btn){var id=btn.dataset.id;
+      if(btn.dataset.action==='view'){setActive(id);return;}
+      if(btn.dataset.action==='delete'){if(confirm('Delete this countdown?')){countdowns=countdowns.filter(function(c){return c.id!==id;});save();if(activeId===id){activeId=null;activeSection.style.display='none';clearInterval(tickInterval);}renderList();}return;}
+    }
+    var item=e.target.closest('.saved-item');if(item)setActive(item.dataset.id);
+  });
+
+  function launchConfetti(){
+    var canvas=document.getElementById('confetti-canvas'),ctx=canvas.getContext('2d');
+    canvas.width=innerWidth;canvas.height=innerHeight;
+    var colors=['#6c63ff','#ff6584','#10b981','#f59e0b','#3b82f6','#ec4899','#ffffff','#fbbf24'];
+    var pieces=[];
+    for(var i=0;i<200;i++){pieces.push({x:Math.random()*canvas.width,y:Math.random()*-canvas.height*.5,r:4+Math.random()*8,d:2.5+Math.random()*4,color:colors[Math.floor(Math.random()*colors.length)],tilt:Math.random()*12-6,tiltSpd:.1+Math.random()*.4,angle:Math.random()*Math.PI*2,shape:Math.random()>.5?'rect':'circle'});}
+    var frame=0,maxFrames=320;
+    function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);var alpha=Math.max(0,1-frame/maxFrames);
+      pieces.forEach(function(p){p.y+=p.d;p.x+=Math.sin(p.angle)*2;p.angle+=.04;p.tilt+=p.tiltSpd;if(p.y>canvas.height){p.y=-10;p.x=Math.random()*canvas.width;}
+        ctx.save();ctx.globalAlpha=alpha;ctx.translate(p.x,p.y);ctx.rotate(p.tilt*Math.PI/180);ctx.fillStyle=p.color;
+        if(p.shape==='rect'){ctx.fillRect(-p.r/2,-p.r*.25,p.r,p.r*.5);}else{ctx.beginPath();ctx.arc(0,0,p.r/2,0,Math.PI*2);ctx.fill();}ctx.restore();});
+      frame++;if(frame<maxFrames){requestAnimationFrame(draw);}else{ctx.clearRect(0,0,canvas.width,canvas.height);}
+    }draw();
+  }
+
+  function setDefaultDate(){var t=new Date(Date.now()+86400000);inpDate.value=new Date(t.getTime()-t.getTimezoneOffset()*60000).toISOString().slice(0,16);}
+  setDefaultDate();renderList();if(countdowns.length&&!activeId)setActive(countdowns[0].id);
+})();
+</script>
+</body>
+</html>

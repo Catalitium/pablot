@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Complex Plane</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<main class="app">
+  <h1>Complex Plane MVP</h1>
+  <section class="card controls">
+    <label>A (a + bi)<input id="aInput" value="2,3"></label>
+    <label>B (c + di)<input id="bInput" value="1,-4"></label>
+    <label>Operation
+      <select id="opSelect">
+        <option value="add">Add</option>
+        <option value="sub">Subtract</option>
+        <option value="mul">Multiply</option>
+        <option value="div">Divide</option>
+      </select>
+    </label>
+    <button id="runBtn" type="button">Run</button>
+    <p id="status"></p>
+  </section>
+  <section class="card"><canvas id="plane" width="900" height="420"></canvas></section>
+  <section class="card"><table><thead><tr><th>Value</th><th>Real</th><th>Imag</th><th>Magnitude</th><th>Argument (rad)</th></tr></thead><tbody id="resultBody"></tbody></table></section>
+</main>
+<script src="app.js"></script>
+</body></html>

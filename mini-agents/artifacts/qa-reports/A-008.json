@@ -1,0 +1,62 @@
+{
+  "status": "ok",
+  "verdict": "FAIL",
+  "score": 83,
+  "checklist": [
+    {
+      "item": "requirements match",
+      "status": "pass",
+      "details": "expected=1, produced=1"
+    },
+    {
+      "item": "code quality",
+      "status": "pass",
+      "details": "No TODO/ellipsis placeholders in generated files"
+    },
+    {
+      "item": "test evidence",
+      "status": "pass",
+      "details": "tests_run=1"
+    },
+    {
+      "item": "branch and commit",
+      "status": "fail",
+      "details": "branch=fleet/ascii-art-v-008, commit=fatal: could not open '.git/COMMIT_EDITMSG': Permission denied"
+    },
+    {
+      "item": "ci/cd readiness",
+      "status": "pass",
+      "details": "push_ok=True, ci_ok=True"
+    },
+    {
+      "item": "deployment safety",
+      "status": "pass",
+      "details": "Core checks must pass before deployment"
+    }
+  ],
+  "issues": [
+    {
+      "severity": "high",
+      "description": "Failed check: branch and commit",
+      "location": "qa.checklist",
+      "fix": "branch=fleet/ascii-art-v-008, commit=fatal: could not open '.git/COMMIT_EDITMSG': Permission denied"
+    }
+  ],
+  "improvements": [
+    "Improve: branch and commit"
+  ],
+  "feedback_for_revision": {
+    "target_agent": "vitalik",
+    "message": "Fix failed QA checks in implementation and execution",
+    "priority_fixes": [
+      "branch and commit"
+    ]
+  },
+  "ready_for_deployment": false,
+  "next_iteration_needed": true,
+  "ci_verification_trigger": {
+    "triggered": false,
+    "message": "not needed"
+  },
+  "issues_created": []
+}

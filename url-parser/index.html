@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>URL Parser</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <h1>URL Parser and Validator</h1>
+    <section class="panel input-panel">
+      <label for="urlInput">URL</label>
+      <textarea id="urlInput" rows="4" placeholder="https://example.com/path?x=1#part"></textarea>
+      <div class="actions">
+        <button id="parseBtn" type="button">Parse URL</button>
+        <button id="resetBtn" type="button">Reset</button>
+      </div>
+      <p id="error" class="error" role="alert" aria-live="assertive"></p>
+    </section>
+
+    <section class="panel output-panel" aria-label="Parsed output">
+      <div class="field-row"><span>Scheme</span><code id="schemeValue">(none)</code></div>
+      <div class="field-row"><span>Username</span><code id="usernameValue">(none)</code></div>
+      <div class="field-row"><span>Password Present</span><code id="passwordFlagValue">No</code></div>
+      <div class="field-row"><span>Host</span><code id="hostValue">(none)</code></div>
+      <div class="field-row"><span>Port</span><code id="portValue">(none)</code></div>
+      <div class="field-row"><span>Pathname</span><code id="pathnameValue">(none)</code></div>
+      <div class="field-row"><span>Search</span><code id="searchValue">(none)</code></div>
+      <div class="field-row"><span>Fragment</span><code id="fragmentValue">(none)</code></div>
+      <div class="query-block">
+        <h2>Query Parameters</h2>
+        <table>
+          <thead>
+            <tr><th>Key</th><th>Value</th></tr>
+          </thead>
+          <tbody id="queryBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

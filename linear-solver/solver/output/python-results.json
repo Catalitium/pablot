@@ -1,0 +1,60 @@
+{
+  "solver": "python_reference",
+  "epsilon": 1e-09,
+  "results": [
+    {
+      "case_id": "LS-001",
+      "status": "pass",
+      "solution": [
+        2.0,
+        3.0000000000000004,
+        -0.9999999999999999
+      ],
+      "expected": [
+        2,
+        3,
+        -1
+      ],
+      "expect": "solve",
+      "error": ""
+    },
+    {
+      "case_id": "LS-002",
+      "status": "pass",
+      "solution": [
+        0.9999999999977796,
+        1.0000000000022204,
+        1.0
+      ],
+      "expected": [
+        1,
+        1,
+        1
+      ],
+      "expect": "solve",
+      "error": ""
+    },
+    {
+      "case_id": "LS-003",
+      "status": "blocked",
+      "solution": [],
+      "expected": [],
+      "expect": "singular",
+      "error": "singular"
+    },
+    {
+      "case_id": "LS-004",
+      "status": "pass",
+      "solution": [
+        1.0,
+        2.0
+      ],
+      "expected": [
+        1,
+        2
+      ],
+      "expect": "solve",
+      "error": ""
+    }
+  ]
+}

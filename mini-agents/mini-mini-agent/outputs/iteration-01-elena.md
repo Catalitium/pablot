@@ -1,0 +1,13 @@
+{
+  "selected_target": "ascii-art",
+  "request_summary": "Improve the CI process of the ascii-art repository.",
+  "focus_area": "ci",
+  "why": "Missing basic CI configuration for new file uploads (hello-world) which could lead to build failures.",
+  "priority": "high",
+  "top_steps": [
+    "Update .github/workflows/ci.yml to include checks for new files in ascii-art/hello-world directory."
+  ],
+  "success_criteria": [
+    "All builds for the main and hello-world directories are green after CI update."
+  ]
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrix Rain 3D</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="scene" aria-label="Matrix rain render"></canvas>
+
+  <aside class="dock">
+    <h1>Matrix Rain 3D</h1>
+
+    <label>Density
+      <input id="density" type="number" min="120" max="1800" value="420">
+    </label>
+
+    <label>Speed
+      <input id="speed" type="range" min="0.25" max="2.4" step="0.05" value="1.0">
+      <span id="speedLabel">1.00x</span>
+    </label>
+
+    <label>Theme
+      <select id="theme">
+        <option value="green">Classic Green</option>
+        <option value="cyan">Cyan</option>
+        <option value="amber">Amber</option>
+      </select>
+    </label>
+
+    <div class="actions">
+      <button id="reset" type="button">Reset</button>
+    </div>
+
+    <p id="status" class="status neutral">Ready.</p>
+    <p id="warning" class="status warn" hidden>Performance degraded mode is active.</p>
+  </aside>
+
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

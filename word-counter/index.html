@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word Counter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              mono: [
+                '"JetBrains Mono"',
+                '"SFMono-Regular"',
+                'ui-monospace',
+                'Menlo',
+                'monospace'
+              ]
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --surface: rgba(15, 23, 42, 0.82);
+        --text: #e2e8f0;
+        --card: rgba(148, 163, 184, 0.08);
+        --border: rgba(148, 163, 184, 0.24);
+      }
+      [data-theme="light"] {
+        --bg: #f8fafc;
+        --surface: rgba(255, 255, 255, 0.92);
+        --text: #0f172a;
+        --card: rgba(15, 23, 42, 0.08);
+        --border: rgba(15, 23, 42, 0.14);
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+      }
+      .theme-surface {
+        background: var(--surface);
+        color: var(--text);
+      }
+      .theme-card {
+        background: var(--card);
+        border-color: var(--border);
+      }
+    </style>
+    <script defer src="assets/js/app.js"></script>
+  </head>
+  <body
+    data-theme="dark"
+    class="min-h-screen bg-[var(--bg)] text-[var(--text)] antialiased"
+  >
+    <div class="min-h-screen flex flex-col">
+      <header class="px-4 pt-8 pb-4">
+        <div class="mx-auto flex max-w-3xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p class="text-sm uppercase tracking-widest text-slate-400">
+              word-count-lite
+            </p>
+            <h1 class="text-3xl font-semibold tracking-tight">
+              Insightful Text Analyzer
+            </h1>
+            <p class="text-sm text-slate-400">
+              Client-side, privacy-first stats that update as you type.
+            </p>
+          </div>
+          <button
+            id="themeToggle"
+            type="button"
+            class="hidden rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-slate-100 transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+          >
+            Toggle theme
+          </button>
+        </div>
+      </header>
+
+      <main class="flex-1 px-4 pb-10">
+        <section
+          class="theme-surface mx-auto flex max-w-3xl flex-col gap-8 rounded-3xl border border-white/10 p-6 shadow-2xl md:p-8"
+        >
+          <div class="space-y-4">
+            <div class="flex items-center justify-between gap-4">
+              <label for="inputText" class="text-sm font-semibold uppercase tracking-wide text-slate-300"
+                >Your text</label
+              >
+              <span id="charCountBadge" class="text-xs tracking-wide text-slate-400"
+                >Limit: 200,000 chars</span
+              >
+            </div>
+            <textarea
+              id="inputText"
+              rows="12"
+              aria-describedby="inputHelp"
+              placeholder="Paste or type text…"
+              class="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 font-mono text-base text-slate-100 shadow-inner placeholder:text-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+            ></textarea>
+            <p id="inputHelp" class="sr-only">
+              Paste or type text to analyze. Analysis updates automatically.
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <button
+                id="analyzeBtn"
+                type="button"
+                class="rounded-full bg-sky-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-sky-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-200"
+              >
+                Analyze
+              </button>
+              <button
+                id="resetBtn"
+                type="button"
+                class="rounded-full border border-white/10 px-5 py-2 text-sm font-semibold text-slate-100 transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-200"
+              >
+                Reset
+              </button>
+              <button
+                id="copyStatsBtn"
+                type="button"
+                class="rounded-full border border-white/10 px-5 py-2 text-sm font-semibold text-slate-100 transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-200"
+              >
+                Copy stats
+              </button>
+              <button
+                id="copyTextBtn"
+                type="button"
+                class="rounded-full border border-white/10 px-5 py-2 text-sm font-semibold text-slate-100 transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-200"
+              >
+                Copy text
+              </button>
+            </div>
+            <p
+              id="truncationNotice"
+              class="hidden text-sm font-medium text-amber-300"
+              role="status"
+            ></p>
+            <div id="statusLive" class="sr-only" aria-live="polite"></div>
+          </div>
+
+          <section aria-label="Core stats" class="space-y-4">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <article class="theme-card rounded-2xl border p-4">
+                <p class="text-xs uppercase tracking-wide text-slate-400">
+                  Word count
+                </p>
+                <p id="wordsValue" class="text-3xl font-semibold">0</p>
+              </article>
+              <article class="theme-card rounded-2xl border p-4">
+                <p class="text-xs uppercase tracking-wide text-slate-400">
+                  Characters
+                </p>
+                <p id="charsValue" class="text-3xl font-semibold">0</p>
+                <p class="text-xs text-slate-400">
+                  No spaces: <span id="charsNoSpaceValue">0</span>
+                </p>
+              </article>
+              <article class="theme-card rounded-2xl border p-4">
+                <p class="text-xs uppercase tracking-wide text-slate-400">
+                  Sentences
+                </p>
+                <p id="sentencesValue" class="text-3xl font-semibold">0</p>
+              </article>
+              <article class="theme-card rounded-2xl border p-4">
+                <p class="text-xs uppercase tracking-wide text-slate-400">
+                  Paragraphs
+                </p>
+                <p id="paragraphsValue" class="text-3xl font-semibold">0</p>
+              </article>
+              <article class="theme-card rounded-2xl border p-4">
+                <p class="text-xs uppercase tracking-wide text-slate-400">
+                  Reading time
+                </p>
+                <p id="readingTimeValue" class="text-3xl font-semibold">
+                  0:00
+                </p>
+              </article>
+              <article class="theme-card rounded-2xl border p-4">
+                <p class="text-xs uppercase tracking-wide text-slate-400">
+                  Readability
+                </p>
+                <p id="fleschValue" class="text-3xl font-semibold">--</p>
+                <p class="text-xs text-slate-400">
+                  FK grade: <span id="fkglValue">--</span>
+                </p>
+              </article>
+            </div>
+          </section>
+
+          <section
+            id="progressSection"
+            class="space-y-4"
+            aria-label="Progress to targets"
+          >
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">
+                Progress
+              </h2>
+              <p class="text-xs text-slate-400">
+                Targets: 1,200 words · 8,000 characters
+              </p>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <div class="mb-1 flex items-center justify-between text-xs uppercase text-slate-400">
+                  <span>Words</span>
+                  <span id="wordProgressLabel">0 / 1,200</span>
+                </div>
+                <div
+                  class="h-3 rounded-full bg-white/10"
+                  role="progressbar"
+                  aria-valuemin="0"
+                  aria-valuemax="1200"
+                  aria-valuenow="0"
+                >
+                  <div
+                    id="wordProgressBar"
+                    class="h-full rounded-full bg-sky-400 transition-all"
+                    style="width: 0%"
+                  ></div>
+                </div>
+                <p
+                  id="wordProgressWarning"
+                  class="mt-1 hidden text-xs font-medium text-amber-300"
+                  data-warning
+                ></p>
+              </div>
+              <div>
+                <div class="mb-1 flex items-center justify-between text-xs uppercase text-slate-400">
+                  <span>Characters</span>
+                  <span id="charProgressLabel">0 / 8,000</span>
+                </div>
+                <div
+                  class="h-3 rounded-full bg-white/10"
+                  role="progressbar"
+                  aria-valuemin="0"
+                  aria-valuemax="8000"
+                  aria-valuenow="0"
+                >
+                  <div
+                    id="charProgressBar"
+                    class="h-full rounded-full bg-sky-400 transition-all"
+                    style="width: 0%"
+                  ></div>
+                </div>
+                <p
+                  id="charProgressWarning"
+                  class="mt-1 hidden text-xs font-medium text-amber-300"
+                  data-warning
+                ></p>
+              </div>
+            </div>
+          </section>
+
+          <section
+            id="keywordsSection"
+            class="space-y-4"
+            aria-label="Keyword insights"
+          >
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">
+                  Keyword insights
+                </h2>
+                <p class="text-xs text-slate-400">
+                  Top repeats, excluding common stopwords.
+                </p>
+              </div>
+              <button
+                id="previewToggle"
+                type="button"
+                class="rounded-full border border-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-slate-100 transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400"
+                aria-expanded="false"
+              >
+                Show preview
+              </button>
+            </div>
+            <div
+              class="grid gap-4 md:grid-cols-2"
+            >
+              <ul
+                id="keywordList"
+                class="theme-card rounded-2xl border p-4 text-sm text-slate-100"
+              >
+                <li class="text-slate-400">Enter text to see keywords.</li>
+              </ul>
+              <div class="md:min-h-[200px]">
+                <div
+                  id="previewPanel"
+                  class="theme-card hidden rounded-2xl border p-4 text-sm leading-relaxed"
+                >
+                  <p class="text-slate-400 text-sm">
+                    Preview shows highlighted keywords.
+                  </p>
+                </div>
+                <p
+                  id="previewNotice"
+                  class="mt-2 text-xs text-slate-400"
+                >
+                  Preview stays hidden by default to keep big inputs fast.
+                </p>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="px-4 pb-10 text-center text-xs text-slate-500">
+        <p>All analysis runs in your browser. No data leaves your device.</p>
+        <p class="mt-1">
+          v0.1 ·
+          <a
+            href="README.md"
+            class="font-semibold text-sky-300 underline-offset-4 hover:underline"
+            >README</a
+          >
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

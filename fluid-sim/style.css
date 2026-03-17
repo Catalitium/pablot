@@ -1,0 +1,6 @@
+:root{--bg:#081323;--surface:#0f1f36;--text:#e8f1ff;--border:#2b4770;--warn:#f59e0b}
+*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Tahoma,sans-serif;background:radial-gradient(circle at top,#132d4f,#081323);color:var(--text)}
+.app{max-width:980px;margin:0 auto;padding:1rem;display:grid;gap:1rem}.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem}
+.controls{display:flex;gap:.6rem;align-items:end;flex-wrap:wrap}input,select,button{font:inherit;padding:.45rem .6rem;border:1px solid var(--border);border-radius:8px}
+canvas{width:100%;height:auto;background:#0a172b;border:1px solid #23406b;border-radius:8px}#status{min-height:1.2rem}
+.warn{color:var(--warn)}

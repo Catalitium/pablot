@@ -1,0 +1,19 @@
+{
+  "iterations": 5,
+  "target_codebase": "C:\\Users\\catal\\Desktop\\code-base",
+  "stages": [
+    "elena",
+    "colombo",
+    "vitalik",
+    "athena"
+  ],
+  "models": {
+    "default": "qwen2.5-coder:3b",
+    "stage_models": {
+      "elena": "qwen2.5-coder:3b",
+      "colombo": "qwen2.5-coder:3b",
+      "vitalik": "qwen2.5-coder:3b",
+      "athena": "qwen2.5-coder:3b"
+    }
+  }
+}

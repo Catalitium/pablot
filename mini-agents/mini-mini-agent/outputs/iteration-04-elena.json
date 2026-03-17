@@ -1,0 +1,17 @@
+{
+  "selected_target": "maze-master",
+  "request_summary": "Refactor the code to improve error handling and add basic tests.",
+  "focus_area": "refactor|bugfix",
+  "why": "The code lacks proper error handling which can cause crashes, and it's missing essential unit tests.",
+  "priority": "high",
+  "top_steps": [
+    "Install 'pygame' package in both README.md and main.py",
+    "Add basic unit tests for the maze-master logic",
+    "Refactor error handling to handle potential exceptions more gracefully"
+  ],
+  "success_criteria": [
+    "'pygame' package installed correctly in all necessary files",
+    "A minimum set of basic unit tests has been added and tested",
+    "Error handling is improved to manage runtime errors effectively"
+  ]
+}

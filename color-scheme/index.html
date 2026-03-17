@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Color Scheme</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <h1>Color Scheme Palette Generator</h1>
+      <p>Generate random palettes, lock colors, copy values, and export current state.</p>
+    </header>
+
+    <section class="controls" aria-label="Palette controls">
+      <button id="regenerateBtn" type="button">Regenerate Unlocked</button>
+      <button id="copyCssBtn" type="button">Copy CSS Variables</button>
+      <button id="copyJsonBtn" type="button">Copy JSON</button>
+      <button id="downloadCssBtn" type="button">Download CSS</button>
+      <button id="downloadJsonBtn" type="button">Download JSON</button>
+    </section>
+
+    <section aria-label="Palette cards">
+      <div id="paletteGrid" class="palette-grid"></div>
+    </section>
+
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

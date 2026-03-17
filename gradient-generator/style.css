@@ -1,0 +1,11 @@
+:root { --bg:#f6f8fb; --panel:#fff; --text:#152033; --border:#d4dce8; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:Segoe UI,Tahoma,sans-serif; background:var(--bg); color:var(--text); }
+.app { max-width:980px; margin:0 auto; padding:1rem; display:grid; gap:1rem; }
+.panel { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:1rem; }
+.controls { display:grid; gap:.75rem; }
+#stops { display:grid; gap:.5rem; }
+.stop-row { display:grid; grid-template-columns:1fr 1fr auto; gap:.5rem; }
+input,select,button { font:inherit; padding:.5rem; border:1px solid var(--border); border-radius:8px; }
+.preview { height:260px; border:1px solid var(--border); border-radius:10px; }
+pre { white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#dbe8ff; padding:.75rem; border-radius:10px; }

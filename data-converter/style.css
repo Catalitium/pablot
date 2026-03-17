@@ -1,0 +1,114 @@
+:root {
+  --bg: #f8f9fc;
+  --surface: #ffffff;
+  --text: #132036;
+  --muted: #60708a;
+  --border: #d2d9e4;
+  --focus: #005ed8;
+  --error-bg: #ffe9e8;
+  --error-border: #f4aaa8;
+  --error-text: #8d1f1f;
+  --radius: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  color: var(--text);
+  background: linear-gradient(180deg, #fbfcff 0%, #eff3fa 100%);
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.25rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.toolbar,
+.editors article {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, auto));
+  gap: 0.6rem;
+  align-items: end;
+}
+
+label {
+  font-weight: 700;
+}
+
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.7rem;
+  font-family: Consolas, "Courier New", monospace;
+}
+
+select,
+button {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.5rem 0.65rem;
+  background: #fff;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.editors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.error {
+  min-height: 1.2rem;
+  margin: 0;
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+}
+
+.error.active {
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error-text);
+}
+
+#message {
+  min-height: 1.2rem;
+  margin: 0;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .editors {
+    grid-template-columns: 1fr;
+  }
+}

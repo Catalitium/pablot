@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cURL Converter</title>
+  <style>
+    :root { --bg: #0d1117; --surface: #161b22; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; --green: #3fb950; --purple: #a371f7; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 1.4rem; color: var(--purple); margin-bottom: 0.5rem; }
+    p { color: var(--muted); margin-bottom: 1.5rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+    textarea { width: 100%; min-height: 120px; padding: 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: 'Consolas', monospace; font-size: 0.9rem; resize: vertical; }
+    .btn-row { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    button { padding: 0.75rem 1.5rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-secondary { background: var(--border); color: var(--text); }
+    .result { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-top: 1rem; font-family: 'Consolas', monospace; font-size: 0.85rem; white-space: pre-wrap; color: var(--green); }
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .tab { padding: 0.5rem 1rem; border-radius: 6px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); cursor: pointer; font-size: 0.85rem; }
+    .tab.active { background: var(--accent); border-color: var(--accent); color: #000; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>cURL Converter</h1>
+    <p>Convert cURL commands to Python, JavaScript, or fetch</p>
+
+    <div class="tabs">
+      <span class="tab active" onclick="setMode('python', this)">Python</span>
+      <span class="tab" onclick="setMode('javascript', this)">JavaScript</span>
+      <span class="tab" onclick="setMode('fetch', this)">Fetch</span>
+      <span class="tab" onclick="setMode('powershell', this)">PowerShell</span>
+    </div>
+
+    <div class="card">
+      <textarea id="curl" placeholder="Paste your cURL command here...
+curl -X POST https://api.example.com/users -H 'Content-Type: application/json' -d '{"name":"John"}'"></textarea>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="convert()">Convert</button>
+        <button class="btn-secondary" onclick="sample()">Load Sample</button>
+      </div>
+    </div>
+
+    <div class="result" id="output">Converted code will appear here...</div>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="copy()">Copy</button>
+    </div>
+  </div>
+
+  <script>
+    let mode = 'python';
+
+    function setMode(m, el) {
+      mode = m;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      if (document.getElementById('curl').value) convert();
+    }
+
+    function parseCurl(curl) {
+      const result = { method: 'GET', url: '', headers: {}, data: null };
+      const tokens = curl.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+
+      for (let i = 0; i < tokens.length; i++) {
+        const t = tokens[i].replace(/^"|"$/g, '');
+        if (t === '-X' || t === '--request') {
+          result.method = tokens[++i] || 'GET';
+        } else if (t === '-H' || t === '--header') {
+          const header = tokens[++i] || '';
+          const colon = header.indexOf(':');
+          if (colon > 0) {
+            const key = header.slice(0, colon).trim();
+            const val = header.slice(colon + 1).trim();
+            result.headers[key] = val;
+          }
+        } else if (t === '-d' || t === '--data' || t === '--data-raw') {
+          result.data = tokens[++i] || '';
+          if (!result.method || result.method === 'GET') result.method = 'POST';
+        } else if (t.startsWith('http')) {
+          result.url = t;
+        }
+      }
+      return result;
+    }
+
+    function convert() {
+      const curl = document.getElementById('curl').value;
+      if (!curl.trim()) return;
+
+      const p = parseCurl(curl);
+      let code = '';
+
+      if (mode === 'python') {
+        code = `import requests
+
+url = "${p.url}"
+headers = ${JSON.stringify(p.headers, null, 4).replace(/}/, '  }')}
+data = ${p.data ? p.data : 'None'}
+
+response = requests.${p.method.toLowerCase()}(url, headers=headers, json=data)
+
+print(response.status_code)
+print(response.json())`;
+      } else if (mode === 'javascript') {
+        code = `const response = await fetch("${p.url}", {
+  method: "${p.method}",
+  headers: ${JSON.stringify(p.headers, null, 4).replace(/}/, '  }')},
+  body: ${p.data ? `JSON.stringify(${p.data})` : 'null'}
+});
+
+const data = await response.json();
+console.log(data);`;
+      } else if (mode === 'fetch') {
+        code = `fetch("${p.url}", {
+  method: "${p.method}",
+  headers: {
+${Object.entries(p.headers).map(([k,v]) => `    "${k}": "${v}"`).join(',\n')}
+  }${p.data ? `,
+  body: JSON.stringify(${p.data})` : ''}
+})
+.then(r => r.json())
+.then(console.log);`;
+      } else if (mode === 'powershell') {
+        const headers = Object.entries(p.headers).map(([k,v]) => `-H "${k}: ${v}"`).join(' \\\n  ');
+        code = `Invoke-RestMethod -Uri "${p.url}" \\
+  -Method ${p.method} \\
+  ${headers}${p.data ? ` \\
+  -Body '${p.data}'` : ''}`;
+      }
+
+      document.getElementById('output').textContent = code;
+    }
+
+    function sample() {
+      document.getElementById('curl').value = `curl -X POST "https://api.example.com/v1/users" \\
+  -H "Authorization: Bearer YOUR_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{"name":"John Doe","email":"john@example.com","age":30}'`;
+      convert();
+    }
+
+    function copy() {
+      navigator.clipboard.writeText(document.getElementById('output').textContent);
+    }
+  </script>
+</body>
+</html>

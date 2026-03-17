@@ -1,0 +1,18 @@
+```json
+{
+  "verdict": "FAIL",
+  "score": 50,
+  "summary": "Failed to complete code implementation and QA due to build errors.",
+  "top_issues": [
+    "CI/CD pipeline failure",
+    "Linting error",
+    "Test execution failure"
+  ],
+  "required_fixes": [
+    "Ensure sufficient permissions to commit changes",
+    "Correct import statements in test file",
+    "Resolve linting issues and fix CI/CD pipeline"
+  ],
+  "next_stage_hint": "execution"
+}
+```

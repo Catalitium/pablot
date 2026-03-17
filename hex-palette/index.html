@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>hexmixer - Brutalist Palette Lab</title>
+  <meta name="description" content="hexmixer is a brutalist, mobile-first palette laboratory that mixes two hex codes into a WCAG-ready six-swatch system with installable PWA support." />
+  <meta property="og:title" content="hexmixer - Brutalist Palette Lab" />
+  <meta property="og:description" content="Mix two colors, get an accessible palette. No build tools, no fluff, ready for static hosting and offline use." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="./" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="./" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="color-scheme" content="light dark" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" />
+  <meta name="keywords" content="hex colors, accessible palette, WCAG contrast, PWA, color generator, brutalist UI" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "hexmixer",
+      "description": "Mobile-first brutalist palette lab that generates WCAG-ready color systems offline.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "url": "./"
+    }
+  </script>
+  <style>
+    body { font-family: 'Space Mono', 'IBM Plex Mono', 'Courier New', monospace; letter-spacing: -0.02em; }
+    :focus-visible { outline: 3px solid #000; outline-offset: 2px; }
+    .color-input-container input[type="color"] {
+      -webkit-appearance: none; -moz-appearance: none; appearance: none;
+      width: 100%; height: 100%; border: none; background: transparent; cursor: pointer;
+    }
+    .color-swatch-cell { transition: none; border-radius: 0; }
+    button { text-transform: uppercase; letter-spacing: 0.2em; }
+    .mood-chip {
+      border: 2px solid #000;
+      padding: 0.65rem;
+      font-size: 0.65rem;
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.3rem;
+    }
+    .mood-chip[aria-pressed="true"] { background: #000; color: #fff; }
+    @media (prefers-reduced-motion: reduce) {
+      .color-swatch-cell { transition: none; }
+    }
+  </style>
+</head>
+<body class="bg-white text-black min-h-screen">
+  <a href="#output" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:bg-black focus:text-white focus:px-3 focus:py-2">Skip to palette output</a>
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-10" role="main">
+    <header class="border-b-4 border-black pb-6 space-y-3" aria-labelledby="site-title">
+      <div class="flex items-center gap-2 text-xs uppercase tracking-[0.5em]">
+        <span class="inline-block w-2 h-2 bg-black"></span>
+        <p>hex / mixer</p>
+      </div>
+      <h1 id="site-title" class="text-4xl sm:text-5xl font-black leading-tight">Brutal color kit</h1>
+      <p class="text-sm uppercase tracking-[0.3em] text-gray-600">2 inputs &middot; 6 swatches &middot; AA ready</p>
+    </header>
+
+    <section class="grid gap-10 items-start" aria-labelledby="control-title">
+      <div class="space-y-6">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 id="control-title" class="text-xl font-black uppercase tracking-[0.3em]">Mix board</h2>
+          <button id="copy-css-btn" class="px-4 py-3 bg-black text-white text-xs font-bold tracking-[0.2em]" aria-label="Copy CSS variables to clipboard">??</button>
+        </div>
+
+        <div class="space-y-4">
+          <div class="space-y-2">
+            <p class="text-xs uppercase tracking-[0.3em]">Mood palette</p>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2" role="group" aria-label="Mood palettes">
+              <button type="button" class="mood-chip" data-mood="calm" aria-pressed="true">?? calm</button>
+              <button type="button" class="mood-chip" data-mood="noir" aria-pressed="false">?? noir</button>
+              <button type="button" class="mood-chip" data-mood="bloom" aria-pressed="false">? bloom</button>
+              <button type="button" class="mood-chip" data-mood="solar" aria-pressed="false">? solar</button>
+              <button type="button" class="mood-chip" data-mood="fresh" aria-pressed="false">?? fresh</button>
+            </div>
+            <p id="mood-indicator" class="text-xs uppercase tracking-[0.3em] text-gray-600">?? Calm Drift</p>
+          </div>
+
+          <div class="space-y-6">
+            <article class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5" aria-labelledby="primary-label" itemscope itemtype="https://schema.org/PropertyValue">
+              <div class="color-input-container w-full sm:w-24 h-24 border-4 border-black" data-testid="primary-color-container">
+                <input type="color" id="primary-color" value="#5468ff" aria-label="Primary Color Picker" />
+              </div>
+              <div class="flex-1 space-y-2">
+                <label id="primary-label" for="primary-hex" class="flex items-center justify-between text-xs uppercase tracking-[0.3em] font-semibold">
+                  Base A
+                  <button type="button" class="text-[10px] underline" data-randomize="primary" aria-label="Link primary color to spectrum">link</button>
+                </label>
+                <input type="text" id="primary-hex" value="#5468ff" class="w-full border-2 border-black px-3 py-2 text-xl font-black uppercase" maxlength="7" aria-controls="palette-display" inputmode="text" autocomplete="off" />
+              </div>
+            </article>
+
+            <article class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5" aria-labelledby="secondary-label" itemscope itemtype="https://schema.org/PropertyValue">
+              <div class="color-input-container w-full sm:w-24 h-24 border-4 border-black" data-testid="secondary-color-container">
+                <input type="color" id="secondary-color" value="#bfe0ff" aria-label="Secondary Color Picker" />
+              </div>
+              <div class="flex-1 space-y-2">
+                <label id="secondary-label" for="secondary-hex" class="flex items-center justify-between text-xs uppercase tracking-[0.3em] font-semibold">
+                  Base B
+                  <button type="button" class="text-[10px] underline" data-randomize="secondary" aria-label="Link secondary color to spectrum">link</button>
+                </label>
+                <input type="text" id="secondary-hex" value="#bfe0ff" class="w-full border-2 border-black px-3 py-2 text-xl font-black uppercase" maxlength="7" aria-controls="palette-display" inputmode="text" autocomplete="off" />
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="output" aria-labelledby="output-title" class="space-y-4">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <h2 id="output-title" class="text-3xl font-black uppercase tracking-[0.3em]">Six swatches</h2>
+        <div class="text-xs uppercase tracking-[0.3em]" id="neutral-note">Neutral auto</div>
+      </div>
+
+      <div id="palette-display" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-0 border border-black" role="list" aria-live="polite"></div>
+
+      <div id="a11y-summary" class="grid gap-1 border-t-4 border-black pt-4 text-xs uppercase tracking-[0.2em]">
+        <p id="contrast-result">Waiting for input.</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" role="alert" aria-live="polite" class="fixed top-6 right-6 bg-black text-white px-4 py-2 text-xs uppercase tracking-[0.3em] opacity-0 transition-opacity duration-200"></div>
+
+  <script defer src="assets/js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
+    }
+  </script>
+</body>
+</html>

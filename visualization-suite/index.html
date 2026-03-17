@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Visualizer - Pablot</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23333'>🎵</text></svg>">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --accent: #00ff88;
+      --text: #ffffff;
+      --grid: #1a1a1a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .header {
+      padding: 20px;
+      background: linear-gradient(180deg, rgba(0,255,136,0.1) 0%, transparent 100%);
+      border-bottom: 1px solid var(--grid);
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-bottom: 20px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,255,136,0.3);
+    }
+
+    .btn.secondary {
+      background: var(--grid);
+      color: var(--text);
+    }
+
+    .canvas-container {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .mode-indicator {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 8px 16px;
+      background: rgba(0,255,136,0.2);
+      border: 1px solid var(--accent);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .back-link {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: var(--text);
+      text-decoration: none;
+      opacity: 0.7;
+      font-size: 14px;
+    }
+
+    .back-link:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="../" class="back-link">← Back to Pablot</a>
+      <h1 class="title">Audio Visualizer</h1>
+      <p class="subtitle">Real-time audio visualization with multiple modes</p>
+      
+      <div class="controls">
+        <button class="btn" onclick="startAudio()">Start Microphone</button>
+        <button class="btn secondary" onclick="switchMode('bars')">Frequency Bars</button>
+        <button class="btn secondary" onclick="switchMode('waveform')">Waveform</button>
+        <button class="btn secondary" onclick="switchMode('circular')">Circular</button>
+        <button class="btn secondary" onclick="switchMode('particles')">Particles</button>
+      </div>
+    </div>
+
+    <div class="canvas-container">
+      <div class="mode-indicator" id="modeIndicator">Frequency Bars</div>
+      <canvas id="visualizer"></canvas>
+    </div>
+  </div>
+
+  <script>
+    let audioContext, analyser, microphone, dataArray, bufferLength;
+    let canvas, ctx;
+    let animationId;
+    let currentMode = 'bars';
+    let particles = [];
+
+    function init() {
+      canvas = document.getElementById('visualizer');
+      ctx = canvas.getContext('2d');
+      
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      
+      // Initialize particles
+      for (let i = 0; i < 100; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 2,
+          vy: (Math.random() - 0.5) * 2,
+          size: Math.random() * 3 + 1,
+          color: `hsl(${Math.random() * 60 + 120}, 100%, 50%)`
+        });
+      }
+    }
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight - 200;
+    }
+
+    async function startAudio() {
+      try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+
+        microphone = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const source = audioContext.createMediaStreamSource(microphone);
+        source.connect(analyser);
+
+        visualize();
+      } catch (error) {
+        console.error('Error accessing microphone:', error);
+        // Fallback to demo mode
+        demoMode();
+      }
+    }
+
+    function visualize() {
+      animationId = requestAnimationFrame(visualize);
+      analyser.getByteFrequencyData(dataArray);
+
+      ctx.fillStyle = 'rgba(10, 10, 10, 0.2)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      switch (currentMode) {
+        case 'bars':
+          drawBars();
+          break;
+        case 'waveform':
+          drawWaveform();
+          break;
+        case 'circular':
+          drawCircular();
+          break;
+        case 'particles':
+          drawParticles();
+          break;
+      }
+    }
+
+    function drawBars() {
+      const barWidth = (canvas.width / bufferLength) * 2.5;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const barHeight = (dataArray[i] / 255) * canvas.height * 0.7;
+        
+        const hue = (dataArray[i] / 255) * 120 + 120;
+        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+        
+        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+        x += barWidth + 1;
+      }
+    }
+
+    function drawWaveform() {
+      analyser.getByteTimeDomainData(dataArray);
+      
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#00ff88';
+      ctx.beginPath();
+
+      const sliceWidth = canvas.width / bufferLength;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const v = dataArray[i] / 128.0;
+        const y = v * canvas.height / 2;
+
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+
+        x += sliceWidth;
+      }
+
+      ctx.lineTo(canvas.width, canvas.height / 2);
+      ctx.stroke();
+    }
+
+    function drawCircular() {
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const radius = Math.min(canvas.width, canvas.height) * 0.3;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const angle = (i / bufferLength) * Math.PI * 2;
+        const barHeight = (dataArray[i] / 255) * radius;
+        
+        const x1 = centerX + Math.cos(angle) * radius;
+        const y1 = centerY + Math.sin(angle) * radius;
+        const x2 = centerX + Math.cos(angle) * (radius + barHeight);
+        const y2 = centerY + Math.sin(angle) * (radius + barHeight);
+        
+        const hue = (dataArray[i] / 255) * 120 + 120;
+        ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+        ctx.lineWidth = 2;
+        
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+    }
+
+    function drawParticles() {
+      particles.forEach((particle, index) => {
+        const audioValue = dataArray[index % bufferLength] / 255;
+        
+        particle.x += particle.vx * (1 + audioValue * 2);
+        particle.y += particle.vy * (1 + audioValue * 2);
+        
+        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+        
+        particle.size = (Math.random() * 3 + 1) * (1 + audioValue);
+        
+        ctx.fillStyle = particle.color;
+        ctx.globalAlpha = 0.8;
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function demoMode() {
+      // Generate fake audio data for demo
+      if (!dataArray) {
+        bufferLength = 128;
+        dataArray = new Uint8Array(bufferLength);
+      }
+      
+      for (let i = 0; i < bufferLength; i++) {
+        dataArray[i] = Math.sin(Date.now() * 0.001 + i * 0.1) * 128 + 128;
+      }
+      
+      visualize();
+    }
+
+    function switchMode(mode) {
+      currentMode = mode;
+      const modeNames = {
+        'bars': 'Frequency Bars',
+        'waveform': 'Waveform',
+        'circular': 'Circular',
+        'particles': 'Particles'
+      };
+      document.getElementById('modeIndicator').textContent = modeNames[mode];
+    }
+
+    // Initialize on load
+    init();
+  </script>
+</body>
+</html>

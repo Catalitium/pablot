@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UUID Generator</title>
+  <style>
+    :root { --bg: #0d1117; --surface: #161b22; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; --green: #3fb950; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem; display: flex; justify-content: center; align-items: flex-start; padding-top: 10vh; }
+    .container { width: 100%; max-width: 600px; }
+    h1 { font-size: 1.5rem; text-align: center; margin-bottom: 0.5rem; }
+    p { color: var(--muted); text-align: center; margin-bottom: 2rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; }
+    .uuid-display { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: 'Consolas', monospace; font-size: 1.1rem; text-align: center; margin-bottom: 1rem; color: var(--accent); word-break: break-all; cursor: pointer; transition: border-color 0.2s; }
+    .uuid-display:hover { border-color: var(--accent); }
+    .btn-row { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+    button { flex: 1; padding: 0.8rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-secondary { background: var(--border); color: var(--text); }
+    .options { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .opt { background: var(--bg); padding: 1rem; border-radius: 8px; }
+    .opt-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .count-row { display: flex; gap: 0.5rem; align-items: center; }
+    input[type="number"] { width: 80px; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 1rem; }
+    .output-list { max-height: 300px; overflow-y: auto; margin-top: 1rem; }
+    .output-item { padding: 0.5rem; border-bottom: 1px solid var(--border); font-family: 'Consolas', monospace; font-size: 0.85rem; cursor: pointer; }
+    .output-item:hover { background: var(--bg); }
+    .copied { color: var(--green); font-size: 0.8rem; text-align: center; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔑 UUID Generator</h1>
+    <p>Generate unique identifiers</p>
+
+    <div class="card">
+      <div class="uuid-display" id="uuid" onclick="copyMain()">Click Generate</div>
+      <div class="copied" id="copiedMsg"></div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="generate()">Generate</button>
+        <button class="btn-secondary" onclick="copyMain()">Copy</button>
+      </div>
+
+      <div class="options">
+        <div class="opt">
+          <div class="opt-label">Version</div>
+          <select id="version" style="width:100%;padding:0.5rem;border-radius:6px;background:var(--bg);border:1px solid var(--border);color:var(--text)">
+            <option value="4">UUID v4 (Random)</option>
+            <option value="1">UUID v1 (Timestamp)</option>
+            <option value="7">UUID v7 (Unix Epoch)</option>
+          </select>
+        </div>
+        <div class="opt">
+          <div class="opt-label">Quantity</div>
+          <div class="count-row">
+            <input type="number" id="count" value="1" min="1" max="100">
+            <button class="btn-secondary" onclick="generateBatch()" style="flex:1">Generate Batch</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="output-list" id="batchOutput"></div>
+    </div>
+  </div>
+
+  <script>
+    function uuid4() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    function uuid1() {
+      const now = Date.now();
+      const time_low = (now & 0xffffffff) >>> 0;
+      const time_mid = (now >> 32 & 0xffff) >>> 0;
+      const time_hi_and_version = ((now >> 48) & 0x0fff) | 0x1000;
+      const clock_seq_hi_and_reserved = (Math.random() * 16 & 0x3f) | 0x80;
+      const clock_seq_low = Math.random() * 16 & 0xff;
+      const node = [0x01, 0x23, 0x45, 0x67, 0x89, 0xab].map(b => Math.floor(Math.random() * 256) || b);
+
+      const hex = (n, digits) => n.toString(16).padStart(digits, '0');
+      return `${hex(time_low,8)}-${hex(time_mid,4)}-${hex(time_hi_and_version,4)}-${hex(clock_seq_hi_and_reserved,2)}${hex(clock_seq_low,2)}-${node.map(b => hex(b,2)).join('')}`;
+    }
+
+    function uuid7() {
+      const now = Date.now();
+      const rand = () => Math.floor(Math.random() * 256);
+      const bytes = [
+        (now >> 40) & 0xff, (now >> 32) & 0xff, (now >> 24) & 0xff, (now >> 16) & 0xff,
+        ((now >> 8) & 0xff) | 0x70, now & 0xff,
+        (rand() & 0x3f) | 0x80, rand(), rand(), rand(), rand(), rand()
+      ];
+      return bytes.map(b => b.toString(16).padStart(2, '0')).join('').replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5');
+    }
+
+    function generate() {
+      const version = document.getElementById('version').value;
+      let uuid;
+      if (version === '1') uuid = uuid1();
+      else if (version === '7') uuid = uuid7();
+      else uuid = uuid4();
+      document.getElementById('uuid').textContent = uuid;
+      document.getElementById('copiedMsg').textContent = '';
+    }
+
+    function generateBatch() {
+      const version = document.getElementById('version').value;
+      const count = Math.min(parseInt(document.getElementById('count').value) || 1, 100);
+      const output = document.getElementById('batchOutput');
+      output.innerHTML = '';
+
+      for (let i = 0; i < count; i++) {
+        let uuid;
+        if (version === '1') uuid = uuid1();
+        else if (version === '7') uuid = uuid7();
+        else uuid = uuid4();
+        const item = document.createElement('div');
+        item.className = 'output-item';
+        item.textContent = uuid;
+        item.addEventListener('click', () => {
+          navigator.clipboard.writeText(uuid);
+          item.textContent = uuid + ' (copied!)';
+        });
+        output.appendChild(item);
+      }
+    }
+
+    function copyMain() {
+      const uuid = document.getElementById('uuid').textContent;
+      navigator.clipboard.writeText(uuid);
+      document.getElementById('copiedMsg').textContent = 'Copied!';
+    }
+
+    generate();
+  </script>
+</body>
+</html>

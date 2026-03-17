@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL Query Builder</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #1a1a2e; --surface: #16213e; --border: #0f3460; --text: #eee; --accent: #e94560; --green: #0f9b0f; --blue: #4cc9f0; }
+    body { font-family: 'Fira Code', monospace; background: var(--bg); color: var(--text); min-height: 100vh; padding: 1.5rem; }
+    .container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 280px 1fr; gap: 1rem; }
+    @media (max-width: 800px) { .container { grid-template-columns: 1fr; } }
+    .sidebar { background: var(--surface); border-radius: 12px; padding: 1rem; }
+    .main { background: var(--surface); border-radius: 12px; padding: 1.5rem; }
+    h1 { font-size: 1.1rem; color: var(--blue); margin-bottom: 1rem; }
+    h2 { font-size: 0.85rem; color: var(--accent); margin: 1rem 0 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
+    select, input { width: 100%; padding: 0.6rem; margin-bottom: 0.5rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.85rem; }
+    button { padding: 0.6rem 1rem; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+    .btn-add { background: var(--green); color: #fff; }
+    .btn-run { background: var(--accent); color: #fff; width: 100%; margin-top: 1rem; }
+    .btn-clear { background: var(--border); color: var(--text); }
+    .condition { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; }
+    .condition select, .condition input { margin: 0; flex: 1; }
+    .condition button { padding: 0.4rem; width: auto; background: var(--border); color: var(--accent); }
+    .query-preview { background: var(--bg); padding: 1rem; border-radius: 8px; margin: 1rem 0; font-size: 0.9rem; color: var(--green); white-space: pre-wrap; word-break: break-all; }
+    .results { background: var(--bg); border-radius: 8px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th, td { padding: 0.6rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: var(--border); color: var(--blue); }
+    .tag { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; background: var(--border); font-size: 0.7rem; margin-right: 0.3rem; }
+    .tag.string { color: #ce9178; }
+    .tag.number { color: #b5cea8; }
+    .tag.keyword { color: #c586c0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <h1>SQL Builder</h1>
+
+      <h2>Select Table</h2>
+      <select id="table" onchange="loadTable()">
+        <option value="">-- Select --</option>
+        <option value="users">users</option>
+        <option value="orders">orders</option>
+        <option value="products">products</option>
+        <option value="customers">customers</option>
+      </select>
+
+      <h2>Columns</h2>
+      <div id="columns"></div>
+
+      <h2>WHERE</h2>
+      <div id="conditions"></div>
+      <button class="btn-add" onclick="addCondition()">+ Add Condition</button>
+
+      <h2>Order By</h2>
+      <select id="orderCol"><option value="">-- None --</option></select>
+      <select id="orderDir">
+        <option value="ASC">ASC</option>
+        <option value="DESC">DESC</option>
+      </select>
+
+      <h2>Limit</h2>
+      <input type="number" id="limit" placeholder="Limit" value="10">
+    </div>
+
+    <div class="main">
+      <h1>Query Preview</h1>
+      <div class="query-preview" id="preview">SELECT * FROM users LIMIT 10;</div>
+      <button class="btn-run" onclick="runQuery()">▶ Run Query</button>
+
+      <h2 style="margin-top:1.5rem">Results</h2>
+      <div class="results" id="results">
+        <table><thead><tr><th>Run a query to see results</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tables = {
+      users: ['id', 'name', 'email', 'created_at', 'is_active', 'age'],
+      orders: ['id', 'user_id', 'total', 'status', 'created_at'],
+      products: ['id', 'name', 'price', 'category', 'stock'],
+      customers: ['id', 'name', 'email', 'city', 'country']
+    };
+
+    const mockData = {
+      users: [
+        {id:1,name:'John Doe',email:'john@example.com',is_active:true,age:30,created_at:'2024-01-15'},
+        {id:2,name:'Jane Smith',email:'jane@example.com',is_active:true,age:25,created_at:'2024-01-16'},
+        {id:3,name:'Bob Wilson',email:'bob@example.com',is_active:false,age:35,created_at:'2024-01-17'},
+      ],
+      orders: [
+        {id:1,user_id:1,total:99.99,status:'pending',created_at:'2024-01-20'},
+        {id:2,user_id:2,total:149.50,status:'completed',created_at:'2024-01-21'},
+      ],
+      products: [
+        {id:1,name:'Widget',price:29.99,category:'tools',stock:100},
+        {id:2,name:'Gadget',price:49.99,category:'electronics',stock:50},
+      ],
+      customers: [
+        {id:1,name:'Acme Corp',email:'acme@example.com',city:'NYC',country:'USA'},
+      ]
+    };
+
+    let selectedCols = [];
+    let condCount = 0;
+
+    function loadTable() {
+      const table = document.getElementById('table').value;
+      const colsDiv = document.getElementById('columns');
+      const cols = tables[table] || [];
+      const orderSelect = document.getElementById('orderCol');
+
+      colsDiv.innerHTML = cols.map(c => `<label style="display:block;padding:0.3rem;cursor:pointer"><input type="checkbox" value="${c}" checked onchange="updatePreview()"> ${c}</label>`).join('');
+      selectedCols = [...cols];
+
+      orderSelect.innerHTML = '<option value="">-- None --</option>' + cols.map(c => `<option value="${c}">${c}</option>`).join('');
+
+      document.getElementById('conditions').innerHTML = '';
+      condCount = 0;
+      updatePreview();
+    }
+
+    function addCondition() {
+      condCount++;
+      const table = document.getElementById('table').value;
+      const cols = tables[table] || [];
+      const div = document.createElement('div');
+      div.className = 'condition';
+      div.id = 'cond-' + condCount;
+      div.innerHTML = `
+        <select class="col"><option value="">--</option>${cols.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
+        <select class="op"><option value="=">=</option><option value=">">></option><option value="<"><</option><option value="LIKE">LIKE</option><option value="!=">!=</option></select>
+        <input type="text" placeholder="value">
+        <button onclick="this.parentElement.remove();updatePreview()">×</button>
+      `;
+      div.querySelectorAll('select,input').forEach(el => el.addEventListener('change', updatePreview));
+      document.getElementById('conditions').appendChild(div);
+    }
+
+    function updatePreview() {
+      const table = document.getElementById('table').value || 'users';
+      const cols = document.querySelectorAll('#columns input:checked');
+      const colsList = Array.from(cols).map(c => c.value);
+
+      let sql = 'SELECT ' + (colsList.length ? colsList.join(', ') : '*') + '\nFROM ' + table;
+
+      const conds = [];
+      document.querySelectorAll('.condition').forEach(div => {
+        const col = div.querySelector('.col').value;
+        const op = div.querySelector('.op').value;
+        const val = div.querySelector('input').value;
+        if (col && val) {
+          const fmtVal = isNaN(val) ? `'${val}'` : val;
+          conds.push(`${col} ${op} ${fmtVal}`);
+        }
+      });
+      if (conds.length) sql += '\nWHERE ' + conds.join(' AND ');
+
+      const orderCol = document.getElementById('orderCol').value;
+      const orderDir = document.getElementById('orderDir').value;
+      if (orderCol) sql += `\nORDER BY ${orderCol} ${orderDir}`;
+
+      const limit = document.getElementById('limit').value;
+      if (limit) sql += `\nLIMIT ${limit}`;
+
+      document.getElementById('preview').textContent = sql + ';';
+    }
+
+    function runQuery() {
+      const table = document.getElementById('table').value || 'users';
+      const data = mockData[table] || [];
+      const cols = tables[table] || [];
+
+      if (!data.length) {
+        document.getElementById('results').innerHTML = '<p style="padding:1rem;color:var(--muted)">No data</p>';
+        return;
+      }
+
+      let html = '<thead><tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr></thead><tbody>';
+      data.forEach(row => {
+        html += '<tr>' + cols.map(c => {
+          const val = row[c];
+          const type = typeof val === 'number' ? 'number' : typeof val === 'boolean' ? 'keyword' : 'string';
+          return `<td><span class="tag ${type}">${val}</span></td>`;
+        }).join('') + '</tr>';
+      });
+      html += '</tbody>';
+
+      document.getElementById('results').innerHTML = '<table>' + html + '</table>';
+    }
+
+    loadTable();
+  </script>
+</body>
+</html>
