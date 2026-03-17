@@ -613,6 +613,10 @@
 
     initGallery();
 
+    // Header nav buttons → open galleries
+    document.getElementById("aiNavBtn").addEventListener("click", openGallery);
+    document.getElementById("chainNavBtn").addEventListener("click", openCrypto);
+
     /* ============================================================
        BLOCKCHAIN ARCHITECTURE GALLERY — DATA & LOGIC
     ============================================================ */
