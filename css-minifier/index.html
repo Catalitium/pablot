@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS Minifier</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3352;
+    --accent: #7c6af7; --text: #e2e8f0; --muted: #8892b0;
+    --success: #56d4a0; --error: #ff5572; --warn: #f78c6c;
+    --prop: #82aaff; --val: #c3e88d; --sel: #f78c6c; --comment: #546e7a; --at: #c792ea;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+  header { padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  header h1 { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+  header span { color: var(--muted); font-size: 0.875rem; }
+  .stats-bar { padding: 0.6rem 2rem; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
+  .stat { display: flex; flex-direction: column; gap: 0.1rem; }
+  .stat-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .stat-value { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+  .stat-value.good { color: var(--success); }
+  .main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .panel { display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+  .panel:last-child { border-right: none; }
+  .panel-header { padding: 0.75rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+  .panel-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .panel-meta { font-size: 0.75rem; color: var(--muted); }
+  textarea {
+    flex: 1; background: var(--surface); border: none; outline: none; color: var(--text);
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 0.85rem;
+    padding: 1rem; resize: none; line-height: 1.6; min-height: 420px; tab-size: 2;
+  }
+  .output-area {
+    flex: 1; background: var(--surface); padding: 1rem;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 0.85rem;
+    overflow: auto; white-space: pre-wrap; line-height: 1.6; min-height: 420px; word-break: break-all;
+  }
+  .toolbar { padding: 0.75rem 1rem; background: var(--bg); border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .btn {
+    padding: 0.45rem 1rem; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { opacity: 0.85; }
+  .btn.success { border-color: var(--success); color: var(--success); }
+  .btn.success:hover { background: var(--success); color: #000; }
+  .btn.danger { border-color: var(--error); color: var(--error); }
+  .btn.danger:hover { background: var(--error); color: #fff; }
+  /* Syntax highlight */
+  .cs { color: var(--sel); }    /* selector */
+  .cp { color: var(--prop); }   /* property */
+  .cv { color: var(--val); }    /* value */
+  .cc { color: var(--comment); font-style: italic; } /* comment */
+  .ca { color: var(--at); }     /* at-rule */
+  .cb { color: #cdd3de; }       /* brackets */
+  @media (max-width: 700px) { .main { grid-template-columns: 1fr; } .panel { border-right: none; border-bottom: 1px solid var(--border); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>{ } CSS Minifier</h1>
+  <span>Minify · Beautify · Analyze</span>
+</header>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-label">Original</div><div class="stat-value" id="s-original">— B</div></div>
+  <div class="stat"><div class="stat-label">Output</div><div class="stat-value" id="s-output">— B</div></div>
+  <div class="stat"><div class="stat-label">Saved</div><div class="stat-value good" id="s-saved">—</div></div>
+  <div class="stat"><div class="stat-label">Lines In</div><div class="stat-value" id="s-linesIn">—</div></div>
+  <div class="stat"><div class="stat-label">Lines Out</div><div class="stat-value" id="s-linesOut">—</div></div>
+</div>
+
+<div class="main">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Input CSS</span>
+      <span class="panel-meta" id="inputMeta">0 chars</span>
+    </div>
+    <textarea id="input" placeholder="Paste your CSS here...&#10;&#10;Example:&#10;.container {&#10;  display: flex;&#10;  background-color: #ffffff;&#10;}" spellcheck="false" oninput="updateInputMeta()"></textarea>
+    <div class="toolbar">
+      <button class="btn primary" onclick="minify()">Minify →</button>
+      <button class="btn primary" onclick="beautify()">Beautify →</button>
+      <button class="btn danger" onclick="clearAll()">Clear</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Output</span>
+      <span class="panel-meta" id="outputMeta">—</span>
+    </div>
+    <div class="output-area" id="output">Output will appear here...</div>
+    <div class="toolbar">
+      <button class="btn" onclick="copyOutput()">Copy</button>
+      <button class="btn success" onclick="downloadOutput()">Download .css</button>
+      <button class="btn" onclick="useAsInput()">Use as Input</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const input = document.getElementById('input');
+const output = document.getElementById('output');
+
+function updateInputMeta() {
+  document.getElementById('inputMeta').textContent = input.value.length + ' chars';
+}
+
+function updateStats(inSize, outSize, inLines, outLines) {
+  const fmt = b => b >= 1024 ? (b/1024).toFixed(1)+' KB' : b+' B';
+  document.getElementById('s-original').textContent = fmt(inSize);
+  document.getElementById('s-output').textContent = fmt(outSize);
+  const saved = inSize - outSize;
+  const pct = inSize > 0 ? ((saved/inSize)*100).toFixed(1) : 0;
+  document.getElementById('s-saved').textContent = saved >= 0 ? `-${fmt(saved)} (${pct}%)` : '+' + fmt(-saved);
+  document.getElementById('s-linesIn').textContent = inLines;
+  document.getElementById('s-linesOut').textContent = outLines;
+  document.getElementById('outputMeta').textContent = outSize + ' chars · ' + outLines + ' lines';
+}
+
+function minify() {
+  const css = input.value;
+  if (!css.trim()) return;
+  let result = css
+    .replace(/\/\*[\s\S]*?\*\//g, '')          // remove comments
+    .replace(/\s+/g, ' ')                        // collapse whitespace
+    .replace(/\s*{\s*/g, '{')                    // trim around {
+    .replace(/\s*}\s*/g, '}')                    // trim around }
+    .replace(/\s*:\s*/g, ':')                    // trim around :
+    .replace(/\s*;\s*/g, ';')                    // trim around ;
+    .replace(/\s*,\s*/g, ',')                    // trim around ,
+    .replace(/;}/g, '}')                         // remove trailing semicolons
+    .replace(/#([0-9a-fA-F])\1([0-9a-fA-F])\2([0-9a-fA-F])\3/g, '#$1$2$3') // shorten hex
+    .replace(/\s*(>|~|\+)\s*/g, '$1')            // trim combinators
+    .trim();
+
+  output.innerHTML = escHtml(result);
+  updateStats(css.length, result.length, css.split('\n').length, result.split('\n').length);
+}
+
+function beautify() {
+  const css = input.value;
+  if (!css.trim()) return;
+
+  // Remove existing excess whitespace, then rebuild
+  let result = css
+    .replace(/\/\*[\s\S]*?\*\//g, m => '\n' + m + '\n') // preserve comments with newlines
+    .replace(/\s*{\s*/g, ' {\n')
+    .replace(/\s*}\s*/g, '\n}\n\n')
+    .replace(/\s*;\s*/g, ';\n')
+    .replace(/\s*:\s*/g, ': ')
+    .replace(/\s*,\s*(?=[^}]*{)/g, ',\n');   // commas in selector lists
+
+  // Indent properties
+  const lines = result.split('\n');
+  let depth = 0;
+  const indented = lines.map(line => {
+    line = line.trim();
+    if (!line) return '';
+    if (line.endsWith('}')) depth = Math.max(0, depth - 1);
+    const ind = '  '.repeat(depth);
+    if (line.endsWith('{')) depth++;
+    return ind + line;
+  }).filter((l, i, arr) => !(l === '' && arr[i-1] === ''));
+
+  const formatted = indented.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  output.innerHTML = syntaxHighlight(formatted);
+  updateStats(css.length, formatted.length, css.split('\n').length, formatted.split('\n').length);
+}
+
+function syntaxHighlight(css) {
+  return escHtml(css)
+    .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="cc">$1</span>')
+    .replace(/(@[\w-]+)/g, '<span class="ca">$1</span>')
+    .replace(/([^{};,\s][^{};,]*?)\s*\{/g, '<span class="cs">$1</span> <span class="cb">{</span>')
+    .replace(/([a-z-]+)\s*:/gi, '<span class="cp">$1</span>:')
+    .replace(/:\s*([^;{}\n]+)/g, ': <span class="cv">$1</span>')
+    .replace(/[{}]/g, m => `<span class="cb">${m}</span>`);
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyOutput() {
+  const text = output.innerText;
+  if (!text || text === 'Output will appear here...') return;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+function downloadOutput() {
+  const text = output.innerText;
+  if (!text || text === 'Output will appear here...') return;
+  const blob = new Blob([text], { type: 'text/css' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'styles.css';
+  a.click();
+}
+
+function useAsInput() {
+  const text = output.innerText;
+  if (!text || text === 'Output will appear here...') return;
+  input.value = text;
+  updateInputMeta();
+}
+
+function clearAll() {
+  input.value = '';
+  output.innerHTML = 'Output will appear here...';
+  updateInputMeta();
+  ['s-original','s-output','s-saved','s-linesIn','s-linesOut'].forEach(id => document.getElementById(id).textContent = '—');
+  document.getElementById('outputMeta').textContent = '—';
+}
+
+// Sample CSS
+input.value = `.container {\n  display: flex;\n  flex-direction: column;\n  background-color: #ffffff;\n  margin: 0 auto;\n  padding: 20px;\n  /* Main container styles */\n  max-width: 1200px;\n}\n\n.header,\n.footer {\n  background-color: #1a1a2e;\n  color: #eee;\n  padding: 15px 20px;\n}\n\n@media (max-width: 768px) {\n  .container {\n    padding: 10px;\n  }\n}`;
+updateInputMeta();
+</script>
+</body>
+</html>

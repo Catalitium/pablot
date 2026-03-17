@@ -1,0 +1,294 @@
+{
+  "solver": "python_reference_fft",
+  "epsilon": 1e-09,
+  "cases": [
+    {
+      "case_id": "FFT-001",
+      "status": "pass",
+      "dominant_bins": [
+        {
+          "frequency": 8.0,
+          "amplitude": 0.500000077362
+        },
+        {
+          "frequency": 24.0,
+          "amplitude": 7.7362e-08
+        },
+        {
+          "frequency": 0.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 2.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 4.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 6.0,
+          "amplitude": 0.0
+        }
+      ],
+      "spectrum": [
+        {
+          "frequency": 0.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 2.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 4.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 6.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 8.0,
+          "amplitude": 0.500000077362
+        },
+        {
+          "frequency": 10.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 12.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 14.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 16.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 18.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 20.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 22.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 24.0,
+          "amplitude": 7.7362e-08
+        },
+        {
+          "frequency": 26.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 28.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 30.0,
+          "amplitude": 0.0
+        }
+      ]
+    },
+    {
+      "case_id": "FFT-002",
+      "status": "pass",
+      "dominant_bins": [
+        {
+          "frequency": 4.0,
+          "amplitude": 0.308180769683
+        },
+        {
+          "frequency": 20.0,
+          "amplitude": 0.178662182662
+        },
+        {
+          "frequency": 28.0,
+          "amplitude": 0.155266551756
+        },
+        {
+          "frequency": 12.0,
+          "amplitude": 0.144470317722
+        },
+        {
+          "frequency": 0.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 2.0,
+          "amplitude": 0.0
+        }
+      ],
+      "spectrum": [
+        {
+          "frequency": 0.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 2.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 4.0,
+          "amplitude": 0.308180769683
+        },
+        {
+          "frequency": 6.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 8.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 10.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 12.0,
+          "amplitude": 0.144470317722
+        },
+        {
+          "frequency": 14.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 16.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 18.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 20.0,
+          "amplitude": 0.178662182662
+        },
+        {
+          "frequency": 22.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 24.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 26.0,
+          "amplitude": 0.0
+        },
+        {
+          "frequency": 28.0,
+          "amplitude": 0.155266551756
+        },
+        {
+          "frequency": 30.0,
+          "amplitude": 0.0
+        }
+      ]
+    },
+    {
+      "case_id": "FFT-003",
+      "status": "pass",
+      "dominant_bins": [
+        {
+          "frequency": 8.0,
+          "amplitude": 0.500676854453
+        },
+        {
+          "frequency": 16.0,
+          "amplitude": 0.009291292967
+        },
+        {
+          "frequency": 24.0,
+          "amplitude": 0.008616839041
+        },
+        {
+          "frequency": 0.0,
+          "amplitude": 0.006875
+        },
+        {
+          "frequency": 18.0,
+          "amplitude": 0.006750100045
+        },
+        {
+          "frequency": 14.0,
+          "amplitude": 0.006641142785
+        }
+      ],
+      "spectrum": [
+        {
+          "frequency": 0.0,
+          "amplitude": 0.006875
+        },
+        {
+          "frequency": 2.0,
+          "amplitude": 0.00414629045
+        },
+        {
+          "frequency": 4.0,
+          "amplitude": 0.006516231203
+        },
+        {
+          "frequency": 6.0,
+          "amplitude": 0.004032678988
+        },
+        {
+          "frequency": 8.0,
+          "amplitude": 0.500676854453
+        },
+        {
+          "frequency": 10.0,
+          "amplitude": 0.000533470831
+        },
+        {
+          "frequency": 12.0,
+          "amplitude": 0.002627295737
+        },
+        {
+          "frequency": 14.0,
+          "amplitude": 0.006641142785
+        },
+        {
+          "frequency": 16.0,
+          "amplitude": 0.009291292967
+        },
+        {
+          "frequency": 18.0,
+          "amplitude": 0.006750100045
+        },
+        {
+          "frequency": 20.0,
+          "amplitude": 0.005796531267
+        },
+        {
+          "frequency": 22.0,
+          "amplitude": 0.002759777435
+        },
+        {
+          "frequency": 24.0,
+          "amplitude": 0.008616839041
+        },
+        {
+          "frequency": 26.0,
+          "amplitude": 0.004093818993
+        },
+        {
+          "frequency": 28.0,
+          "amplitude": 0.002622979849
+        },
+        {
+          "frequency": 30.0,
+          "amplitude": 0.003836252211
+        }
+      ]
+    }
+  ]
+}

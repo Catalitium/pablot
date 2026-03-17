@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fourier Visualizer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <h1>Fourier Visualizer (Tri-Stack Parity)</h1>
+    <section class="card controls">
+      <label>Fixture
+        <select id="fixtureSelect"></select>
+      </label>
+      <button id="loadBtn" type="button">Load Fixture Plot</button>
+      <button id="loadParityBtn" type="button">Load Parity Report</button>
+      <p id="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="card">
+      <h2>Waveform</h2>
+      <canvas id="waveCanvas" width="900" height="220"></canvas>
+    </section>
+
+    <section class="card">
+      <h2>Spectrum</h2>
+      <canvas id="specCanvas" width="900" height="220"></canvas>
+      <pre id="dominantOut"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Parity Status</h2>
+      <table id="parityTable" hidden>
+        <thead><tr><th>Case</th><th>Python</th><th>C++</th><th>Max Amp Diff</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

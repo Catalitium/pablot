@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Laplace Visualizer</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<main class="app">
+  <h1>Laplace Visualizer MVP</h1>
+  <section class="card controls">
+    <label>Numerator coeffs (comma)<input id="numInput" value="1"></label>
+    <label>Denominator coeffs (comma)<input id="denInput" value="1,3,2"></label>
+    <button id="runBtn" type="button">Render</button>
+    <p id="status"></p>
+  </section>
+  <section class="card grid">
+    <article><h2>Pole-Zero Map</h2><canvas id="pzCanvas" width="430" height="300"></canvas></article>
+    <article><h2>Step Response</h2><canvas id="respCanvas" width="430" height="300"></canvas></article>
+  </section>
+</main>
+<script src="app.js"></script>
+</body></html>

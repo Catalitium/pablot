@@ -1,0 +1,9 @@
+:root{--bg:#f5f8fc;--surface:#fff;--text:#142033;--border:#d3dce8}
+*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Tahoma,sans-serif;background:linear-gradient(180deg,#f8fbff,#eef3fb);color:var(--text)}
+.app{max-width:1100px;margin:0 auto;padding:1rem;display:grid;gap:1rem}.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem}
+.controls{display:flex;gap:.6rem;flex-wrap:wrap;align-items:end}
+select,button{font:inherit;padding:.45rem .65rem;border:1px solid var(--border);border-radius:8px;background:#fff}
+canvas{width:100%;height:auto;background:#0f172a;border-radius:8px;border:1px solid #1d2a44}
+pre{background:#0f172a;color:#dbe7ff;border-radius:8px;padding:.65rem}
+table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #edf1f7;text-align:left;padding:.45rem}
+.chip{border-radius:999px;padding:.12rem .5rem;font-size:.8rem;font-weight:700}.pass{background:#dcfae6;color:#065f46}.blocked{background:#ffead5;color:#9a3412}

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binary Converter</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3352;
+    --accent: #7c6af7; --text: #e2e8f0; --muted: #8892b0;
+    --error: #ff5572; --success: #56d4a0; --warn: #f78c6c;
+    --bit1: #7c6af7; --bit0: #22263a;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+  header { padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  header h1 { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+  header span { color: var(--muted); font-size: 0.875rem; }
+  .main { flex: 1; padding: 1.5rem 2rem; display: flex; flex-direction: column; gap: 1.25rem; max-width: 860px; margin: 0 auto; width: 100%; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .card-header { padding: 0.6rem 1rem; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .card-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .card-badge { font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 4px; background: var(--surface); color: var(--accent); border: 1px solid var(--accent); }
+  .card-body { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; }
+  .field-input {
+    flex: 1; background: transparent; border: none; outline: none; color: var(--text);
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 1.05rem;
+    padding: 0.25rem 0; word-break: break-all;
+  }
+  .field-input.error { color: var(--error); }
+  .copy-btn {
+    padding: 0.35rem 0.75rem; border-radius: 5px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); font-size: 0.75rem; cursor: pointer;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .copy-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .options-bar { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; padding: 0.5rem 0; }
+  .option-label { font-size: 0.85rem; color: var(--muted); display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+  .option-label input[type=checkbox] { accent-color: var(--accent); }
+  .bit-length-group { display: flex; gap: 0.4rem; }
+  .bit-btn {
+    padding: 0.3rem 0.6rem; border-radius: 5px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted); font-size: 0.78rem; cursor: pointer; transition: all 0.15s;
+  }
+  .bit-btn.active, .bit-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .bit-grid { display: flex; flex-wrap: wrap; gap: 3px; padding: 1rem; border-top: 1px solid var(--border); }
+  .bit-cell {
+    width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700; font-family: monospace; transition: background 0.15s;
+    border: 1px solid var(--border);
+  }
+  .bit-cell.one { background: var(--bit1); color: #fff; border-color: var(--bit1); }
+  .bit-cell.zero { background: var(--bit0); color: var(--muted); }
+  .bit-group-label { width: 100%; font-size: 0.7rem; color: var(--muted); padding: 0.1rem 0; }
+  .info-bar { display: flex; gap: 1.5rem; padding: 0.6rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; flex-wrap: wrap; }
+  .info-item { display: flex; flex-direction: column; gap: 0.1rem; }
+  .info-label { font-size: 0.7rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; }
+  .info-value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+  .ascii-badge { padding: 0.2rem 0.6rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>01 Binary Converter</h1>
+  <span>Binary · Decimal · Hexadecimal · Octal</span>
+</header>
+<div class="main">
+  <div class="options-bar">
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <span style="font-size:0.8rem;color:var(--muted);">Bit width:</span>
+      <div class="bit-length-group">
+        <button class="bit-btn" onclick="setBits(8)">8</button>
+        <button class="bit-btn active" onclick="setBits(16)">16</button>
+        <button class="bit-btn" onclick="setBits(32)">32</button>
+        <button class="bit-btn" onclick="setBits(64)">64</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Binary -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Binary</span>
+      <span class="card-badge">Base 2</span>
+    </div>
+    <div class="card-body">
+      <input class="field-input" id="f-bin" placeholder="e.g. 1010 1111" oninput="convert('bin')" spellcheck="false">
+      <button class="copy-btn" onclick="copyField('f-bin')">Copy</button>
+    </div>
+  </div>
+
+  <!-- Decimal -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Decimal</span>
+      <span class="card-badge">Base 10</span>
+    </div>
+    <div class="card-body">
+      <input class="field-input" id="f-dec" placeholder="e.g. 255" oninput="convert('dec')" spellcheck="false">
+      <button class="copy-btn" onclick="copyField('f-dec')">Copy</button>
+    </div>
+  </div>
+
+  <!-- Hexadecimal -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Hexadecimal</span>
+      <span class="card-badge">Base 16</span>
+    </div>
+    <div class="card-body">
+      <input class="field-input" id="f-hex" placeholder="e.g. FF or 0xFF" oninput="convert('hex')" spellcheck="false">
+      <button class="copy-btn" onclick="copyField('f-hex')">Copy</button>
+    </div>
+  </div>
+
+  <!-- Octal -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Octal</span>
+      <span class="card-badge">Base 8</span>
+    </div>
+    <div class="card-body">
+      <input class="field-input" id="f-oct" placeholder="e.g. 377" oninput="convert('oct')" spellcheck="false">
+      <button class="copy-btn" onclick="copyField('f-oct')">Copy</button>
+    </div>
+  </div>
+
+  <!-- Info bar -->
+  <div class="info-bar" id="infoBar" style="display:none;">
+    <div class="info-item"><div class="info-label">Decimal Value</div><div class="info-value" id="info-dec">—</div></div>
+    <div class="info-item"><div class="info-label">Bit Length</div><div class="info-value" id="info-bits">—</div></div>
+    <div class="info-item"><div class="info-label">ASCII Char</div><div class="info-value" id="info-ascii">—</div></div>
+    <div class="info-item"><div class="info-label">Signed (32-bit)</div><div class="info-value" id="info-signed">—</div></div>
+  </div>
+
+  <!-- Bit grid -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Bit Visualization</span>
+      <span class="card-badge" id="bitGridLabel">16-bit</span>
+    </div>
+    <div class="bit-grid" id="bitGrid"></div>
+  </div>
+</div>
+
+<script>
+let bitWidth = 16;
+let currentValue = null;
+
+function setBits(n) {
+  bitWidth = n;
+  document.querySelectorAll('.bit-btn').forEach(b => b.classList.toggle('active', b.textContent == n));
+  document.getElementById('bitGridLabel').textContent = n + '-bit';
+  if (currentValue !== null) updateBitGrid(currentValue);
+}
+
+function clearFields(except) {
+  ['bin','dec','hex','oct'].forEach(id => {
+    if (id !== except) {
+      const el = document.getElementById('f-' + id);
+      el.value = '';
+      el.classList.remove('error');
+    }
+  });
+}
+
+function setError(id) {
+  document.getElementById('f-' + id).classList.add('error');
+  clearFields('x');
+  document.getElementById('infoBar').style.display = 'none';
+  document.getElementById('bitGrid').innerHTML = '<span style="color:var(--muted);padding:0.5rem;font-size:0.85rem;">Invalid input</span>';
+}
+
+function convert(from) {
+  const raw = document.getElementById('f-' + from).value.trim();
+  if (!raw) { clearFields('none'); currentValue = null; document.getElementById('infoBar').style.display='none'; renderEmptyGrid(); return; }
+
+  let val;
+  try {
+    if (from === 'bin') {
+      const cleaned = raw.replace(/\s/g, '');
+      if (!/^[01]+$/.test(cleaned)) { setError('bin'); return; }
+      val = BigInt('0b' + cleaned);
+    } else if (from === 'dec') {
+      if (!/^-?\d+$/.test(raw)) { setError('dec'); return; }
+      val = BigInt(raw);
+    } else if (from === 'hex') {
+      const cleaned = raw.replace(/^0x/i, '').replace(/\s/g, '');
+      if (!/^[0-9a-fA-F]+$/.test(cleaned)) { setError('hex'); return; }
+      val = BigInt('0x' + cleaned);
+    } else if (from === 'oct') {
+      if (!/^[0-7]+$/.test(raw)) { setError('oct'); return; }
+      val = BigInt('0o' + raw);
+    }
+  } catch(e) { setError(from); return; }
+
+  currentValue = val;
+  document.getElementById('f-' + from).classList.remove('error');
+
+  const absVal = val < 0n ? -val : val;
+  if (from !== 'bin') document.getElementById('f-bin').value = absVal.toString(2).replace(/(.{4})/g, '$1 ').trim();
+  if (from !== 'dec') document.getElementById('f-dec').value = val.toString(10);
+  if (from !== 'hex') document.getElementById('f-hex').value = absVal.toString(16).toUpperCase();
+  if (from !== 'oct') document.getElementById('f-oct').value = absVal.toString(8);
+
+  ['bin','dec','hex','oct'].forEach(id => document.getElementById('f-' + id).classList.remove('error'));
+
+  updateInfo(val, absVal);
+  updateBitGrid(absVal);
+  document.getElementById('infoBar').style.display = 'flex';
+}
+
+function updateInfo(val, absVal) {
+  document.getElementById('info-dec').textContent = val.toString();
+  const binStr = absVal.toString(2);
+  document.getElementById('info-bits').textContent = binStr.length + ' bits';
+  const n = Number(val);
+  if (n >= 0 && n <= 127) {
+    const ch = String.fromCharCode(n);
+    document.getElementById('info-ascii').textContent = n >= 32 ? `'${ch}' (printable)` : `Control char`;
+  } else {
+    document.getElementById('info-ascii').textContent = '—';
+  }
+  const signed = val > 2147483647n ? val - 4294967296n : val < -2147483648n ? val + 4294967296n : val;
+  document.getElementById('info-signed').textContent = signed.toString();
+}
+
+function updateBitGrid(val) {
+  const grid = document.getElementById('bitGrid');
+  grid.innerHTML = '';
+  const binStr = val.toString(2).padStart(bitWidth, '0').slice(-bitWidth);
+  for (let i = 0; i < binStr.length; i++) {
+    if (i % 8 === 0 && i > 0) {
+      const sep = document.createElement('div');
+      sep.style.cssText = 'width:100%;height:0;border-top:1px dashed var(--border);margin:2px 0;';
+      grid.appendChild(sep);
+    }
+    const cell = document.createElement('div');
+    cell.className = 'bit-cell ' + (binStr[i] === '1' ? 'one' : 'zero');
+    cell.textContent = binStr[i];
+    cell.title = `Bit ${bitWidth - 1 - i} (position ${bitWidth - i})`;
+    grid.appendChild(cell);
+  }
+}
+
+function renderEmptyGrid() {
+  const grid = document.getElementById('bitGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < bitWidth; i++) {
+    if (i % 8 === 0 && i > 0) {
+      const sep = document.createElement('div');
+      sep.style.cssText = 'width:100%;height:0;border-top:1px dashed var(--border);margin:2px 0;';
+      grid.appendChild(sep);
+    }
+    const cell = document.createElement('div');
+    cell.className = 'bit-cell zero';
+    cell.textContent = '0';
+    grid.appendChild(cell);
+  }
+}
+
+function copyField(id) {
+  const val = document.getElementById(id).value;
+  if (!val) return;
+  navigator.clipboard.writeText(val).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// Init
+renderEmptyGrid();
+document.getElementById('f-dec').value = '255';
+convert('dec');
+</script>
+</body>
+</html>

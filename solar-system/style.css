@@ -1,0 +1,81 @@
+:root {
+  --fg: #e5e7eb;
+  --panel: rgba(11, 18, 37, 0.84);
+  --border: rgba(148, 163, 184, 0.4);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: radial-gradient(circle at 35% 30%, #172554, #020617 55%);
+  color: var(--fg);
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+
+.controls,
+.info {
+  position: fixed;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem;
+  backdrop-filter: blur(6px);
+  width: min(300px, calc(100vw - 1rem));
+}
+
+.controls { top: 0.5rem; left: 0.5rem; }
+.info { top: 0.5rem; right: 0.5rem; }
+
+h1,h2 { margin: 0 0 0.4rem; }
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+button,
+input[type="range"] {
+  width: 100%;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #1d4ed8;
+  color: white;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.status {
+  margin-top: 0.6rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(30, 64, 175, 0.22);
+}
+
+@media (max-width: 760px) {
+  .controls,
+  .info {
+    width: calc(100vw - 1rem);
+    position: fixed;
+    left: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .controls { top: 0.5rem; }
+  .info { top: auto; bottom: 0.5rem; }
+}

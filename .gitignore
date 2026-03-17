@@ -50,3 +50,7 @@ node_modules/
 
 # Yarn Integrity file
 .yarn-integrity
+mini-agents/**/.env
+mini-agents/**/logs/
+mini-agents/**/__pycache__/
+mini-agents/**/*.pyc

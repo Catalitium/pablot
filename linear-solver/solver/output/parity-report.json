@@ -1,0 +1,40 @@
+﻿{
+    "generated_at":  "2026-02-24T23:11:41Z",
+    "fixture_path":  "C:\\Users\\catal\\Desktop\\code-base\\linear-solver\\solver/fixtures/linear_vectors.json",
+    "epsilon":  1E-06,
+    "runtime":  {
+                    "python_available":  true,
+                    "cpp_available":  false
+                },
+    "overall_status":  "blocked",
+    "cases":  [
+                  {
+                      "case_id":  "LS-001",
+                      "python_status":  "pass",
+                      "cpp_status":  "blocked",
+                      "max_abs_diff":  0,
+                      "parity_status":  "blocked"
+                  },
+                  {
+                      "case_id":  "LS-002",
+                      "python_status":  "pass",
+                      "cpp_status":  "blocked",
+                      "max_abs_diff":  0,
+                      "parity_status":  "blocked"
+                  },
+                  {
+                      "case_id":  "LS-003",
+                      "python_status":  "blocked",
+                      "cpp_status":  "blocked",
+                      "max_abs_diff":  0,
+                      "parity_status":  "pass"
+                  },
+                  {
+                      "case_id":  "LS-004",
+                      "python_status":  "pass",
+                      "cpp_status":  "blocked",
+                      "max_abs_diff":  0,
+                      "parity_status":  "blocked"
+                  }
+              ]
+}

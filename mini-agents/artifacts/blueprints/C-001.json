@@ -1,0 +1,17 @@
+{
+  "target_repo_path": "C:\\Users\\catal\\Desktop\\code-base\\fake-data-gen",
+  "suggested_branch_name": "fleet/fake-data-gen",
+  "requirement_spec": [
+    "Implement request with minimal, testable changes"
+  ],
+  "file_changes": [],
+  "components": [],
+  "github_integration": {
+    "issues": [],
+    "actions": []
+  },
+  "test_commands": [],
+  "issues_created": [],
+  "agent": "colombo",
+  "status": "designed"
+}

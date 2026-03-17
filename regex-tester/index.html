@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regex Tester</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3352;
+    --accent: #6c63ff; --accent2: #4ecdc4; --text: #e2e8f0; --text-muted: #7b82a0;
+    --error: #ff6b6b; --success: #51cf66; --radius: 8px;
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; }
+  header svg { color: var(--accent); flex-shrink: 0; }
+  header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  header .subtitle { font-size: 0.8rem; color: var(--text-muted); margin-left: auto; }
+  .main { flex: 1; display: grid; grid-template-columns: 1fr 320px; gap: 0; height: calc(100vh - 57px); }
+  .left-col { display: flex; flex-direction: column; padding: 16px; overflow-y: auto; }
+  .right-col { border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+  .regex-row { display: flex; align-items: stretch; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color 0.2s; margin-bottom: 12px; }
+  .regex-row:focus-within { border-color: var(--accent); }
+  .regex-row.has-error { border-color: var(--error); }
+  .regex-delimiter { padding: 12px 14px; font-family: var(--mono); font-size: 1.2rem; color: var(--text-muted); background: var(--surface); user-select: none; display: flex; align-items: center; }
+  #patternInput { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: var(--mono); font-size: 1rem; padding: 12px 4px; min-width: 0; }
+  .flags-area { display: flex; align-items: center; gap: 4px; padding: 8px 12px; background: var(--surface); border-left: 1px solid var(--border); }
+  .flag-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-family: var(--mono); font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+  .flag-btn:hover { background: var(--surface2); color: var(--text); }
+  .flag-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .error-msg { display: none; color: var(--error); font-size: 0.8rem; padding: 6px 10px; background: #ff6b6b18; border: 1px solid #ff6b6b33; border-radius: var(--radius); margin-bottom: 12px; font-family: var(--mono); }
+  .error-msg.visible { display: block; }
+  .test-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .match-count-badge { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--accent); color: #fff; }
+  .match-count-badge.zero { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+  .match-count-badge.err { background: var(--error); }
+  .test-wrapper { position: relative; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color 0.2s; margin-bottom: 16px; flex: 1; min-height: 200px; }
+  .test-wrapper:focus-within { border-color: var(--accent); }
+  .highlight-layer { position: absolute; inset: 0; pointer-events: none; padding: 12px 14px; font-family: var(--mono); font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; word-break: break-all; overflow: hidden; color: transparent; }
+  #testInput { position: relative; width: 100%; height: 100%; min-height: 200px; background: transparent; border: none; outline: none; color: var(--text); font-family: var(--mono); font-size: 0.9rem; line-height: 1.6; padding: 12px 14px; resize: none; z-index: 1; caret-color: var(--accent2); }
+  mark.m0 { background: #6c63ff44; border-bottom: 2px solid #6c63ff; color: transparent; border-radius: 2px; }
+  mark.m1 { background: #4ecdc444; border-bottom: 2px solid #4ecdc4; color: transparent; border-radius: 2px; }
+  mark.m2 { background: #ffd43b44; border-bottom: 2px solid #ffd43b; color: transparent; border-radius: 2px; }
+  mark.m3 { background: #ff6b6b44; border-bottom: 2px solid #ff6b6b; color: transparent; border-radius: 2px; }
+  mark.m4 { background: #51cf6644; border-bottom: 2px solid #51cf66; color: transparent; border-radius: 2px; }
+  mark.m5 { background: #f0659544; border-bottom: 2px solid #f06595; color: transparent; border-radius: 2px; }
+  .panel-header { padding: 12px 16px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .badge { margin-left: auto; background: var(--accent); color: #fff; border-radius: 99px; padding: 2px 8px; font-size: 0.7rem; font-weight: 700; min-width: 24px; text-align: center; }
+  .badge.none { background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); }
+  .badge.err { background: var(--error); }
+  .matches-panel { flex: 1; overflow-y: auto; }
+  .match-item { padding: 10px 14px; border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  .match-item:hover { background: var(--surface2); }
+  .match-item-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .match-index { font-size: 0.7rem; font-weight: 700; color: #fff; border-radius: 4px; padding: 2px 7px; flex-shrink: 0; }
+  .mi0 { background: #6c63ff; } .mi1 { background: #4ecdc4; color: #0f1117 !important; } .mi2 { background: #ffd43b; color: #0f1117 !important; }
+  .mi3 { background: #ff6b6b; } .mi4 { background: #51cf66; color: #0f1117 !important; } .mi5 { background: #f06595; }
+  .match-pos { font-size: 0.7rem; color: var(--text-muted); font-family: var(--mono); }
+  .match-value { font-family: var(--mono); font-size: 0.85rem; color: var(--text); border-radius: 4px; padding: 4px 10px; word-break: break-all; border-left: 3px solid; }
+  .c0 { background: #6c63ff1a; border-left-color: #6c63ff; } .c1 { background: #4ecdc41a; border-left-color: #4ecdc4; }
+  .c2 { background: #ffd43b1a; border-left-color: #ffd43b; } .c3 { background: #ff6b6b1a; border-left-color: #ff6b6b; }
+  .c4 { background: #51cf661a; border-left-color: #51cf66; } .c5 { background: #f065951a; border-left-color: #f06595; }
+  .match-groups { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .group-chip { font-size: 0.7rem; font-family: var(--mono); background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; color: var(--text-muted); }
+  .group-chip strong { color: var(--accent2); }
+  .empty-state { padding: 40px 16px; text-align: center; color: var(--text-muted); font-size: 0.875rem; line-height: 1.7; }
+  .empty-state svg { margin-bottom: 12px; opacity: 0.35; display: block; margin-left: auto; margin-right: auto; }
+  .cheatsheet-toggle { padding: 12px 16px; background: var(--surface2); border-top: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); user-select: none; transition: color 0.15s; flex-shrink: 0; }
+  .cheatsheet-toggle:hover { color: var(--text); }
+  .cheatsheet-toggle .chevron { margin-left: auto; transition: transform 0.2s; }
+  .cheatsheet-toggle.open .chevron { transform: rotate(180deg); }
+  .cheatsheet-body { display: none; padding: 12px 14px; border-top: 1px solid var(--border); overflow-y: auto; max-height: 340px; flex-shrink: 0; }
+  .cheatsheet-body.open { display: block; }
+  .cs-section { margin-bottom: 14px; }
+  .cs-section-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent2); margin-bottom: 6px; }
+  .cs-item { display: flex; gap: 8px; margin-bottom: 4px; align-items: baseline; }
+  .cs-token { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); background: #6c63ff18; border-radius: 4px; padding: 1px 6px; min-width: 64px; flex-shrink: 0; white-space: nowrap; }
+  .cs-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; } ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+  @media (max-width: 700px) { .main { grid-template-columns: 1fr; height: auto; } .right-col { border-left: none; border-top: 1px solid var(--border); min-height: 300px; } header .subtitle { display: none; } }
+</style>
+</head>
+<body>
+<header>
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+  <h1>Regex Tester</h1>
+  <span class="subtitle">Live &middot; Interactive &middot; Offline</span>
+</header>
+<div class="main">
+  <div class="left-col">
+    <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;">Pattern</div>
+    <div class="regex-row" id="regexRow">
+      <span class="regex-delimiter">/</span>
+      <input type="text" id="patternInput" placeholder="type a regex pattern..." spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
+      <span class="regex-delimiter">/</span>
+      <div class="flags-area">
+        <button class="flag-btn active" data-flag="g" title="Global — find all matches">g</button>
+        <button class="flag-btn active" data-flag="i" title="Case insensitive">i</button>
+        <button class="flag-btn" data-flag="m" title="Multiline">m</button>
+        <button class="flag-btn" data-flag="s" title="Dot-all">s</button>
+      </div>
+    </div>
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="test-label">Test String <span class="match-count-badge zero" id="matchCountBadge">0 matches</span></div>
+    <div class="test-wrapper" id="testWrapper">
+      <div class="highlight-layer" id="highlightLayer" aria-hidden="true"></div>
+      <textarea id="testInput" placeholder="Paste or type text to test your regex against..."></textarea>
+    </div>
+  </div>
+  <div class="right-col">
+    <div class="panel-header">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Matches <span class="badge none" id="matchBadge">0</span>
+    </div>
+    <div class="matches-panel" id="matchesPanel">
+      <div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>Enter a pattern and test string<br>to see matches here</div>
+    </div>
+    <div class="cheatsheet-toggle" id="cheatsheetToggle">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Regex Cheatsheet
+      <svg class="chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="cheatsheet-body" id="cheatsheetBody">
+      <div class="cs-section"><div class="cs-section-title">Character Classes</div>
+        <div class="cs-item"><span class="cs-token">.</span><span class="cs-desc">Any character (except newline)</span></div>
+        <div class="cs-item"><span class="cs-token">\w</span><span class="cs-desc">Word char [a-zA-Z0-9_]</span></div>
+        <div class="cs-item"><span class="cs-token">\d</span><span class="cs-desc">Digit [0-9]</span></div>
+        <div class="cs-item"><span class="cs-token">\s</span><span class="cs-desc">Whitespace</span></div>
+        <div class="cs-item"><span class="cs-token">[abc]</span><span class="cs-desc">Any of a, b, or c</span></div>
+        <div class="cs-item"><span class="cs-token">[^abc]</span><span class="cs-desc">Not a, b, or c</span></div>
+        <div class="cs-item"><span class="cs-token">[a-z]</span><span class="cs-desc">Character range a to z</span></div>
+      </div>
+      <div class="cs-section"><div class="cs-section-title">Anchors</div>
+        <div class="cs-item"><span class="cs-token">^</span><span class="cs-desc">Start of string / line</span></div>
+        <div class="cs-item"><span class="cs-token">$</span><span class="cs-desc">End of string / line</span></div>
+        <div class="cs-item"><span class="cs-token">\b</span><span class="cs-desc">Word boundary</span></div>
+      </div>
+      <div class="cs-section"><div class="cs-section-title">Quantifiers</div>
+        <div class="cs-item"><span class="cs-token">*</span><span class="cs-desc">0 or more (greedy)</span></div>
+        <div class="cs-item"><span class="cs-token">+</span><span class="cs-desc">1 or more (greedy)</span></div>
+        <div class="cs-item"><span class="cs-token">?</span><span class="cs-desc">0 or 1 (optional)</span></div>
+        <div class="cs-item"><span class="cs-token">{n,m}</span><span class="cs-desc">Between n and m times</span></div>
+        <div class="cs-item"><span class="cs-token">*?  +?</span><span class="cs-desc">Lazy (non-greedy)</span></div>
+      </div>
+      <div class="cs-section"><div class="cs-section-title">Groups</div>
+        <div class="cs-item"><span class="cs-token">(abc)</span><span class="cs-desc">Capture group</span></div>
+        <div class="cs-item"><span class="cs-token">(?:abc)</span><span class="cs-desc">Non-capturing group</span></div>
+        <div class="cs-item"><span class="cs-token">(?&lt;n&gt;abc)</span><span class="cs-desc">Named capture group</span></div>
+        <div class="cs-item"><span class="cs-token">a|b</span><span class="cs-desc">Match a or b</span></div>
+      </div>
+      <div class="cs-section"><div class="cs-section-title">Lookaround</div>
+        <div class="cs-item"><span class="cs-token">(?=abc)</span><span class="cs-desc">Lookahead</span></div>
+        <div class="cs-item"><span class="cs-token">(?!abc)</span><span class="cs-desc">Negative lookahead</span></div>
+        <div class="cs-item"><span class="cs-token">(?&lt;=abc)</span><span class="cs-desc">Lookbehind</span></div>
+        <div class="cs-item"><span class="cs-token">(?&lt;!abc)</span><span class="cs-desc">Negative lookbehind</span></div>
+      </div>
+      <div class="cs-section"><div class="cs-section-title">Common Patterns</div>
+        <div class="cs-item"><span class="cs-token">Email</span><span class="cs-desc">[\w.+-]+@[\w-]+\.[a-z]{2,}</span></div>
+        <div class="cs-item"><span class="cs-token">URL</span><span class="cs-desc">https?://[\w./%?&amp;=+#@-]+</span></div>
+        <div class="cs-item"><span class="cs-token">IP</span><span class="cs-desc">(\d{1,3}\.){3}\d{1,3}</span></div>
+        <div class="cs-item"><span class="cs-token">Hex color</span><span class="cs-desc">#([a-fA-F0-9]{6}|{3})</span></div>
+        <div class="cs-item"><span class="cs-token">Date</span><span class="cs-desc">\d{4}-\d{2}-\d{2}</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  const patternInput = document.getElementById('patternInput');
+  const testInput = document.getElementById('testInput');
+  const highlightLayer = document.getElementById('highlightLayer');
+  const errorMsg = document.getElementById('errorMsg');
+  const regexRow = document.getElementById('regexRow');
+  const matchesPanel = document.getElementById('matchesPanel');
+  const matchBadge = document.getElementById('matchBadge');
+  const matchCountBadge = document.getElementById('matchCountBadge');
+  const cheatsheetToggle = document.getElementById('cheatsheetToggle');
+  const cheatsheetBody = document.getElementById('cheatsheetBody');
+  const flagBtns = document.querySelectorAll('.flag-btn');
+  const flags = { g: true, i: true, m: false, s: false };
+
+  flagBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const f = btn.dataset.flag;
+      flags[f] = !flags[f];
+      btn.classList.toggle('active', flags[f]);
+      update();
+    });
+  });
+
+  cheatsheetToggle.addEventListener('click', () => {
+    const open = cheatsheetToggle.classList.toggle('open');
+    cheatsheetBody.classList.toggle('open', open);
+  });
+
+  testInput.addEventListener('scroll', () => {
+    highlightLayer.scrollTop = testInput.scrollTop;
+    highlightLayer.scrollLeft = testInput.scrollLeft;
+  });
+
+  new ResizeObserver(() => {
+    highlightLayer.style.width = testInput.clientWidth + 'px';
+    highlightLayer.style.height = testInput.clientHeight + 'px';
+  }).observe(testInput);
+
+  patternInput.addEventListener('input', update);
+  testInput.addEventListener('input', update);
+
+  function escHtml(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function buildRegex(pattern) {
+    let f = '';
+    if (flags.g) f += 'g'; if (flags.i) f += 'i'; if (flags.m) f += 'm'; if (flags.s) f += 's';
+    return new RegExp(pattern, f);
+  }
+
+  function getMatches(regex, text) {
+    const results = [];
+    if (flags.g) {
+      let m, lastIdx = -1;
+      regex.lastIndex = 0;
+      while ((m = regex.exec(text)) !== null) {
+        if (m.index === lastIdx && m[0].length === 0) { regex.lastIndex++; continue; }
+        lastIdx = m.index;
+        results.push({ value: m[0], index: m.index, end: m.index + m[0].length, groups: Array.from(m).slice(1), namedGroups: m.groups || {} });
+        if (results.length >= 5000) break;
+      }
+    } else {
+      const m = regex.exec(text);
+      if (m) results.push({ value: m[0], index: m.index, end: m.index + m[0].length, groups: Array.from(m).slice(1), namedGroups: m.groups || {} });
+    }
+    return results;
+  }
+
+  function buildHighlightHtml(text, matches) {
+    if (!matches.length) return escHtml(text);
+    const sorted = [...matches].sort((a,b) => a.index - b.index);
+    let html = '', cursor = 0;
+    sorted.forEach((m, i) => {
+      if (m.index < cursor) return;
+      html += escHtml(text.slice(cursor, m.index));
+      html += `<mark class="m${i%6}">${escHtml(m.value)||'&#8203;'}</mark>`;
+      cursor = m.end;
+    });
+    return html + escHtml(text.slice(cursor));
+  }
+
+  function renderMatches(matches) {
+    if (!matches.length) {
+      matchesPanel.innerHTML = `<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>No matches found</div>`;
+      return;
+    }
+    matchesPanel.innerHTML = matches.map((m, i) => {
+      const ci = i % 6;
+      const groups = m.groups.filter(g => g !== undefined);
+      const namedEntries = Object.entries(m.namedGroups);
+      const groupsHtml = (groups.length || namedEntries.length) ? `<div class="match-groups">${groups.map((g,gi)=>`<span class="group-chip"><strong>$${gi+1}</strong>&ensp;${escHtml(String(g))}</span>`).join('')}${namedEntries.map(([n,v])=>`<span class="group-chip"><strong>&lt;${n}&gt;</strong>&ensp;${escHtml(String(v))}</span>`).join('')}</div>` : '';
+      return `<div class="match-item"><div class="match-item-header"><span class="match-index mi${ci}">#${i+1}</span><span class="match-pos">index ${m.index}–${m.end} · len ${m.value.length}</span></div><div class="match-value c${ci}">${escHtml(m.value)||'<em style="opacity:.5">empty</em>'}</div>${groupsHtml}</div>`;
+    }).join('');
+  }
+
+  function setBadges(count, state) {
+    if (state === 'error') { matchBadge.textContent='!'; matchBadge.className='badge err'; matchCountBadge.textContent='Invalid pattern'; matchCountBadge.className='match-count-badge err'; }
+    else if (state === 'empty' || count === 0) { matchBadge.textContent='0'; matchBadge.className='badge none'; matchCountBadge.textContent='0 matches'; matchCountBadge.className='match-count-badge zero'; }
+    else { matchBadge.textContent=count; matchBadge.className='badge'; matchCountBadge.textContent=count===1?'1 match':`${count} matches`; matchCountBadge.className='match-count-badge'; }
+  }
+
+  function update() {
+    const pattern = patternInput.value;
+    const text = testInput.value;
+    errorMsg.classList.remove('visible');
+    regexRow.classList.remove('has-error');
+    if (!pattern) { highlightLayer.innerHTML=''; setBadges(0,'empty'); matchesPanel.innerHTML=`<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>Enter a pattern and test string<br>to see matches here</div>`; return; }
+    let regex;
+    try { regex = buildRegex(pattern); } catch(e) { regexRow.classList.add('has-error'); errorMsg.textContent=e.message; errorMsg.classList.add('visible'); highlightLayer.innerHTML=''; setBadges(0,'error'); matchesPanel.innerHTML=`<div class="empty-state" style="color:var(--error)"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Invalid regular expression</div>`; return; }
+    const matches = getMatches(regex, text);
+    setBadges(matches.length, 'ok');
+    highlightLayer.innerHTML = buildHighlightHtml(text, matches);
+    renderMatches(matches);
+  }
+
+  patternInput.value = String.raw`(\w+)\s(\w+)`;
+  testInput.value = `Hello World — this is a Regex Tester.\nVisit https://example.com or email user@domain.org\nDate: 2026-02-20   IP: 192.168.1.1\nColor: #6c63ff  Short: #fff\nPhone: +1 (555) 867-5309`;
+  update();
+})();
+</script>
+</body>
+</html>

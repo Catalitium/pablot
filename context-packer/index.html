@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Context Packer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <h1>Context Packer</h1>
+    <section class="controls">
+      <label><input id="trimWhitespace" type="checkbox" checked> Whitespace cleanup</label>
+      <label><input id="collapseBlankLines" type="checkbox" checked> Blank-line collapse</label>
+      <label><input id="removeDuplicateBlocks" type="checkbox"> Duplicate block removal</label>
+      <div class="buttons">
+        <button id="runBtn" type="button">Run Compaction</button>
+        <button id="resetBtn" type="button">Reset</button>
+        <button id="copyBtn" type="button">Copy Output</button>
+      </div>
+      <p id="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panes">
+      <article>
+        <h2>Input</h2>
+        <textarea id="inputText" rows="18" placeholder="Paste source text here"></textarea>
+      </article>
+      <article>
+        <h2>Output</h2>
+        <textarea id="outputText" rows="18" readonly></textarea>
+      </article>
+    </section>
+
+    <section class="metrics">
+      <div class="metric"><span>Chars</span><strong id="charsMetric">0 -> 0</strong></div>
+      <div class="metric"><span>Words</span><strong id="wordsMetric">0 -> 0</strong></div>
+      <div class="metric"><span>Lines</span><strong id="linesMetric">0 -> 0</strong></div>
+      <div class="metric"><span>Estimated Tokens</span><strong id="tokensMetric">0 -> 0</strong></div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

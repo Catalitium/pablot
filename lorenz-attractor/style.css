@@ -1,0 +1,8 @@
+:root{--bg:#081122;--panel:#111d35;--text:#e8efff;--border:#2d426b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Tahoma,sans-serif}
+.app{max-width:980px;margin:0 auto;padding:1rem;display:grid;gap:1rem}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:.8rem}
+.controls{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+input,button{font:inherit;padding:.4rem;border:1px solid var(--border);border-radius:8px}
+canvas{width:100%;height:auto;background:#0d172e;border:1px solid var(--border);border-radius:10px}
+#status{min-height:1.1rem}

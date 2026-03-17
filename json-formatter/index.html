@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON Formatter</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3352;
+    --accent: #7c6af7;
+    --accent2: #56d4a0;
+    --text: #e2e8f0;
+    --muted: #8892b0;
+    --key: #82aaff;
+    --string: #c3e88d;
+    --number: #f78c6c;
+    --bool: #c792ea;
+    --null: #c792ea;
+    --bracket: #cdd3de;
+    --error: #ff5572;
+    --success: #56d4a0;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+  header { padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem; }
+  header h1 { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+  header span { color: var(--muted); font-size: 0.875rem; }
+  .main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .panel { display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+  .panel:last-child { border-right: none; }
+  .panel-header { padding: 0.75rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .panel-title { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .panel-meta { font-size: 0.75rem; color: var(--muted); }
+  .panel-body { flex: 1; display: flex; flex-direction: column; position: relative; }
+  textarea {
+    flex: 1; background: var(--surface); border: none; outline: none; color: var(--text);
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 0.875rem;
+    padding: 1rem; resize: none; line-height: 1.6; min-height: 400px;
+  }
+  .output-area {
+    flex: 1; background: var(--surface); padding: 1rem;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 0.875rem;
+    overflow: auto; white-space: pre; line-height: 1.6; min-height: 400px;
+  }
+  .toolbar { padding: 0.75rem 1rem; background: var(--bg); border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .btn {
+    padding: 0.45rem 1rem; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { opacity: 0.85; }
+  .btn.danger { border-color: var(--error); color: var(--error); }
+  .btn.danger:hover { background: var(--error); color: #fff; }
+  .btn.success { border-color: var(--success); color: var(--success); }
+  .btn.success:hover { background: var(--success); color: #000; }
+  .status-bar { padding: 0.4rem 1rem; background: var(--surface); border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--muted); display: flex; align-items: center; gap: 1rem; }
+  .status-ok { color: var(--success); }
+  .status-err { color: var(--error); }
+  .indent-select { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 4px; padding: 0.3rem 0.5rem; font-size: 0.8rem; }
+  .spacer { flex: 1; }
+  /* Syntax highlighting */
+  .jk { color: var(--key); }
+  .js { color: var(--string); }
+  .jn { color: var(--number); }
+  .jb { color: var(--bool); }
+  .jl { color: var(--null); }
+  .jc { color: var(--bracket); }
+  @media (max-width: 700px) {
+    .main { grid-template-columns: 1fr; }
+    .panel { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+  .shortcut-hint { font-size: 0.7rem; color: var(--muted); margin-left: auto; }
+</style>
+</head>
+<body>
+<header>
+  <h1>{ } JSON Formatter</h1>
+  <span>Format · Minify · Validate</span>
+</header>
+
+<div class="main">
+  <!-- Input Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Input</span>
+      <span class="panel-meta" id="inputMeta">0 chars</span>
+    </div>
+    <div class="panel-body">
+      <textarea id="input" placeholder="Paste your JSON here...&#10;&#10;Tip: Press Ctrl+Enter to format" spellcheck="false"></textarea>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary" onclick="formatJSON()">Format</button>
+      <button class="btn" onclick="minifyJSON()">Minify</button>
+      <button class="btn success" onclick="validateJSON()">Validate</button>
+      <button class="btn danger" onclick="clearAll()">Clear</button>
+      <label style="font-size:0.8rem;color:var(--muted);margin-left:0.5rem;">Indent:</label>
+      <select class="indent-select" id="indentSize">
+        <option value="2">2 spaces</option>
+        <option value="4">4 spaces</option>
+        <option value="tab">Tab</option>
+      </select>
+      <span class="shortcut-hint">Ctrl+Enter to format</span>
+    </div>
+    <div class="status-bar" id="inputStatus">Ready</div>
+  </div>
+
+  <!-- Output Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Output</span>
+      <span class="panel-meta" id="outputMeta">—</span>
+    </div>
+    <div class="panel-body">
+      <div class="output-area" id="output">Output will appear here...</div>
+    </div>
+    <div class="toolbar">
+      <button class="btn" onclick="copyOutput()">Copy</button>
+      <button class="btn" onclick="useOutputAsInput()">Use as Input</button>
+    </div>
+    <div class="status-bar" id="outputStatus">—</div>
+  </div>
+</div>
+
+<script>
+const input = document.getElementById('input');
+const output = document.getElementById('output');
+const inputMeta = document.getElementById('inputMeta');
+const outputMeta = document.getElementById('outputMeta');
+const inputStatus = document.getElementById('inputStatus');
+const outputStatus = document.getElementById('outputStatus');
+const indentSize = document.getElementById('indentSize');
+
+function getIndent() {
+  const v = indentSize.value;
+  if (v === 'tab') return '\t';
+  return parseInt(v);
+}
+
+function syntaxHighlight(json) {
+  return json
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(
+      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+      match => {
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) return `<span class="jk">${match}</span>`;
+          return `<span class="js">${match}</span>`;
+        }
+        if (/true|false/.test(match)) return `<span class="jb">${match}</span>`;
+        if (/null/.test(match)) return `<span class="jl">${match}</span>`;
+        return `<span class="jn">${match}</span>`;
+      }
+    );
+}
+
+function formatJSON() {
+  const raw = input.value.trim();
+  if (!raw) { setStatus(inputStatus, 'error', 'Nothing to format'); return; }
+  try {
+    const parsed = JSON.parse(raw);
+    const formatted = JSON.stringify(parsed, null, getIndent());
+    output.innerHTML = syntaxHighlight(formatted);
+    const lines = formatted.split('\n').length;
+    const type = detectType(parsed);
+    setStatus(inputStatus, 'ok', `Valid JSON · ${type}`);
+    setStatus(outputStatus, 'ok', `Formatted`);
+    outputMeta.textContent = `${formatted.length} chars · ${lines} lines`;
+    inputMeta.textContent = `${raw.length} chars`;
+  } catch (e) {
+    setStatus(inputStatus, 'error', e.message);
+    output.innerHTML = `<span style="color:var(--error)">${escHtml(e.message)}</span>`;
+    setStatus(outputStatus, 'error', 'Invalid JSON');
+  }
+}
+
+function minifyJSON() {
+  const raw = input.value.trim();
+  if (!raw) { setStatus(inputStatus, 'error', 'Nothing to minify'); return; }
+  try {
+    const parsed = JSON.parse(raw);
+    const minified = JSON.stringify(parsed);
+    output.innerHTML = syntaxHighlight(minified);
+    const saved = raw.length - minified.length;
+    setStatus(inputStatus, 'ok', 'Valid JSON');
+    setStatus(outputStatus, 'ok', `Minified · saved ${saved} chars`);
+    outputMeta.textContent = `${minified.length} chars · 1 line`;
+  } catch (e) {
+    setStatus(inputStatus, 'error', e.message);
+    output.innerHTML = `<span style="color:var(--error)">${escHtml(e.message)}</span>`;
+  }
+}
+
+function validateJSON() {
+  const raw = input.value.trim();
+  if (!raw) { setStatus(inputStatus, 'error', 'Nothing to validate'); return; }
+  try {
+    const parsed = JSON.parse(raw);
+    const type = detectType(parsed);
+    const keys = countKeys(parsed);
+    setStatus(inputStatus, 'ok', `✓ Valid JSON — ${type} · ${keys} keys/items`);
+    output.innerHTML = `<span style="color:var(--success)">✓ Valid JSON\n\nType: ${type}\nKeys/Items: ${keys}\nSize: ${raw.length} chars</span>`;
+    setStatus(outputStatus, 'ok', 'Valid');
+  } catch (e) {
+    setStatus(inputStatus, 'error', `✗ Invalid: ${e.message}`);
+    output.innerHTML = `<span style="color:var(--error)">✗ Invalid JSON\n\n${escHtml(e.message)}</span>`;
+    setStatus(outputStatus, 'error', 'Invalid');
+  }
+}
+
+function detectType(val) {
+  if (Array.isArray(val)) return `Array[${val.length}]`;
+  if (val === null) return 'null';
+  return typeof val === 'object' ? `Object{${Object.keys(val).length}}` : typeof val;
+}
+
+function countKeys(val) {
+  if (Array.isArray(val)) return val.length;
+  if (val && typeof val === 'object') return Object.keys(val).length;
+  return 0;
+}
+
+function clearAll() {
+  input.value = '';
+  output.innerHTML = 'Output will appear here...';
+  inputMeta.textContent = '0 chars';
+  outputMeta.textContent = '—';
+  setStatus(inputStatus, '', 'Ready');
+  setStatus(outputStatus, '', '—');
+}
+
+function copyOutput() {
+  const text = output.innerText;
+  if (!text || text === 'Output will appear here...') return;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+function useOutputAsInput() {
+  const text = output.innerText;
+  if (!text || text === 'Output will appear here...') return;
+  input.value = text;
+  updateInputMeta();
+}
+
+function setStatus(el, type, msg) {
+  el.className = 'status-bar' + (type === 'ok' ? ' status-ok' : type === 'error' ? ' status-err' : '');
+  el.textContent = msg;
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function updateInputMeta() {
+  inputMeta.textContent = `${input.value.length} chars`;
+}
+
+input.addEventListener('input', updateInputMeta);
+input.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); formatJSON(); }
+});
+
+// Sample JSON on load
+input.value = `{\n  "name": "JSON Formatter",\n  "version": "1.0",\n  "features": ["format", "minify", "validate"],\n  "author": null,\n  "active": true\n}`;
+updateInputMeta();
+</script>
+</body>
+</html>

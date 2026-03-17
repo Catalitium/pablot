@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reading Estimator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3352;
+    --accent: #7c6af7; --text: #e2e8f0; --muted: #8892b0;
+    --success: #56d4a0; --warn: #f78c6c;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+  header { padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
+  header h1 { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+  header span { color: var(--muted); font-size: 0.875rem; }
+  .main { flex: 1; display: grid; grid-template-columns: 1fr 340px; gap: 0; }
+  .editor-panel { display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+  .panel-header { padding: 0.75rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+  .panel-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .wpm-control { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--muted); }
+  .wpm-control input[type=range] { width: 100px; accent-color: var(--accent); }
+  .wpm-control span { color: var(--accent); font-weight: 700; min-width: 60px; }
+  textarea {
+    flex: 1; background: var(--surface); border: none; outline: none; color: var(--text);
+    font-family: Georgia, 'Times New Roman', serif; font-size: 1rem;
+    padding: 1.5rem; resize: none; line-height: 1.8; min-height: 400px;
+  }
+  .toolbar { padding: 0.6rem 1rem; background: var(--bg); border-top: 1px solid var(--border); display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .btn {
+    padding: 0.4rem 0.9rem; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.success { border-color: var(--success); color: var(--success); }
+  .btn.success:hover { background: var(--success); color: #000; }
+  /* Stats panel */
+  .stats-panel { overflow-y: auto; display: flex; flex-direction: column; }
+  .stats-section { padding: 1rem; border-bottom: 1px solid var(--border); }
+  .stats-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.75rem; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; text-align: center; }
+  .stat-card.wide { grid-column: span 2; }
+  .stat-num { font-size: 1.5rem; font-weight: 800; color: var(--accent); line-height: 1; }
+  .stat-lbl { font-size: 0.7rem; color: var(--muted); margin-top: 0.25rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .time-row { display: flex; justify-content: space-between; align-items: center; padding: 0.45rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .time-row:last-child { border-bottom: none; }
+  .time-label { color: var(--muted); }
+  .time-value { font-weight: 700; color: var(--text); }
+  .readability-bar { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
+  .readability-fill { height: 100%; border-radius: 4px; transition: width 0.5s, background 0.5s; }
+  .top-words { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .word-chip { padding: 0.2rem 0.5rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; font-size: 0.75rem; display: flex; gap: 0.35rem; align-items: center; }
+  .word-count { color: var(--accent); font-weight: 700; }
+  .empty-msg { color: var(--muted); font-size: 0.85rem; font-style: italic; }
+  @media (max-width: 750px) { .main { grid-template-columns: 1fr; } .editor-panel { border-right: none; border-bottom: 1px solid var(--border); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>📖 Reading Estimator</h1>
+  <span>Real-time text statistics &amp; readability</span>
+</header>
+<div class="main">
+  <div class="editor-panel">
+    <div class="panel-header">
+      <span class="panel-title">Your Text</span>
+      <div class="wpm-control">
+        Reading speed:
+        <input type="range" id="wpmSlider" min="100" max="400" value="238" oninput="analyze()">
+        <span id="wpmDisplay">238 WPM</span>
+      </div>
+    </div>
+    <textarea id="textInput" placeholder="Paste or type your text here...&#10;&#10;Statistics will update in real-time as you type." oninput="analyze()"></textarea>
+    <div class="toolbar">
+      <button class="btn" onclick="clearText()">Clear</button>
+      <button class="btn success" onclick="exportStats()">Export Stats</button>
+      <button class="btn" onclick="loadSample()">Load Sample</button>
+    </div>
+  </div>
+
+  <div class="stats-panel">
+    <div class="stats-section">
+      <div class="stats-title">Counts</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num" id="s-words">0</div><div class="stat-lbl">Words</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-chars">0</div><div class="stat-lbl">Characters</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-chars-ns">0</div><div class="stat-lbl">Chars (no spaces)</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-sentences">0</div><div class="stat-lbl">Sentences</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-paragraphs">0</div><div class="stat-lbl">Paragraphs</div></div>
+        <div class="stat-card"><div class="stat-num" id="s-unique">0</div><div class="stat-lbl">Unique Words</div></div>
+        <div class="stat-card wide"><div class="stat-num" id="s-longest">—</div><div class="stat-lbl">Longest Word</div></div>
+      </div>
+    </div>
+
+    <div class="stats-section">
+      <div class="stats-title">Reading &amp; Speaking Time</div>
+      <div class="time-row"><span class="time-label">Slow reader (150 WPM)</span><span class="time-value" id="t-slow">—</span></div>
+      <div class="time-row"><span class="time-label">Average (<span id="t-wpm-lbl">238</span> WPM)</span><span class="time-value" id="t-avg">—</span></div>
+      <div class="time-row"><span class="time-label">Fast reader (400 WPM)</span><span class="time-value" id="t-fast">—</span></div>
+      <div class="time-row"><span class="time-label">Speaking time (130 WPM)</span><span class="time-value" id="t-speak">—</span></div>
+    </div>
+
+    <div class="stats-section">
+      <div class="stats-title">Readability</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+        <span style="font-size:0.85rem;color:var(--muted);">Flesch Reading Ease</span>
+        <span style="font-weight:700;color:var(--accent);" id="r-score">—</span>
+      </div>
+      <div class="readability-bar"><div class="readability-fill" id="r-bar" style="width:0%;background:var(--success)"></div></div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-top:0.4rem;" id="r-label">Paste text to calculate</div>
+      <div style="margin-top:0.75rem;" class="time-row"><span class="time-label">Avg word length</span><span class="time-value" id="r-avgword">—</span></div>
+      <div class="time-row"><span class="time-label">Avg sentence length</span><span class="time-value" id="r-avgsent">—</span></div>
+    </div>
+
+    <div class="stats-section">
+      <div class="stats-title">Top 10 Words</div>
+      <div class="top-words" id="topWords"><span class="empty-msg">No text yet</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STOP_WORDS = new Set('a an the and or but in on at to for of with is are was were be been being have has had do does did will would could should may might shall can this that these those it its i me my we our you your he she him her they them what which who whom when where why how s t'.split(' '));
+
+function fmtTime(minutes) {
+  if (minutes < 1) return '< 1 min';
+  if (minutes < 60) return Math.ceil(minutes) + ' min';
+  const h = Math.floor(minutes / 60), m = Math.round(minutes % 60);
+  return `${h}h ${m}m`;
+}
+
+function analyze() {
+  const text = document.getElementById('textInput').value;
+  const wpm = parseInt(document.getElementById('wpmSlider').value);
+  document.getElementById('wpmDisplay').textContent = wpm + ' WPM';
+  document.getElementById('t-wpm-lbl').textContent = wpm;
+
+  if (!text.trim()) { resetStats(); return; }
+
+  // Counts
+  const words = text.match(/\b[\w']+\b/g) || [];
+  const wordCount = words.length;
+  const charCount = text.length;
+  const charNoSpace = text.replace(/\s/g, '').length;
+  const sentences = text.match(/[.!?]+(?:\s|$)/g) || [];
+  const sentenceCount = Math.max(1, sentences.length);
+  const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim()).length || (text.trim() ? 1 : 0);
+  const uniqueWords = new Set(words.map(w => w.toLowerCase())).size;
+  const longestWord = words.reduce((a, b) => b.length > a.length ? b : a, '');
+
+  document.getElementById('s-words').textContent = wordCount.toLocaleString();
+  document.getElementById('s-chars').textContent = charCount.toLocaleString();
+  document.getElementById('s-chars-ns').textContent = charNoSpace.toLocaleString();
+  document.getElementById('s-sentences').textContent = sentenceCount.toLocaleString();
+  document.getElementById('s-paragraphs').textContent = paragraphs.toLocaleString();
+  document.getElementById('s-unique').textContent = uniqueWords.toLocaleString();
+  document.getElementById('s-longest').textContent = longestWord || '—';
+
+  // Times
+  document.getElementById('t-slow').textContent = fmtTime(wordCount / 150);
+  document.getElementById('t-avg').textContent = fmtTime(wordCount / wpm);
+  document.getElementById('t-fast').textContent = fmtTime(wordCount / 400);
+  document.getElementById('t-speak').textContent = fmtTime(wordCount / 130);
+
+  // Readability (Flesch Reading Ease)
+  const syllables = words.reduce((sum, w) => sum + countSyllables(w), 0);
+  const avgWordLen = wordCount > 0 ? (charNoSpace / wordCount).toFixed(1) : '—';
+  const avgSentLen = wordCount > 0 ? (wordCount / sentenceCount).toFixed(1) : '—';
+  const flesch = wordCount > 0
+    ? Math.max(0, Math.min(100, 206.835 - 1.015 * (wordCount / sentenceCount) - 84.6 * (syllables / wordCount)))
+    : 0;
+  document.getElementById('r-score').textContent = wordCount > 0 ? flesch.toFixed(1) : '—';
+  document.getElementById('r-bar').style.width = flesch + '%';
+  document.getElementById('r-bar').style.background = flesch > 70 ? 'var(--success)' : flesch > 50 ? 'var(--warn)' : 'var(--error)';
+  document.getElementById('r-label').textContent = fleschLabel(flesch);
+  document.getElementById('r-avgword').textContent = avgWordLen + ' chars';
+  document.getElementById('r-avgsent').textContent = avgSentLen + ' words';
+
+  // Top words
+  const freq = {};
+  words.forEach(w => { const lw = w.toLowerCase(); if (!STOP_WORDS.has(lw) && lw.length > 2) freq[lw] = (freq[lw] || 0) + 1; });
+  const topWords = Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0,10);
+  const container = document.getElementById('topWords');
+  if (topWords.length === 0) { container.innerHTML = '<span class="empty-msg">No significant words found</span>'; return; }
+  container.innerHTML = topWords.map(([w, c]) =>
+    `<div class="word-chip"><span class="word-count">${c}</span><span>${w}</span></div>`
+  ).join('');
+}
+
+function countSyllables(word) {
+  word = word.toLowerCase().replace(/[^a-z]/g, '');
+  if (!word) return 0;
+  if (word.length <= 3) return 1;
+  word = word.replace(/e$/, '');
+  const matches = word.match(/[aeiou]{1,2}/g);
+  return matches ? matches.length : 1;
+}
+
+function fleschLabel(score) {
+  if (score >= 90) return 'Very Easy — 5th grade level';
+  if (score >= 80) return 'Easy — 6th grade level';
+  if (score >= 70) return 'Fairly Easy — 7th grade level';
+  if (score >= 60) return 'Standard — 8th-9th grade level';
+  if (score >= 50) return 'Fairly Difficult — 10th-12th grade level';
+  if (score >= 30) return 'Difficult — College level';
+  return 'Very Difficult — Professional level';
+}
+
+function resetStats() {
+  ['s-words','s-chars','s-chars-ns','s-sentences','s-paragraphs','s-unique'].forEach(id => document.getElementById(id).textContent = '0');
+  document.getElementById('s-longest').textContent = '—';
+  ['t-slow','t-avg','t-fast','t-speak'].forEach(id => document.getElementById(id).textContent = '—');
+  document.getElementById('r-score').textContent = '—';
+  document.getElementById('r-bar').style.width = '0%';
+  document.getElementById('r-label').textContent = 'Paste text to calculate';
+  document.getElementById('r-avgword').textContent = '—';
+  document.getElementById('r-avgsent').textContent = '—';
+  document.getElementById('topWords').innerHTML = '<span class="empty-msg">No text yet</span>';
+}
+
+function clearText() { document.getElementById('textInput').value = ''; analyze(); }
+
+function exportStats() {
+  const lines = [
+    'Reading Estimator Stats', '='.repeat(30),
+    `Words: ${document.getElementById('s-words').textContent}`,
+    `Characters: ${document.getElementById('s-chars').textContent}`,
+    `Sentences: ${document.getElementById('s-sentences').textContent}`,
+    `Paragraphs: ${document.getElementById('s-paragraphs').textContent}`,
+    `Unique Words: ${document.getElementById('s-unique').textContent}`,
+    '',
+    `Reading Time (slow): ${document.getElementById('t-slow').textContent}`,
+    `Reading Time (avg): ${document.getElementById('t-avg').textContent}`,
+    `Reading Time (fast): ${document.getElementById('t-fast').textContent}`,
+    `Speaking Time: ${document.getElementById('t-speak').textContent}`,
+    '',
+    `Flesch Score: ${document.getElementById('r-score').textContent}`,
+    document.getElementById('r-label').textContent,
+  ];
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'reading-stats.txt'; a.click();
+}
+
+function loadSample() {
+  document.getElementById('textInput').value = `The quick brown fox jumps over the lazy dog. This simple sentence has long been used to test typefaces and keyboard layouts. It contains every letter of the English alphabet at least once.\n\nReading speed varies greatly among individuals. The average adult reads about 238 words per minute, while professional readers can achieve speeds of 400 words per minute or more. Speed reading techniques can further increase this rate, though comprehension may suffer at very high speeds.\n\nText complexity is measured through readability scores like the Flesch Reading Ease formula, which analyzes sentence length and syllable count to estimate how easy a passage is to understand. Higher scores indicate easier reading.`;
+  analyze();
+}
+</script>
+</body>
+</html>

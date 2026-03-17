@@ -1,0 +1,139 @@
+:root {
+  color-scheme: light;
+  --bg: #f7f8fc;
+  --panel: #ffffff;
+  --text: #1a1f36;
+  --muted: #56607a;
+  --accent: #2359d1;
+  --error: #b42318;
+  --ok: #027a48;
+  --border: #d6d9e2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: linear-gradient(165deg, #eef2ff, #f8fafc);
+  color: var(--text);
+}
+
+.app {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) 1fr;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.controls {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 1.4rem;
+}
+
+h2 {
+  font-size: 1rem;
+  margin: 1rem 0 0.5rem;
+}
+
+label,
+.hint {
+  display: block;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+input {
+  width: 100%;
+  margin-top: 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem;
+  font-size: 1rem;
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+button {
+  border: 1px solid #1b4db8;
+  background: var(--accent);
+  color: white;
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.05);
+}
+
+.root-card {
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+}
+
+.status {
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid transparent;
+}
+
+.status.neutral {
+  background: #eef3ff;
+  border-color: #d4ddf7;
+}
+
+.status.error {
+  background: #fef3f2;
+  border-color: #fecdca;
+  color: var(--error);
+}
+
+.status.success {
+  background: #ecfdf3;
+  border-color: #abefc6;
+  color: var(--ok);
+}
+
+.plot-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.6rem;
+  min-height: 0;
+}
+
+#plotCanvas {
+  width: 100%;
+  height: calc(100vh - 2.2rem);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: white;
+}
+
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+
+  #plotCanvas {
+    height: 58vh;
+  }
+}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Linear Solver</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <h1>Linear Solver (Tri-Stack Parity)</h1>
+    <section class="card">
+      <h2>Solve Input</h2>
+      <div class="grid-two">
+        <label>Matrix A (rows by newline, values by comma)
+          <textarea id="matrixInput" rows="6">2,1,-1
+-3,-1,2
+-2,1,2</textarea>
+        </label>
+        <label>Vector b (comma separated)
+          <input id="vectorInput" value="8,-11,-3">
+        </label>
+      </div>
+      <button id="solveBtn" type="button">Solve in Browser</button>
+      <p id="solveStatus" role="status" aria-live="polite"></p>
+      <pre id="solveOutput"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Parity Status</h2>
+      <p>Reads local report file: <code>solver/output/parity-report.json</code></p>
+      <button id="loadParityBtn" type="button">Load Parity Report</button>
+      <p id="parityStatus" role="status" aria-live="polite"></p>
+      <div class="table-wrap">
+        <table id="parityTable" hidden>
+          <thead>
+            <tr>
+              <th>Case</th>
+              <th>Python</th>
+              <th>C++</th>
+              <th>Max Diff</th>
+              <th>Parity</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

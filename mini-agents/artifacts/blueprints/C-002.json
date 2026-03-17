@@ -1,0 +1,35 @@
+{
+  "status": "ok",
+  "target_repo_path": "C:\\Users\\catal\\Desktop\\code-base\\ascii-art",
+  "suggested_branch_name": "fleet/add-tests-ascii-art",
+  "file_changes": [
+    {
+      "path": "tests/test_main.py",
+      "action": "create",
+      "description": "Create pytest test file for main module",
+      "template": "pytest"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "action": "create",
+      "description": "Create Python CI workflow with pytest",
+      "template": "ci"
+    }
+  ],
+  "test_commands": [
+    "python -m pytest tests/ -v"
+  ],
+  "github_integration": {
+    "issues": [
+      {
+        "title": "Fleet task: add tests",
+        "body": "Automated requirement mapping for request: Improve ascii-art based on request and current repo state",
+        "labels": [
+          "enhancement",
+          "fleet"
+        ]
+      }
+    ],
+    "actions": []
+  }
+}

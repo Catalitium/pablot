@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matrix Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <section class="controls">
+      <h1>Matrix Calculator</h1>
+
+      <div class="dims">
+        <label>Rows A <input id="rowsA" type="number" min="1" max="6" value="2"></label>
+        <label>Cols A <input id="colsA" type="number" min="1" max="6" value="2"></label>
+        <label>Rows B <input id="rowsB" type="number" min="1" max="6" value="2"></label>
+        <label>Cols B <input id="colsB" type="number" min="1" max="6" value="2"></label>
+      </div>
+
+      <button id="resizeBtn" type="button">Apply Dimensions</button>
+
+      <label for="operation">Operation</label>
+      <select id="operation">
+        <option value="add">A + B</option>
+        <option value="subtract">A - B</option>
+        <option value="multiply">A x B</option>
+        <option value="transposeA">transpose(A)</option>
+        <option value="transposeB">transpose(B)</option>
+        <option value="detA">det(A)</option>
+        <option value="detB">det(B)</option>
+        <option value="invA">inverse(A)</option>
+        <option value="invB">inverse(B)</option>
+      </select>
+
+      <button id="computeBtn" type="button">Compute</button>
+      <p id="status" class="status neutral">Ready.</p>
+    </section>
+
+    <section class="matrices">
+      <article>
+        <h2>Matrix A</h2>
+        <div id="matrixA" class="grid"></div>
+      </article>
+      <article>
+        <h2>Matrix B</h2>
+        <div id="matrixB" class="grid"></div>
+      </article>
+      <article>
+        <h2>Result</h2>
+        <div id="result" class="result"></div>
+      </article>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

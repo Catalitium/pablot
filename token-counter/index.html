@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Token Counter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <h1>Token Counter</h1>
+    <div class="grid">
+      <section class="panel">
+        <label for="model">Model</label>
+        <select id="model"></select>
+        <label for="input">Prompt</label>
+        <textarea id="input" rows="14" placeholder="Paste text here"></textarea>
+        <p id="warning" role="status" aria-live="polite"></p>
+      </section>
+      <section class="panel stats">
+        <p>Chars: <strong id="chars">0</strong></p>
+        <p>Words: <strong id="words">0</strong></p>
+        <p>Lines: <strong id="lines">0</strong></p>
+        <p>Tokens (est): <strong id="tokens">0</strong></p>
+        <p>Context Usage: <strong id="usage">0%</strong></p>
+        <p>Estimated Cost: <strong id="cost">$0.0000</strong></p>
+      </section>
+    </div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "implementation_status": "partial",
+  "files": [],
+  "test_commands": [],
+  "deploy_notes": "Fallback build due to LLM failure",
+  "issues_to_create": [],
+  "agent": "vitalik",
+  "status": "partial",
+  "execution": {
+    "repo_path": "C:\\Users\\catal\\Desktop\\code-base\\fake-data-gen",
+    "branch": "fleet/fake-data-gen-v-003",
+    "files_written": [],
+    "test_results": [],
+    "commit": {
+      "success": true,
+      "sha": null,
+      "message": "No changes to commit"
+    },
+    "push": {
+      "success": false,
+      "message": "push disabled"
+    },
+    "github_actions": {
+      "triggered": false,
+      "workflow": null,
+      "message": "actions trigger disabled"
+    },
+    "issues_created": []
+  }
+}

@@ -1,0 +1,84 @@
+:root {
+  --bg: #f1f5f9;
+  --panel: #ffffff;
+  --border: #cbd5e1;
+  --text: #0f172a;
+  --ok: #027a48;
+  --err: #b42318;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: radial-gradient(circle at 10% 0%, #e2e8f0, #f8fafc 48%);
+  color: var(--text);
+}
+
+.app {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(270px, 320px) 1fr;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.controls,
+.viewport {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel);
+  padding: 0.8rem;
+}
+
+h1 { margin: 0 0 0.7rem; font-size: 1.2rem; }
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.9rem;
+  margin-bottom: 0.45rem;
+}
+
+input,
+button {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem;
+  font-size: 0.95rem;
+}
+
+button {
+  width: 100%;
+  cursor: pointer;
+  font-weight: 700;
+  background: #1d4ed8;
+  color: white;
+  border-color: #1d4ed8;
+}
+
+.status {
+  margin-top: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.5rem;
+}
+
+.status.neutral { background: #eef4ff; border-color: #bfd2ff; }
+.status.success { background: #ecfdf3; border-color: #abefc6; color: var(--ok); }
+.status.error { background: #fef3f2; border-color: #fecdca; color: var(--err); }
+
+#scene {
+  width: 100%;
+  height: calc(100vh - 3.6rem);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  #scene { height: 62vh; }
+}

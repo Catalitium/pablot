@@ -1,0 +1,33 @@
+﻿{
+    "generated_at":  "2026-02-24T23:11:41Z",
+    "fixture_path":  "C:\\Users\\catal\\Desktop\\code-base\\fourier-visualizer\\compute/fixtures/signals.json",
+    "amplitude_tolerance":  0.0005,
+    "runtime":  {
+                    "python_available":  true,
+                    "cpp_available":  false
+                },
+    "overall_status":  "blocked",
+    "cases":  [
+                  {
+                      "case_id":  "FFT-001",
+                      "python_status":  "pass",
+                      "cpp_status":  "blocked",
+                      "max_amp_diff":  0,
+                      "parity_status":  "blocked"
+                  },
+                  {
+                      "case_id":  "FFT-002",
+                      "python_status":  "pass",
+                      "cpp_status":  "blocked",
+                      "max_amp_diff":  0,
+                      "parity_status":  "blocked"
+                  },
+                  {
+                      "case_id":  "FFT-003",
+                      "python_status":  "pass",
+                      "cpp_status":  "blocked",
+                      "max_amp_diff":  0,
+                      "parity_status":  "blocked"
+                  }
+              ]
+}

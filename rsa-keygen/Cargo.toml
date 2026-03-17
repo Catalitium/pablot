@@ -1,0 +1,86 @@
+// RSA Key Generator - Rust CLI
+// Generate RSA keypairs for encryption/signing
+
+use std::env;
+use std::fs;
+use std::path::Path;
+use std::process::exit;
+
+use rsa::{RsaPrivateKey, RsaPublicKey, pkcs8::{EncodePrivateKey, EncodePublicKey, LineEnding}};
+
+fn generate_keypair(bits: usize, output_dir: &Path) -> Result<(), String> {
+    println!("Generating {}-bit RSA keypair...", bits);
+
+    let mut rng = rand::thread_rng();
+    let private_key = RsaPrivateKey::new(&mut rng, bits)
+        .map_err(|e| format!("Failed to generate key: {}", e))?;
+
+    let public_key = RsaPublicKey::from(&private_key);
+
+    // Generate filenames
+    let private_path = output_dir.join("private_key.pem");
+    let public_path = output_dir.join("public_key.pem");
+    let private_pkcs8 = output_dir.join("private_key.pkcs8");
+    let public_spki = output_dir.join("public_key.spki");
+
+    // Write private key (PEM)
+    let private_pem = private_key.to_pkcs8_pem(LineEnding::LF)
+        .map_err(|e| format!("Failed to encode private key: {}", e))?;
+    fs::write(&private_path, private_pem.to_string())
+        .map_err(|e| format!("Failed to write private key: {}", e))?;
+
+    // Write public key (PEM)
+    let public_pem = public_key.to_public_key_pem(LineEnding::LF)
+        .map_err(|e| format!("Failed to encode public key: {}", e))?;
+    fs::write(&public_path, &public_pem)
+        .map_err(|e| format!("Failed to write public key: {}", e))?;
+
+    // Write in different formats
+    fs::write(&private_pkcs8, private_key.to_pkcs8(LineEnding::LF).unwrap())
+        .map_err(|e| format!("Failed to write PKCS8: {}", e))?;
+    fs::write(&public_spki, public_key.to_public_key_spki(LineEnding::LF).unwrap())
+        .map_err(|e| format!("Failed to write SPKI: {}", e))?;
+
+    println!("✓ Generated keypair:");
+    println!("  Private: {:?}", private_path);
+    println!("  Public:  {:?}", public_path);
+    println!("\nAlso generated PKCS8/SPKI formats");
+
+    Ok(())
+}
+
+fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() < 2 || args[1] == "-h" || args[1] == "--help" {
+        println!("RSA Key Generator");
+        println!("Usage: {} <output_dir> [bits]", args[0]);
+        println!("  output_dir  Directory to save keys");
+        println!("  bits       Key size (default: 2048, min: 512)");
+        exit(0);
+    }
+
+    let output_dir = Path::new(&args[1]);
+    let bits: usize = args.get(2)
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(2048);
+
+    if bits < 512 {
+        eprintln!("Error: bits must be at least 512");
+        exit(1);
+    }
+
+    // Create output directory
+    if let Err(e) = fs::create_dir_all(output_dir) {
+        eprintln!("Error creating directory: {}", e);
+        exit(1);
+    }
+
+    match generate_keypair(bits, output_dir) {
+        Ok(()) => println!("\n✓ Done!"),
+        Err(e) => {
+            eprintln!("Error: {}", e);
+            exit(1);
+        }
+    }
+}

@@ -1,0 +1,51 @@
+{
+  "target_codebase": "C:\\Users\\catal\\Desktop\\code-base",
+  "max_iterations": 3,
+  "pipeline_stages": [
+    "elena",
+    "colombo",
+    "vitalik",
+    "athena"
+  ],
+  "github_context": {
+    "max_repos": 12,
+    "max_status_lines": 10,
+    "max_commits": 3
+  },
+  "github": {
+    "owner": "JPGBMR",
+    "default_repo": "",
+    "token_env_var": "GITHUB_TOKEN"
+  },
+  "directories": {
+    "memory": "memory",
+    "incoming": "incoming",
+    "artifacts": "artifacts",
+    "logs": "logs"
+  },
+  "artifact_subdirs": {
+    "plans": "plans",
+    "blueprints": "blueprints",
+    "builds": "builds",
+    "qa_reports": "qa-reports"
+  },
+  "execution": {
+    "create_feature_branch": true,
+    "auto_commit": true,
+    "auto_push": false,
+    "branch_prefix": "fleet",
+    "run_local_tests": true,
+    "trigger_github_actions": false,
+    "allow_repo_init": true,
+    "create_github_issues": true,
+    "create_pull_request": false
+  },
+  "autonomy": {
+    "run_without_request": true,
+    "default_request": "Review the selected repository, identify the highest-value improvement based on current git state, and implement it safely."
+  },
+  "scheduler": {
+    "continuous": false,
+    "interval_seconds": 900
+  }
+}

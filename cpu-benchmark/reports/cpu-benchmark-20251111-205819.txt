@@ -1,0 +1,18 @@
+﻿cpu-benchmark-tester :: 20251111-205819
+OS: Microsoft Windows NT 10.0.26200.0
+PowerShell: Desktop 5.1.26100.6899
+CPU: 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz (Cores: 4, Logical: 8, Max MHz: 2401)
+Memory: Total 15.65 GiB, Free 4.95 GiB
+Threads used: 8
+
+HashBench-SHA256: size 128 MB, elapsed 19.6 ms, 6846.93 MB/s, digest 96d7bc1851fb9961a2b95797e83dd8e0e8e6c1b9b406a20cd00b9b56f7b87df3
+MemSweep: size 128 MB, write 35536.53 ms (3.78 MB/s), read 27554.22 ms (4.87 MB/s), checksum 17112760320
+CalcBench-Prime: N 800000, primes 63951, last 799999, elapsed 2 ms (C#)
+
+Scores: Hash 100, MemWrite 0, MemRead 0, Calc 100
+Overall score: 65 / 100, Grade: C
+
+Insights:
+ - Memory bandwidth likely bottleneck.
+
+Disclaimer: Not an industry-standard benchmark; results depend on runtime conditions.

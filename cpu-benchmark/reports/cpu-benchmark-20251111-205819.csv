@@ -1,0 +1,2 @@
+﻿timestamp,grade,overall,hashMBps,memWriteMBps,memReadMBps,calcMs,threads,quick,durationScale,hashSizeMB,memSizeMB,primeN,thermalDrop
+20251111-205819,C,65,6846.93,3.78,4.87,2,8,True,1,128,128,800000,0

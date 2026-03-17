@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hash Generator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3352;
+    --accent: #7c6af7; --text: #e2e8f0; --muted: #8892b0;
+    --error: #ff5572; --success: #56d4a0;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+  header { padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
+  header h1 { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+  header span { color: var(--muted); font-size: 0.875rem; }
+  .input-section { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.75rem; }
+  .input-row { display: flex; gap: 0.75rem; align-items: flex-start; }
+  textarea {
+    flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 0.95rem;
+    padding: 0.75rem 1rem; resize: vertical; line-height: 1.5; min-height: 100px; outline: none;
+  }
+  textarea:focus { border-color: var(--accent); }
+  .side-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+  .btn {
+    padding: 0.45rem 1rem; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.success { border-color: var(--success); color: var(--success); }
+  .btn.success:hover { background: var(--success); color: #000; }
+  .options-row { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+  .option-label { font-size: 0.85rem; color: var(--muted); display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+  .option-label input { accent-color: var(--accent); }
+  .hashes-section { flex: 1; padding: 1.5rem 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .hash-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .hash-header { padding: 0.5rem 1rem; background: var(--surface2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .hash-name { font-size: 0.8rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
+  .hash-bits { font-size: 0.75rem; color: var(--muted); }
+  .hash-body { padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; }
+  .hash-value {
+    flex: 1; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.82rem; color: var(--text); word-break: break-all; line-height: 1.5;
+    min-height: 1.5em;
+  }
+  .hash-value.empty { color: var(--muted); font-style: italic; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 0.85rem; }
+  .copy-btn {
+    padding: 0.35rem 0.75rem; border-radius: 5px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); font-size: 0.75rem; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+  }
+  .copy-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .file-input { display: none; }
+  .progress { font-size: 0.8rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1># Hash Generator</h1>
+  <span>MD5 · SHA-1 · SHA-256 · SHA-384 · SHA-512</span>
+</header>
+
+<div class="input-section">
+  <div class="input-row">
+    <textarea id="inputText" placeholder="Type or paste text to hash... (updates in real-time)" oninput="hashAll()"></textarea>
+    <div class="side-actions">
+      <input type="file" id="fileInput" class="file-input" onchange="hashFile(event)">
+      <button class="btn success" onclick="document.getElementById('fileInput').click()">Hash File</button>
+      <button class="btn" onclick="clearAll()">Clear</button>
+    </div>
+  </div>
+  <div class="options-row">
+    <label class="option-label">
+      <input type="checkbox" id="uppercase" onchange="hashAll()"> Uppercase
+    </label>
+    <span class="progress" id="progress"></span>
+  </div>
+</div>
+
+<div class="hashes-section">
+  <div class="hash-card" id="card-md5">
+    <div class="hash-header"><span class="hash-name">MD5</span><span class="hash-bits">128-bit</span></div>
+    <div class="hash-body"><div class="hash-value empty" id="hash-md5">Enter text above to generate hash</div><button class="copy-btn" onclick="copyHash('md5')">Copy</button></div>
+  </div>
+  <div class="hash-card" id="card-sha1">
+    <div class="hash-header"><span class="hash-name">SHA-1</span><span class="hash-bits">160-bit</span></div>
+    <div class="hash-body"><div class="hash-value empty" id="hash-sha1">Enter text above to generate hash</div><button class="copy-btn" onclick="copyHash('sha1')">Copy</button></div>
+  </div>
+  <div class="hash-card" id="card-sha256">
+    <div class="hash-header"><span class="hash-name">SHA-256</span><span class="hash-bits">256-bit</span></div>
+    <div class="hash-body"><div class="hash-value empty" id="hash-sha256">Enter text above to generate hash</div><button class="copy-btn" onclick="copyHash('sha256')">Copy</button></div>
+  </div>
+  <div class="hash-card" id="card-sha384">
+    <div class="hash-header"><span class="hash-name">SHA-384</span><span class="hash-bits">384-bit</span></div>
+    <div class="hash-body"><div class="hash-value empty" id="hash-sha384">Enter text above to generate hash</div><button class="copy-btn" onclick="copyHash('sha384')">Copy</button></div>
+  </div>
+  <div class="hash-card" id="card-sha512">
+    <div class="hash-header"><span class="hash-name">SHA-512</span><span class="hash-bits">512-bit</span></div>
+    <div class="hash-body"><div class="hash-value empty" id="hash-sha512">Enter text above to generate hash</div><button class="copy-btn" onclick="copyHash('sha512')">Copy</button></div>
+  </div>
+</div>
+
+<script>
+// Pure JS MD5 implementation
+function md5(inputStr) {
+  function safeAdd(x, y) { const lsw = (x & 0xffff) + (y & 0xffff); return (((x >> 16) + (y >> 16) + (lsw >> 16)) << 16) | (lsw & 0xffff); }
+  function bitRotateLeft(num, cnt) { return (num << cnt) | (num >>> (32 - cnt)); }
+  function md5cmn(q, a, b, x, s, t) { return safeAdd(bitRotateLeft(safeAdd(safeAdd(a, q), safeAdd(x, t)), s), b); }
+  function md5ff(a, b, c, d, x, s, t) { return md5cmn((b & c) | (~b & d), a, b, x, s, t); }
+  function md5gg(a, b, c, d, x, s, t) { return md5cmn((b & d) | (c & ~d), a, b, x, s, t); }
+  function md5hh(a, b, c, d, x, s, t) { return md5cmn(b ^ c ^ d, a, b, x, s, t); }
+  function md5ii(a, b, c, d, x, s, t) { return md5cmn(c ^ (b | ~d), a, b, x, s, t); }
+  function str2blks(str) {
+    const nblk = ((str.length + 8) >> 6) + 1;
+    const blks = new Array(nblk * 16).fill(0);
+    for (let i = 0; i < str.length; i++) blks[i >> 2] |= str.charCodeAt(i) << ((i % 4) * 8);
+    blks[str.length >> 2] |= 0x80 << ((str.length % 4) * 8);
+    blks[nblk * 16 - 2] = str.length * 8;
+    return blks;
+  }
+  const m = str2blks(unescape(encodeURIComponent(inputStr)));
+  let [a, b, c, d] = [1732584193, -271733879, -1732584194, 271733878];
+  for (let i = 0; i < m.length; i += 16) {
+    const [oa, ob, oc, od] = [a, b, c, d];
+    a = md5ff(a,b,c,d,m[i+0],7,-680876936); d = md5ff(d,a,b,c,m[i+1],12,-389564586); c = md5ff(c,d,a,b,m[i+2],17,606105819); b = md5ff(b,c,d,a,m[i+3],22,-1044525330);
+    a = md5ff(a,b,c,d,m[i+4],7,-176418897); d = md5ff(d,a,b,c,m[i+5],12,1200080426); c = md5ff(c,d,a,b,m[i+6],17,-1473231341); b = md5ff(b,c,d,a,m[i+7],22,-45705983);
+    a = md5ff(a,b,c,d,m[i+8],7,1770035416); d = md5ff(d,a,b,c,m[i+9],12,-1958414417); c = md5ff(c,d,a,b,m[i+10],17,-42063); b = md5ff(b,c,d,a,m[i+11],22,-1990404162);
+    a = md5ff(a,b,c,d,m[i+12],7,1804603682); d = md5ff(d,a,b,c,m[i+13],12,-40341101); c = md5ff(c,d,a,b,m[i+14],17,-1502002290); b = md5ff(b,c,d,a,m[i+15],22,1236535329);
+    a = md5gg(a,b,c,d,m[i+1],5,-165796510); d = md5gg(d,a,b,c,m[i+6],9,-1069501632); c = md5gg(c,d,a,b,m[i+11],14,643717713); b = md5gg(b,c,d,a,m[i+0],20,-373897302);
+    a = md5gg(a,b,c,d,m[i+5],5,-701558691); d = md5gg(d,a,b,c,m[i+10],9,38016083); c = md5gg(c,d,a,b,m[i+15],14,-660478335); b = md5gg(b,c,d,a,m[i+4],20,-405537848);
+    a = md5gg(a,b,c,d,m[i+9],5,568446438); d = md5gg(d,a,b,c,m[i+14],9,-1019803690); c = md5gg(c,d,a,b,m[i+3],14,-187363961); b = md5gg(b,c,d,a,m[i+8],20,1163531501);
+    a = md5gg(a,b,c,d,m[i+13],5,-1444681467); d = md5gg(d,a,b,c,m[i+2],9,-51403784); c = md5gg(c,d,a,b,m[i+7],14,1735328473); b = md5gg(b,c,d,a,m[i+12],20,-1926607734);
+    a = md5hh(a,b,c,d,m[i+5],4,-378558); d = md5hh(d,a,b,c,m[i+8],11,-2022574463); c = md5hh(c,d,a,b,m[i+11],16,1839030562); b = md5hh(b,c,d,a,m[i+14],23,-35309556);
+    a = md5hh(a,b,c,d,m[i+1],4,-1530992060); d = md5hh(d,a,b,c,m[i+4],11,1272893353); c = md5hh(c,d,a,b,m[i+7],16,-155497632); b = md5hh(b,c,d,a,m[i+10],23,-1094730640);
+    a = md5hh(a,b,c,d,m[i+13],4,681279174); d = md5hh(d,a,b,c,m[i+0],11,-358537222); c = md5hh(c,d,a,b,m[i+3],16,-722521979); b = md5hh(b,c,d,a,m[i+6],23,76029189);
+    a = md5hh(a,b,c,d,m[i+9],4,-640364487); d = md5hh(d,a,b,c,m[i+12],11,-421815835); c = md5hh(c,d,a,b,m[i+15],16,530742520); b = md5hh(b,c,d,a,m[i+2],23,-995338651);
+    a = md5ii(a,b,c,d,m[i+0],6,-198630844); d = md5ii(d,a,b,c,m[i+7],10,1126891415); c = md5ii(c,d,a,b,m[i+14],15,-1416354905); b = md5ii(b,c,d,a,m[i+5],21,-57434055);
+    a = md5ii(a,b,c,d,m[i+12],6,1700485571); d = md5ii(d,a,b,c,m[i+3],10,-1894986606); c = md5ii(c,d,a,b,m[i+10],15,-1051523); b = md5ii(b,c,d,a,m[i+1],21,-2054922799);
+    a = md5ii(a,b,c,d,m[i+8],6,1873313359); d = md5ii(d,a,b,c,m[i+15],10,-30611744); c = md5ii(c,d,a,b,m[i+6],15,-1560198380); b = md5ii(b,c,d,a,m[i+13],21,1309151649);
+    a = md5ii(a,b,c,d,m[i+4],6,-145523070); d = md5ii(d,a,b,c,m[i+11],10,-1120210379); c = md5ii(c,d,a,b,m[i+2],15,718787259); b = md5ii(b,c,d,a,m[i+9],21,-343485551);
+    a = safeAdd(a, oa); b = safeAdd(b, ob); c = safeAdd(c, oc); d = safeAdd(d, od);
+  }
+  function w(n) { return ('0' + ((n >>> 0).toString(16))).slice(-8).match(/../g).reverse().join(''); }
+  return w(a) + w(b) + w(c) + w(d);
+}
+
+async function sha(algorithm, data) {
+  const enc = new TextEncoder();
+  const buf = await crypto.subtle.digest(algorithm, enc.encode(data));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function shaFromBuffer(algorithm, buffer) {
+  const buf = await crypto.subtle.digest(algorithm, buffer);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const hashes = {};
+
+function fmt(h) {
+  return document.getElementById('uppercase').checked ? h.toUpperCase() : h.toLowerCase();
+}
+
+function setHash(id, value) {
+  const el = document.getElementById('hash-' + id);
+  el.classList.remove('empty');
+  el.textContent = fmt(value);
+  hashes[id] = value;
+}
+
+function setEmpty() {
+  ['md5','sha1','sha256','sha384','sha512'].forEach(id => {
+    const el = document.getElementById('hash-' + id);
+    el.classList.add('empty');
+    el.textContent = 'Enter text above to generate hash';
+    hashes[id] = '';
+  });
+}
+
+let debounceTimer;
+function hashAll() {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(async () => {
+    const text = document.getElementById('inputText').value;
+    if (!text) { setEmpty(); document.getElementById('progress').textContent = ''; return; }
+    document.getElementById('progress').textContent = 'Computing...';
+    const m = md5(text);
+    setHash('md5', m);
+    const [s1, s256, s384, s512] = await Promise.all([
+      sha('SHA-1', text), sha('SHA-256', text), sha('SHA-384', text), sha('SHA-512', text)
+    ]);
+    setHash('sha1', s1);
+    setHash('sha256', s256);
+    setHash('sha384', s384);
+    setHash('sha512', s512);
+    document.getElementById('progress').textContent = `${text.length} chars hashed`;
+  }, 150);
+}
+
+async function hashFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  document.getElementById('progress').textContent = `Hashing ${file.name}...`;
+  document.getElementById('inputText').value = '';
+  const buffer = await file.arrayBuffer();
+  const text = new TextDecoder().decode(buffer);
+  const m = md5(text);
+  setHash('md5', m);
+  const [s1, s256, s384, s512] = await Promise.all([
+    shaFromBuffer('SHA-1', buffer), shaFromBuffer('SHA-256', buffer),
+    shaFromBuffer('SHA-384', buffer), shaFromBuffer('SHA-512', buffer)
+  ]);
+  setHash('sha1', s1); setHash('sha256', s256); setHash('sha384', s384); setHash('sha512', s512);
+  document.getElementById('progress').textContent = `File: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+  event.target.value = '';
+}
+
+function copyHash(id) {
+  const val = hashes[id];
+  if (!val) return;
+  navigator.clipboard.writeText(fmt(val)).then(() => {
+    const btns = document.querySelectorAll('.copy-btn');
+    const cards = ['md5','sha1','sha256','sha384','sha512'];
+    const btn = btns[cards.indexOf(id)];
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+function clearAll() {
+  document.getElementById('inputText').value = '';
+  document.getElementById('progress').textContent = '';
+  setEmpty();
+}
+</script>
+</body>
+</html>

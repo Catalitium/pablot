@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Card Maker — Professional Card Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Roboto:wght@100;300;400;500;700;900&family=Oswald:wght@200;300;400;500;600;700&family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--panel:#161b22;--panel2:#1c2128;--panel3:#21262d;
+  --border:#30363d;--accent:#7c3aed;--accent2:#9f5ff8;--accent3:#c084fc;
+  --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+  --red:#f85149;--green:#3fb950;--yellow:#d29922;
+  --radius:8px;--radius2:12px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;font-size:13px}
+/* ─── TOP BAR ─── */
+#topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;z-index:10}
+#topbar h1{font-size:15px;font-weight:700;background:linear-gradient(135deg,#7c3aed,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:nowrap}
+.platform-btns{display:flex;gap:4px;flex-wrap:wrap}
+.platform-btn{padding:4px 9px;border-radius:5px;border:1px solid var(--border);background:var(--panel2);color:var(--text2);font-size:11px;cursor:pointer;transition:.15s;white-space:nowrap;font-family:inherit}
+.platform-btn:hover{border-color:var(--accent);color:var(--accent)}
+.platform-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.topbar-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+/* ─── MAIN LAYOUT ─── */
+#main{display:flex;flex:1;overflow:hidden}
+/* ─── SIDEBAR ─── */
+#sidebar{width:340px;min-width:320px;background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden;flex-shrink:0;display:flex;flex-direction:column}
+#sidebar::-webkit-scrollbar{width:5px}
+#sidebar::-webkit-scrollbar-track{background:transparent}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* ─── CANVAS AREA ─── */
+#canvas-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;overflow:auto;background:var(--bg);position:relative}
+/* ─── SECTION ─── */
+.section{border-bottom:1px solid var(--border)}
+.section-header{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;user-select:none;background:var(--panel2);position:sticky;top:0;z-index:1}
+.section-header:hover{background:var(--panel3)}
+.section-icon{font-size:14px;width:18px;text-align:center}
+.section-title{font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--text)}
+.section-arrow{margin-left:auto;transition:.2s;color:var(--text3);font-size:10px}
+.section-arrow.open{transform:rotate(90deg)}
+.section-body{padding:12px 14px;display:none;flex-direction:column;gap:10px}
+.section-body.open{display:flex}
+/* ─── FORM ELEMENTS ─── */
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;color:var(--text2);font-weight:500}
+.field-row{display:flex;gap:8px;align-items:center}
+input[type=text],input[type=number],textarea,select{
+  background:var(--panel3);border:1px solid var(--border);border-radius:var(--radius);
+  color:var(--text);padding:6px 9px;font-size:12px;font-family:inherit;
+  width:100%;outline:none;transition:.15s
+}
+input[type=text]:focus,input[type=number]:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:52px;line-height:1.5}
+select option{background:var(--panel2)}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:var(--border);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 0 2px rgba(124,58,237,.3)}
+input[type=color]{width:32px;height:28px;border:1px solid var(--border);border-radius:5px;cursor:pointer;background:none;padding:1px;flex-shrink:0}
+.range-row{display:flex;gap:8px;align-items:center}
+.range-row input[type=range]{flex:1}
+.range-val{font-size:11px;color:var(--text2);min-width:32px;text-align:right}
+/* ─── BUTTONS ─── */
+btn,.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--panel3);color:var(--text);font-size:12px;font-family:inherit;cursor:pointer;transition:.15s;white-space:nowrap}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2);border-color:var(--accent2);color:#fff}
+.btn-sm{padding:4px 8px;font-size:11px}
+.btn-danger{border-color:var(--red);color:var(--red)}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-full{width:100%;justify-content:center}
+/* ─── TABS ─── */
+.tabs{display:flex;gap:2px;background:var(--panel3);border-radius:var(--radius);padding:2px}
+.tab{flex:1;padding:5px 8px;text-align:center;cursor:pointer;border-radius:6px;font-size:11px;color:var(--text2);transition:.15s;user-select:none}
+.tab.active{background:var(--accent);color:#fff}
+.tab-content{display:none}
+.tab-content.active{display:flex;flex-direction:column;gap:10px}
+/* ─── GRADIENT PRESETS ─── */
+.gradient-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.grad-swatch{height:36px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:.15s}
+.grad-swatch:hover,.grad-swatch.active{border-color:#fff;transform:scale(1.05)}
+/* ─── SOLID SWATCHES ─── */
+.swatch-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
+.color-swatch{height:24px;border-radius:4px;cursor:pointer;border:2px solid transparent;transition:.15s}
+.color-swatch:hover,.color-swatch.active{border-color:#fff;transform:scale(1.08)}
+/* ─── PATTERN SWATCHES ─── */
+.pattern-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pattern-swatch{height:52px;border-radius:6px;cursor:pointer;border:2px solid var(--border);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text2);flex-direction:column;gap:3px;transition:.15s}
+.pattern-swatch:hover,.pattern-swatch.active{border-color:var(--accent)}
+.pattern-preview{width:100%;height:100%;position:absolute;inset:0;opacity:.6}
+.pattern-label{position:relative;z-index:1;font-size:9px;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+/* ─── TEXT LAYER CARD ─── */
+.text-layer-card{background:var(--panel3);border:1px solid var(--border);border-radius:var(--radius2);padding:10px;display:flex;flex-direction:column;gap:8px}
+.text-layer-header{display:flex;align-items:center;gap:8px}
+.text-layer-label{font-size:11px;font-weight:600;color:var(--accent3);flex:1}
+/* ─── TEMPLATES ─── */
+.template-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.template-card{border:1px solid var(--border);border-radius:var(--radius);padding:8px;cursor:pointer;transition:.15s;background:var(--panel3);position:relative;overflow:hidden}
+.template-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.template-thumb{width:100%;height:52px;border-radius:5px;margin-bottom:5px}
+.template-name{font-size:10px;font-weight:600;color:var(--text2)}
+/* ─── PREVIEW ─── */
+#preview-wrap{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px}
+#canvas-preview{border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.6);display:block;max-width:100%;cursor:pointer}
+#dim-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);color:#fff;font-size:10px;padding:3px 7px;border-radius:4px;font-weight:600;backdrop-filter:blur(4px)}
+#preview-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+/* ─── FULLSCREEN OVERLAY ─── */
+#fullscreen-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px)}
+#fullscreen-overlay.open{display:flex}
+#fullscreen-overlay canvas{max-width:95vw;max-height:90vh;border-radius:6px;box-shadow:0 0 60px rgba(124,58,237,.3)}
+#fullscreen-close{position:fixed;top:16px;right:16px;background:rgba(255,255,255,.1);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:.15s}
+#fullscreen-close:hover{background:rgba(255,255,255,.2)}
+/* ─── DIR PICKER ─── */
+.dir-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.dir-btn{padding:5px;border:1px solid var(--border);border-radius:5px;background:var(--panel3);color:var(--text2);cursor:pointer;font-size:14px;text-align:center;transition:.15s}
+.dir-btn:hover,.dir-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(124,58,237,.1)}
+/* ─── ALIGN BTNS ─── */
+.align-group{display:flex;gap:4px}
+.align-btn{flex:1;padding:5px;border:1px solid var(--border);border-radius:5px;background:var(--panel3);color:var(--text2);cursor:pointer;font-size:12px;text-align:center;transition:.15s}
+.align-btn:hover,.align-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(124,58,237,.1)}
+/* ─── WEIGHT BTNS ─── */
+.weight-select{display:flex;flex-wrap:wrap;gap:3px}
+.weight-btn{padding:3px 7px;border:1px solid var(--border);border-radius:4px;background:var(--panel3);color:var(--text2);cursor:pointer;font-size:10px;transition:.15s}
+.weight-btn:hover,.weight-btn.active{border-color:var(--accent);color:var(--accent)}
+/* ─── ADD BTN ─── */
+#add-text-btn{border:1px dashed var(--accent);color:var(--accent);background:rgba(124,58,237,.05)}
+#add-text-btn:hover{background:rgba(124,58,237,.15)}
+/* ─── MISC ─── */
+.separator{height:1px;background:var(--border);margin:2px 0}
+.hint{font-size:10px;color:var(--text3);line-height:1.4}
+.badge-row{display:flex;gap:6px;flex-wrap:wrap}
+.badge{padding:2px 7px;border-radius:12px;border:1px solid var(--border);font-size:10px;color:var(--text2)}
+#status-bar{position:fixed;bottom:0;left:0;right:0;height:22px;background:var(--panel);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:12px;font-size:10px;color:var(--text3);z-index:10}
+#status-msg{color:var(--green)}
+/* ─── RESPONSIVE ─── */
+@media(max-width:768px){
+  #main{flex-direction:column}
+  #sidebar{width:100%;min-width:0;max-height:50vh;border-right:none;border-bottom:1px solid var(--border)}
+  .platform-btns{display:none}
+}
+/* ─── SCROLLBAR MAIN ─── */
+#canvas-area::-webkit-scrollbar{width:6px;height:6px}
+#canvas-area::-webkit-scrollbar-track{background:transparent}
+#canvas-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.upload-zone{border:1px dashed var(--border);border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:.15s;color:var(--text3);font-size:11px}
+.upload-zone:hover{border-color:var(--accent);color:var(--accent)}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <h1>&#9654; Social Card Maker</h1>
+  <div class="platform-btns" id="platform-btns"></div>
+  <div class="topbar-right">
+    <span id="res-label" style="font-size:11px;color:var(--text3)">1200 × 630</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+
+  <!-- TEMPLATES -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-icon">&#9889;</span>
+      <span class="section-title">Templates</span>
+      <span class="section-arrow open">&#9654;</span>
+    </div>
+    <div class="section-body open">
+      <div class="template-grid" id="template-grid"></div>
+    </div>
+  </div>
+
+  <!-- BACKGROUND -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-icon">&#127912;</span>
+      <span class="section-title">Background</span>
+      <span class="section-arrow open">&#9654;</span>
+    </div>
+    <div class="section-body open">
+      <div class="tabs" id="bg-tabs">
+        <div class="tab active" onclick="switchBgTab('gradient',this)">Gradient</div>
+        <div class="tab" onclick="switchBgTab('solid',this)">Solid</div>
+        <div class="tab" onclick="switchBgTab('pattern',this)">Pattern</div>
+        <div class="tab" onclick="switchBgTab('image',this)">Image</div>
+      </div>
+
+      <!-- GRADIENT TAB -->
+      <div class="tab-content active" id="tab-gradient">
+        <div class="field"><label>Presets</label><div class="gradient-grid" id="gradient-grid"></div></div>
+        <div class="separator"></div>
+        <div class="field"><label>Custom Direction</label>
+          <div class="dir-grid" id="dir-grid">
+            <div class="dir-btn" data-deg="315" onclick="setGradDir(this)">&#8598;</div>
+            <div class="dir-btn active" data-deg="0" onclick="setGradDir(this)">&#8593;</div>
+            <div class="dir-btn" data-deg="45" onclick="setGradDir(this)">&#8599;</div>
+            <div class="dir-btn" data-deg="270" onclick="setGradDir(this)">&#8592;</div>
+            <div class="dir-btn" data-deg="360" style="font-size:10px;font-weight:700" onclick="setGradDir(this)">&#9711;</div>
+            <div class="dir-btn" data-deg="90" onclick="setGradDir(this)">&#8594;</div>
+            <div class="dir-btn" data-deg="225" onclick="setGradDir(this)">&#8601;</div>
+            <div class="dir-btn" data-deg="180" onclick="setGradDir(this)">&#8595;</div>
+            <div class="dir-btn" data-deg="135" onclick="setGradDir(this)">&#8600;</div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field" style="flex:1"><label>Color 1</label><input type="color" id="grad-c1" value="#7c3aed" oninput="onGradCustom()"></div>
+          <div class="field" style="flex:1"><label>Color 2</label><input type="color" id="grad-c2" value="#c084fc" oninput="onGradCustom()"></div>
+          <div class="field" style="flex:1"><label>Color 3</label><input type="color" id="grad-c3" value="#06b6d4" oninput="onGradCustom()"></div>
+        </div>
+        <div class="field">
+          <label>Use 3-Color Gradient</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="checkbox" id="grad-3color" onchange="onGradCustom()">
+            <span class="hint">Adds midpoint color</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOLID TAB -->
+      <div class="tab-content" id="tab-solid">
+        <div class="field"><label>Color</label><input type="color" id="solid-color" value="#1a1a2e" oninput="onSolidChange()"></div>
+        <div class="field"><label>Quick Swatches</label>
+          <div class="swatch-grid" id="solid-swatches"></div>
+        </div>
+      </div>
+
+      <!-- PATTERN TAB -->
+      <div class="tab-content" id="tab-pattern">
+        <div class="field"><label>Pattern Type</label>
+          <div class="pattern-grid" id="pattern-grid"></div>
+        </div>
+        <div class="field"><label>Pattern Base Color</label>
+          <div class="field-row"><input type="color" id="pattern-base" value="#0d1117" oninput="render()">
+          <input type="color" id="pattern-fg" value="#ffffff" oninput="render()"><span class="hint">Base &amp; Dot color</span></div>
+        </div>
+        <div class="field"><label>Pattern Scale</label>
+          <div class="range-row"><input type="range" id="pattern-scale" min="4" max="80" value="20" oninput="rval(this);render()"><span class="range-val" id="v-pattern-scale">20</span></div>
+        </div>
+        <div class="field"><label>Pattern Opacity</label>
+          <div class="range-row"><input type="range" id="pattern-opacity" min="0" max="100" value="60" oninput="rval(this);render()"><span class="range-val" id="v-pattern-opacity">60</span></div>
+        </div>
+      </div>
+
+      <!-- IMAGE TAB -->
+      <div class="tab-content" id="tab-image">
+        <div class="upload-zone" id="bg-upload-zone" onclick="document.getElementById('bg-img-input').click()">
+          <div style="font-size:24px;margin-bottom:4px">&#128444;</div>
+          Click to upload background image
+        </div>
+        <input type="file" id="bg-img-input" accept="image/*" style="display:none" onchange="loadBgImage(this)">
+        <div class="field"><label>Fit Mode</label>
+          <select id="bg-fit" onchange="render()">
+            <option value="cover">Cover (fill, crop)</option>
+            <option value="contain">Contain (fit, letterbox)</option>
+            <option value="stretch">Stretch</option>
+          </select>
+        </div>
+        <div class="field"><label>Image Opacity</label>
+          <div class="range-row"><input type="range" id="bg-img-opacity" min="0" max="100" value="100" oninput="rval(this);render()"><span class="range-val" id="v-bg-img-opacity">100</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-icon">&#9636;</span>
+      <span class="section-title">Overlay &amp; Border</span>
+      <span class="section-arrow">&#9654;</span>
+    </div>
+    <div class="section-body">
+      <div class="field"><label>Overlay Color</label>
+        <div class="field-row"><input type="color" id="overlay-color" value="#000000" oninput="render()">
+        <span class="hint">Darkens background image</span></div>
+      </div>
+      <div class="field"><label>Overlay Opacity <span class="range-val" id="v-overlay-op">0</span>%</label>
+        <div class="range-row"><input type="range" id="overlay-op" min="0" max="100" value="0" oninput="rval(this,'overlay-op');render()"></div>
+      </div>
+      <div class="separator"></div>
+      <div class="field"><label>Border Style</label>
+        <select id="border-style" onchange="render()">
+          <option value="none">None</option>
+          <option value="solid">Solid</option>
+          <option value="dashed">Dashed</option>
+          <option value="double">Double</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field" style="flex:1"><label>Border Width</label>
+          <div class="range-row"><input type="range" id="border-width" min="1" max="40" value="4" oninput="rval(this);render()"><span class="range-val" id="v-border-width">4</span></div>
+        </div>
+        <div class="field" style="flex:0 0 auto"><label>Color</label><input type="color" id="border-color" value="#7c3aed" oninput="render()"></div>
+      </div>
+      <div class="field"><label>Border Inset</label>
+        <div class="range-row"><input type="range" id="border-inset" min="0" max="60" value="8" oninput="rval(this);render()"><span class="range-val" id="v-border-inset">8</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEXT LAYERS -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-icon">&#84;</span>
+      <span class="section-title">Text Layers</span>
+      <span class="section-arrow open">&#9654;</span>
+    </div>
+    <div class="section-body open">
+      <div id="text-layers-list" style="display:flex;flex-direction:column;gap:8px"></div>
+      <button class="btn btn-full" id="add-text-btn" onclick="addTextLayer()">+ Add Text Layer</button>
+    </div>
+  </div>
+
+  <!-- DECORATIVE -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-icon">&#128247;</span>
+      <span class="section-title">Logo &amp; Decorative</span>
+      <span class="section-arrow">&#9654;</span>
+    </div>
+    <div class="section-body">
+      <div class="upload-zone" onclick="document.getElementById('logo-input').click()">
+        <div style="font-size:18px;margin-bottom:3px">&#128247;</div>
+        Upload Logo / Image
+      </div>
+      <input type="file" id="logo-input" accept="image/*" style="display:none" onchange="loadLogoImage(this)">
+      <div class="field"><label>Logo X Position (%)</label>
+        <div class="range-row"><input type="range" id="logo-x" min="0" max="100" value="10" oninput="rval(this);render()"><span class="range-val" id="v-logo-x">10</span></div>
+      </div>
+      <div class="field"><label>Logo Y Position (%)</label>
+        <div class="range-row"><input type="range" id="logo-y" min="0" max="100" value="10" oninput="rval(this);render()"><span class="range-val" id="v-logo-y">10</span></div>
+      </div>
+      <div class="field"><label>Logo Size (%)</label>
+        <div class="range-row"><input type="range" id="logo-size" min="2" max="80" value="15" oninput="rval(this);render()"><span class="range-val" id="v-logo-size">15</span></div>
+      </div>
+      <div class="separator"></div>
+      <div class="field"><label>Watermark / Footer Text</label>
+        <input type="text" id="watermark-text" placeholder="e.g. @yourbrand" oninput="render()">
+      </div>
+      <div class="field-row">
+        <div class="field" style="flex:1"><label>Watermark Color</label><input type="color" id="watermark-color" value="#ffffff" oninput="render()"></div>
+        <div class="field" style="flex:1"><label>Opacity</label>
+          <div class="range-row"><input type="range" id="watermark-op" min="0" max="100" value="50" oninput="rval(this);render()"><span class="range-val" id="v-watermark-op">50</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end sidebar -->
+
+<!-- CANVAS AREA -->
+<div id="canvas-area">
+  <div id="preview-wrap">
+    <canvas id="canvas-preview" title="Click to zoom" onclick="openFullscreen()"></canvas>
+    <div id="dim-badge">1200 × 630</div>
+  </div>
+  <div id="preview-btns">
+    <button class="btn" onclick="openFullscreen()">&#128269; Zoom Preview</button>
+    <button class="btn btn-primary" onclick="downloadPNG()">&#8659; Download PNG</button>
+    <button class="btn" onclick="copyToClipboard()">&#128203; Copy to Clipboard</button>
+  </div>
+  <p class="hint" style="text-align:center;max-width:400px">Click canvas to zoom. Export renders at full resolution.</p>
+</div>
+
+</div><!-- end main -->
+
+<!-- FULLSCREEN OVERLAY -->
+<div id="fullscreen-overlay" onclick="closeFullscreen()">
+  <button id="fullscreen-close" onclick="closeFullscreen()">&#10005;</button>
+  <canvas id="canvas-fullscreen"></canvas>
+</div>
+
+<!-- STATUS BAR -->
+<div id="status-bar">
+  <span>Social Card Maker</span>
+  <span id="status-msg"></span>
+  <span style="margin-left:auto">&#128197; 2026</span>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+const S = {
+  platform: 'facebook',
+  w: 1200, h: 630,
+  bgMode: 'gradient',
+  gradient: {
+    type: 'linear',
+    deg: 0,
+    c1: '#7c3aed', c2: '#c084fc', c3: '#06b6d4',
+    use3: false,
+    preset: null
+  },
+  solid: { color: '#1a1a2e' },
+  pattern: { type: 'dots', base: '#0d1117', fg: '#ffffff', scale: 20, opacity: 60 },
+  bgImage: null,
+  bgFit: 'cover',
+  bgImgOpacity: 100,
+  overlay: { color: '#000000', opacity: 0 },
+  border: { style: 'none', width: 4, color: '#7c3aed', inset: 8 },
+  textLayers: [],
+  logo: null,
+  logoX: 10, logoY: 10, logoSize: 15,
+  watermark: { text: '', color: '#ffffff', opacity: 50 }
+};
+
+let textIdCounter = 0;
+
+// ═══════════════════════════════════════════════════════════════
+//  PLATFORMS
+// ═══════════════════════════════════════════════════════════════
+const PLATFORMS = [
+  { id:'twitter',    label:'Twitter/X',      w:1200, h:675 },
+  { id:'linkedin',   label:'LinkedIn',        w:1200, h:627 },
+  { id:'facebook',   label:'Facebook OG',    w:1200, h:630 },
+  { id:'ig-square',  label:'Instagram ▪',    w:1080, h:1080 },
+  { id:'ig-story',   label:'IG Story',        w:1080, h:1920 },
+  { id:'youtube',    label:'YouTube',         w:1280, h:720 },
+  { id:'pinterest',  label:'Pinterest',       w:1000, h:1500 },
+];
+
+function initPlatformBtns() {
+  const el = document.getElementById('platform-btns');
+  PLATFORMS.forEach(p => {
+    const b = document.createElement('div');
+    b.className = 'platform-btn' + (p.id === S.platform ? ' active' : '');
+    b.textContent = p.label;
+    b.onclick = () => setPlatform(p.id);
+    el.appendChild(b);
+  });
+}
+
+function setPlatform(id) {
+  const p = PLATFORMS.find(x => x.id === id);
+  if (!p) return;
+  S.platform = id;
+  S.w = p.w; S.h = p.h;
+  document.querySelectorAll('.platform-btn').forEach((b,i) => b.classList.toggle('active', PLATFORMS[i].id === id));
+  document.getElementById('res-label').textContent = p.w + ' × ' + p.h;
+  document.getElementById('dim-badge').textContent = p.w + ' × ' + p.h;
+  resizePreviewCanvas();
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  GRADIENT PRESETS
+// ═══════════════════════════════════════════════════════════════
+const GRAD_PRESETS = [
+  { name:'Sunset',    stops:['#ff6b6b','#feca57'],      deg:135 },
+  { name:'Ocean',     stops:['#0077b6','#00b4d8'],      deg:135 },
+  { name:'Aurora',    stops:['#06d6a0','#118ab2','#073b4c'], deg:135 },
+  { name:'Midnight',  stops:['#0d1117','#161b22'],      deg:180 },
+  { name:'Fire',      stops:['#ff4d00','#ff9500'],      deg:135 },
+  { name:'Neon',      stops:['#7c3aed','#06b6d4'],      deg:135 },
+  { name:'Rose Gold', stops:['#c9a0dc','#ff6b9d'],      deg:135 },
+  { name:'Forest',    stops:['#1b4332','#52b788'],      deg:135 },
+  { name:'Steel',     stops:['#2d3436','#636e72'],      deg:135 },
+  { name:'Candy',     stops:['#fd79a8','#fdcb6e'],      deg:135 },
+  { name:'Deep Sea',  stops:['#023e8a','#48cae4'],      deg:135 },
+  { name:'Lava',      stops:['#d62828','#f77f00','#fcbf49'], deg:90 },
+  { name:'Sage',      stops:['#606c38','#dda15e'],      deg:135 },
+  { name:'Galaxy',    stops:['#10002b','#7b2d8b'],      deg:180 },
+  { name:'Citrus',    stops:['#f9c74f','#f3722c'],      deg:135 },
+  { name:'Teal',      stops:['#006d77','#83c5be'],      deg:135 },
+  { name:'Mauve',     stops:['#6a0572','#ab47bc'],      deg:135 },
+  { name:'Arctic',    stops:['#a8dadc','#457b9d'],      deg:135 },
+  { name:'Ember',     stops:['#3d0000','#900c3f'],      deg:180 },
+  { name:'Lime',      stops:['#80b918','#2dc653'],      deg:135 },
+  { name:'Sand',      stops:['#e9c46a','#f4a261','#e76f51'], deg:135 },
+  { name:'Abyss',     stops:['#0a0a0a','#1c1c3a'],      deg:180 },
+  { name:'Dawn',      stops:['#f8edeb','#f2b5d4'],      deg:135 },
+  { name:'Cobalt',    stops:['#023047','#219ebc'],      deg:135 },
+];
+
+function initGradientPresets() {
+  const grid = document.getElementById('gradient-grid');
+  GRAD_PRESETS.forEach((g, i) => {
+    const d = document.createElement('div');
+    d.className = 'grad-swatch';
+    const stops = g.stops.join(', ');
+    d.style.background = `linear-gradient(${g.deg}deg, ${stops})`;
+    d.title = g.name;
+    d.onclick = () => {
+      S.bgMode = 'gradient';
+      S.gradient.preset = i;
+      S.gradient.c1 = g.stops[0];
+      S.gradient.c2 = g.stops[g.stops.length-1];
+      if (g.stops[1] && g.stops.length > 2) { S.gradient.c3 = g.stops[1]; S.gradient.use3 = true; }
+      else S.gradient.use3 = false;
+      S.gradient.deg = g.deg;
+      document.getElementById('grad-c1').value = g.stops[0];
+      document.getElementById('grad-c2').value = g.stops[g.stops.length-1];
+      document.getElementById('grad-3color').checked = S.gradient.use3;
+      switchBgTab('gradient', document.querySelector('#bg-tabs .tab'));
+      document.querySelectorAll('.grad-swatch').forEach((s,j) => s.classList.toggle('active', j===i));
+      render();
+    };
+    grid.appendChild(d);
+  });
+}
+
+function setGradDir(btn) {
+  document.querySelectorAll('.dir-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  S.gradient.deg = parseInt(btn.dataset.deg);
+  S.gradient.preset = null;
+  onGradCustom();
+}
+
+function onGradCustom() {
+  S.gradient.c1 = document.getElementById('grad-c1').value;
+  S.gradient.c2 = document.getElementById('grad-c2').value;
+  S.gradient.c3 = document.getElementById('grad-c3').value;
+  S.gradient.use3 = document.getElementById('grad-3color').checked;
+  S.gradient.preset = null;
+  document.querySelectorAll('.grad-swatch').forEach(s => s.classList.remove('active'));
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SOLID SWATCHES
+// ═══════════════════════════════════════════════════════════════
+const SOLID_SWATCHES = [
+  '#0d1117','#161b22','#1a1a2e','#16213e','#0f3460',
+  '#ffffff','#f8f9fa','#e9ecef','#dee2e6','#adb5bd',
+  '#c9184a','#ff6b6b','#f9c74f','#43aa8b','#264653',
+  '#7c3aed'
+];
+
+function initSolidSwatches() {
+  const grid = document.getElementById('solid-swatches');
+  SOLID_SWATCHES.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'color-swatch';
+    d.style.background = c;
+    d.title = c;
+    d.onclick = () => {
+      S.solid.color = c;
+      document.getElementById('solid-color').value = c;
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+      d.classList.add('active');
+      render();
+    };
+    grid.appendChild(d);
+  });
+}
+
+function onSolidChange() {
+  S.solid.color = document.getElementById('solid-color').value;
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PATTERNS
+// ═══════════════════════════════════════════════════════════════
+const PATTERNS = [
+  { id:'dots',      label:'Dots' },
+  { id:'grid',      label:'Grid' },
+  { id:'lines',     label:'Lines' },
+  { id:'crosshatch',label:'Crosshatch' },
+  { id:'hexagons',  label:'Hexagons' },
+  { id:'triangles', label:'Triangles' },
+  { id:'waves',     label:'Waves' },
+  { id:'diamonds',  label:'Diamonds' },
+  { id:'circles',   label:'Circles' },
+];
+
+function initPatternGrid() {
+  const grid = document.getElementById('pattern-grid');
+  PATTERNS.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'pattern-swatch' + (p.id === S.pattern.type ? ' active' : '');
+    d.innerHTML = `<canvas class="pattern-preview" id="pat-prev-${p.id}"></canvas><span class="pattern-label">${p.label}</span>`;
+    d.onclick = () => {
+      S.pattern.type = p.id;
+      document.querySelectorAll('.pattern-swatch').forEach(s => s.classList.remove('active'));
+      d.classList.add('active');
+      render();
+    };
+    grid.appendChild(d);
+    drawPatternPreview(p.id);
+  });
+}
+
+function drawPatternPreview(id) {
+  const cv = document.getElementById('pat-prev-' + id);
+  if (!cv) return;
+  cv.width = cv.offsetWidth || 80;
+  cv.height = cv.offsetHeight || 52;
+  const ctx = cv.getContext('2d');
+  drawPattern(ctx, cv.width, cv.height, id, '#0d1117', '#ffffff', 14, 80);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DRAW PATTERN (canvas)
+// ═══════════════════════════════════════════════════════════════
+function drawPattern(ctx, w, h, type, base, fg, scale, opPct) {
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, w, h);
+  ctx.save();
+  ctx.globalAlpha = opPct / 100;
+  ctx.strokeStyle = fg;
+  ctx.fillStyle = fg;
+  const s = scale;
+  switch (type) {
+    case 'dots':
+      for (let x = s/2; x < w; x += s)
+        for (let y = s/2; y < h; y += s) {
+          ctx.beginPath(); ctx.arc(x, y, s*0.18, 0, Math.PI*2); ctx.fill();
+        }
+      break;
+    case 'grid':
+      ctx.lineWidth = 0.5;
+      for (let x = 0; x < w; x += s) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+      for (let y = 0; y < h; y += s) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+      break;
+    case 'lines':
+      ctx.lineWidth = 0.8;
+      for (let y = 0; y < h; y += s) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+      break;
+    case 'crosshatch':
+      ctx.lineWidth = 0.5;
+      for (let i = -h; i < w; i += s) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i+h,h); ctx.stroke(); }
+      for (let i = 0; i < w+h; i += s) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i-h,h); ctx.stroke(); }
+      break;
+    case 'hexagons': {
+      ctx.lineWidth = 0.8;
+      const hex = s;
+      const hh = hex * Math.sqrt(3) / 2;
+      for (let row = -1; row < h/hh+2; row++) {
+        for (let col = -1; col < w/hex*2+2; col++) {
+          const cx = col * hex * 1.5 + (row%2 ? hex*0.75 : 0);
+          const cy = row * hh;
+          ctx.beginPath();
+          for (let a = 0; a < 6; a++) {
+            const angle = Math.PI/180*(60*a-30);
+            const px = cx + hex*0.5*Math.cos(angle), py = cy + hex*0.5*Math.sin(angle);
+            a===0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+          }
+          ctx.closePath(); ctx.stroke();
+        }
+      }
+      break;
+    }
+    case 'triangles':
+      ctx.lineWidth = 0.6;
+      for (let row = 0; row < h/s+2; row++) {
+        for (let col = -1; col < w/s+2; col++) {
+          const x = col * s, y = row * s;
+          ctx.beginPath(); ctx.moveTo(x, y+s); ctx.lineTo(x+s/2, y); ctx.lineTo(x+s, y+s); ctx.closePath(); ctx.stroke();
+        }
+      }
+      break;
+    case 'waves':
+      ctx.lineWidth = 1;
+      for (let y = s; y < h; y += s) {
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 4) {
+          const wy = y + Math.sin(x / (s*0.8) * Math.PI) * (s*0.3);
+          x===0 ? ctx.moveTo(x,wy) : ctx.lineTo(x,wy);
+        }
+        ctx.stroke();
+      }
+      break;
+    case 'diamonds':
+      ctx.lineWidth = 0.6;
+      for (let row = -1; row < h/s+2; row++) {
+        for (let col = -1; col < w/s+2; col++) {
+          const cx = col*s + (row%2?s/2:0), cy = row*s;
+          ctx.beginPath(); ctx.moveTo(cx,cy-s/2); ctx.lineTo(cx+s/2,cy); ctx.lineTo(cx,cy+s/2); ctx.lineTo(cx-s/2,cy); ctx.closePath(); ctx.stroke();
+        }
+      }
+      break;
+    case 'circles':
+      ctx.lineWidth = 0.7;
+      for (let x = s; x < w+s; x += s)
+        for (let y = s; y < h+s; y += s) {
+          ctx.beginPath(); ctx.arc(x,y,s*0.42,0,Math.PI*2); ctx.stroke();
+        }
+      break;
+  }
+  ctx.restore();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  BG TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════
+function switchBgTab(name, el) {
+  S.bgMode = name;
+  document.querySelectorAll('#bg-tabs .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  const tabs = document.querySelectorAll('#bg-tabs .tab');
+  const names = ['gradient','solid','pattern','image'];
+  tabs[names.indexOf(name)].classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  IMAGE UPLOAD
+// ═══════════════════════════════════════════════════════════════
+function loadBgImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => { S.bgImage = img; render(); };
+    img.src = e.target.result;
+    document.getElementById('bg-upload-zone').innerHTML = `<div style="font-size:18px;margin-bottom:3px">&#10003;</div>${file.name}`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function loadLogoImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => { S.logo = img; render(); };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TEXT LAYERS
+// ═══════════════════════════════════════════════════════════════
+const FONTS = [
+  'Inter','Playfair Display','Roboto','Oswald','Montserrat',
+  'Georgia','Courier New','Impact','Arial','Times New Roman',
+  'Trebuchet MS','Verdana'
+];
+
+function defaultTextLayer(overrides) {
+  return Object.assign({
+    id: ++textIdCounter,
+    text: 'Your Text Here',
+    font: 'Inter',
+    size: 60,
+    weight: 700,
+    color: '#ffffff',
+    alpha: 100,
+    align: 'center',
+    letterSpacing: 0,
+    lineHeight: 1.2,
+    shadow: false,
+    shadowBlur: 10,
+    shadowOffX: 2,
+    shadowOffY: 4,
+    shadowColor: '#000000',
+    x: 50,
+    y: 50,
+  }, overrides || {});
+}
+
+function addTextLayer(opts) {
+  if (S.textLayers.length >= 5) { setStatus('Max 5 text layers reached'); return; }
+  const layer = defaultTextLayer(opts);
+  S.textLayers.push(layer);
+  renderTextLayerUI(layer);
+  render();
+}
+
+function removeTextLayer(id) {
+  S.textLayers = S.textLayers.filter(l => l.id !== id);
+  const el = document.getElementById('tl-' + id);
+  if (el) el.remove();
+  render();
+}
+
+function renderTextLayerUI(layer) {
+  const list = document.getElementById('text-layers-list');
+  const card = document.createElement('div');
+  card.className = 'text-layer-card';
+  card.id = 'tl-' + layer.id;
+
+  const fontOpts = FONTS.map(f => `<option value="${f}" ${f===layer.font?'selected':''}>${f}</option>`).join('');
+  const weightOpts = [100,200,300,400,500,600,700,800,900].map(w =>
+    `<button class="weight-btn${w===layer.weight?' active':''}" onclick="setLayerWeight(${layer.id},${w},this)">${w}</button>`
+  ).join('');
+
+  card.innerHTML = `
+    <div class="text-layer-header">
+      <span class="text-layer-label">&#84; Layer ${layer.id}</span>
+      <button class="btn btn-sm btn-danger" onclick="removeTextLayer(${layer.id})">&#128465; Remove</button>
+    </div>
+    <div class="field"><label>Content</label>
+      <textarea id="tl-text-${layer.id}" oninput="updateLayer(${layer.id},'text',this.value)">${layer.text}</textarea>
+    </div>
+    <div class="field-row">
+      <div class="field" style="flex:2"><label>Font Family</label>
+        <select id="tl-font-${layer.id}" onchange="updateLayer(${layer.id},'font',this.value)">${fontOpts}</select>
+      </div>
+      <div class="field" style="flex:1"><label>Color</label>
+        <input type="color" id="tl-color-${layer.id}" value="${layer.color}" oninput="updateLayer(${layer.id},'color',this.value)">
+      </div>
+    </div>
+    <div class="field"><label>Font Size: <span id="tl-size-v-${layer.id}">${layer.size}</span>px</label>
+      <input type="range" min="12" max="200" value="${layer.size}" oninput="updateLayerNum(${layer.id},'size',this,'tl-size-v-${layer.id}')">
+    </div>
+    <div class="field"><label>Font Weight</label><div class="weight-select" id="tl-weight-${layer.id}">${weightOpts}</div></div>
+    <div class="field"><label>Opacity: <span id="tl-alpha-v-${layer.id}">${layer.alpha}</span>%</label>
+      <input type="range" min="0" max="100" value="${layer.alpha}" oninput="updateLayerNum(${layer.id},'alpha',this,'tl-alpha-v-${layer.id}')">
+    </div>
+    <div class="field"><label>Alignment</label>
+      <div class="align-group">
+        <button class="align-btn${layer.align==='left'?' active':''}" onclick="setLayerAlign(${layer.id},'left',this)">&#8676; Left</button>
+        <button class="align-btn${layer.align==='center'?' active':''}" onclick="setLayerAlign(${layer.id},'center',this)">&#8596; Center</button>
+        <button class="align-btn${layer.align==='right'?' active':''}" onclick="setLayerAlign(${layer.id},'right',this)">&#8677; Right</button>
+      </div>
+    </div>
+    <div class="field"><label>Letter Spacing: <span id="tl-ls-v-${layer.id}">${layer.letterSpacing}</span>px</label>
+      <input type="range" min="-5" max="40" value="${layer.letterSpacing}" oninput="updateLayerNum(${layer.id},'letterSpacing',this,'tl-ls-v-${layer.id}')">
+    </div>
+    <div class="field"><label>Line Height: <span id="tl-lh-v-${layer.id}">${layer.lineHeight}</span></label>
+      <input type="range" min="0.7" max="3" step="0.05" value="${layer.lineHeight}" oninput="updateLayerNum(${layer.id},'lineHeight',this,'tl-lh-v-${layer.id}')">
+    </div>
+    <div class="field-row">
+      <div class="field" style="flex:1"><label>X Position: <span id="tl-x-v-${layer.id}">${layer.x}</span>%</label>
+        <input type="range" min="0" max="100" value="${layer.x}" oninput="updateLayerNum(${layer.id},'x',this,'tl-x-v-${layer.id}')">
+      </div>
+      <div class="field" style="flex:1"><label>Y Position: <span id="tl-y-v-${layer.id}">${layer.y}</span>%</label>
+        <input type="range" min="0" max="100" value="${layer.y}" oninput="updateLayerNum(${layer.id},'y',this,'tl-y-v-${layer.id}')">
+      </div>
+    </div>
+    <div class="field">
+      <div style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="tl-shadow-${layer.id}" ${layer.shadow?'checked':''} onchange="updateLayer(${layer.id},'shadow',this.checked)">
+        <label for="tl-shadow-${layer.id}" style="font-size:11px;color:var(--text2);cursor:pointer">Text Shadow</label>
+      </div>
+    </div>
+    <div id="tl-shadow-opts-${layer.id}" style="${layer.shadow?'':'display:none'}">
+      <div class="field-row">
+        <div class="field" style="flex:1"><label>Blur: <span id="tl-sb-v-${layer.id}">${layer.shadowBlur}</span></label>
+          <input type="range" min="0" max="50" value="${layer.shadowBlur}" oninput="updateLayerNum(${layer.id},'shadowBlur',this,'tl-sb-v-${layer.id}')">
+        </div>
+        <div class="field" style="flex:0 0 auto"><label>Color</label>
+          <input type="color" value="${layer.shadowColor}" oninput="updateLayer(${layer.id},'shadowColor',this.value)">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field" style="flex:1"><label>Offset X: <span id="tl-sox-v-${layer.id}">${layer.shadowOffX}</span></label>
+          <input type="range" min="-30" max="30" value="${layer.shadowOffX}" oninput="updateLayerNum(${layer.id},'shadowOffX',this,'tl-sox-v-${layer.id}')">
+        </div>
+        <div class="field" style="flex:1"><label>Offset Y: <span id="tl-soy-v-${layer.id}">${layer.shadowOffY}</span></label>
+          <input type="range" min="-30" max="30" value="${layer.shadowOffY}" oninput="updateLayerNum(${layer.id},'shadowOffY',this,'tl-soy-v-${layer.id}')">
+        </div>
+      </div>
+    </div>`;
+  list.appendChild(card);
+}
+
+function updateLayer(id, key, val) {
+  const layer = S.textLayers.find(l => l.id === id);
+  if (!layer) return;
+  layer[key] = val;
+  if (key === 'shadow') {
+    const opts = document.getElementById('tl-shadow-opts-' + id);
+    if (opts) opts.style.display = val ? '' : 'none';
+  }
+  render();
+}
+
+function updateLayerNum(id, key, input, valId) {
+  const v = parseFloat(input.value);
+  const el = document.getElementById(valId);
+  if (el) el.textContent = v;
+  updateLayer(id, key, v);
+}
+
+function setLayerWeight(id, w, btn) {
+  const container = document.getElementById('tl-weight-' + id);
+  if (container) container.querySelectorAll('.weight-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateLayer(id, 'weight', w);
+}
+
+function setLayerAlign(id, align, btn) {
+  const card = document.getElementById('tl-' + id);
+  if (card) card.querySelectorAll('.align-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateLayer(id, 'align', align);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TEMPLATES
+// ═══════════════════════════════════════════════════════════════
+const TEMPLATES = [
+  {
+    name: 'Dev Blog',
+    thumb: ['#0d1117','#7c3aed'],
+    setup() {
+      setPlatform('twitter');
+      S.bgMode = 'gradient';
+      S.gradient = { type:'linear', deg:135, c1:'#0d1117', c2:'#1c1c3a', c3:'#7c3aed', use3:true, preset:null };
+      S.border = { style:'solid', width:3, color:'#7c3aed', inset:12 };
+      S.overlay = { color:'#000000', opacity:0 };
+      S.textLayers = [];
+      document.getElementById('text-layers-list').innerHTML = '';
+      textIdCounter = 0;
+      addTextLayer({ text:'Building the Future\nOne Commit at a Time', font:'Inter', size:72, weight:800, color:'#ffffff', alpha:100, align:'center', x:50, y:38, shadow:true, shadowBlur:20, shadowColor:'#7c3aed', shadowOffX:0, shadowOffY:0, letterSpacing:-1, lineHeight:1.1 });
+      addTextLayer({ text:'Full-Stack Development &bull; Open Source &bull; DevOps', font:'Inter', size:22, weight:400, color:'#c084fc', alpha:90, align:'center', x:50, y:72, letterSpacing:2, lineHeight:1.3 });
+      addTextLayer({ text:'dev.to/@username', font:'Courier New', size:18, weight:400, color:'#8b949e', alpha:80, align:'center', x:50, y:87 });
+      S.watermark = { text:'', color:'#ffffff', opacity:0 };
+    }
+  },
+  {
+    name: 'Product Launch',
+    thumb: ['#f9c74f','#f3722c'],
+    setup() {
+      setPlatform('facebook');
+      S.bgMode = 'gradient';
+      S.gradient = { type:'linear', deg:135, c1:'#f9c74f', c2:'#f3722c', c3:'#f77f00', use3:true, preset:null };
+      S.border = { style:'none', width:4, color:'#ffffff', inset:0 };
+      S.overlay = { color:'#000000', opacity:20 };
+      S.textLayers = [];
+      document.getElementById('text-layers-list').innerHTML = '';
+      textIdCounter = 0;
+      addTextLayer({ text:'&#127775; INTRODUCING', font:'Montserrat', size:24, weight:700, color:'#fff', alpha:90, align:'center', x:50, y:28, letterSpacing:6 });
+      addTextLayer({ text:'ProductName Pro', font:'Montserrat', size:90, weight:900, color:'#ffffff', alpha:100, align:'center', x:50, y:50, letterSpacing:-2, lineHeight:1.0, shadow:true, shadowBlur:30, shadowColor:'rgba(0,0,0,0.4)', shadowOffX:0, shadowOffY:4 });
+      addTextLayer({ text:'The tool that changes everything.', font:'Inter', size:26, weight:400, color:'#fff3', alpha:95, align:'center', x:50, y:73, letterSpacing:1 });
+      S.watermark = { text:'producthunt.com/posts/productname', color:'#fff', opacity:60 };
+    }
+  },
+  {
+    name: 'Quote Card',
+    thumb: ['#1a1a2e','#16213e'],
+    setup() {
+      setPlatform('ig-square');
+      S.bgMode = 'solid';
+      S.solid.color = '#1a1a2e';
+      S.border = { style:'solid', width:2, color:'#c9a0dc', inset:20 };
+      S.overlay = { color:'#000000', opacity:0 };
+      S.textLayers = [];
+      document.getElementById('text-layers-list').innerHTML = '';
+      textIdCounter = 0;
+      addTextLayer({ text:'"The best way to predict the future is to create it."', font:'Playfair Display', size:62, weight:400, color:'#f8f9fa', alpha:100, align:'center', x:50, y:44, lineHeight:1.4, shadow:false, letterSpacing:0 });
+      addTextLayer({ text:'— Peter Drucker', font:'Playfair Display', size:28, weight:400, color:'#c9a0dc', alpha:90, align:'center', x:50, y:78, letterSpacing:2 });
+      S.watermark = { text:'@quotesforbuilders', color:'#ffffff', opacity:40 };
+    }
+  },
+  {
+    name: 'Tutorial Thumb',
+    thumb: ['#0a0a0a','#1c1c1c'],
+    setup() {
+      setPlatform('youtube');
+      S.bgMode = 'gradient';
+      S.gradient = { type:'linear', deg:135, c1:'#0a0a0a', c2:'#1a1a2e', c3:'#0d1117', use3:false, preset:null };
+      S.border = { style:'solid', width:6, color:'#ff4d00', inset:0 };
+      S.overlay = { color:'#000000', opacity:10 };
+      S.textLayers = [];
+      document.getElementById('text-layers-list').innerHTML = '';
+      textIdCounter = 0;
+      addTextLayer({ text:'&#9312;', font:'Impact', size:100, weight:900, color:'#ff4d00', alpha:100, align:'left', x:8, y:28, shadow:true, shadowBlur:20, shadowColor:'#ff4d00', shadowOffX:0, shadowOffY:0 });
+      addTextLayer({ text:'Build This App\nIn 10 Minutes', font:'Impact', size:95, weight:900, color:'#ffffff', alpha:100, align:'left', x:18, y:55, lineHeight:1.05, shadow:true, shadowBlur:8, shadowColor:'#000', shadowOffX:3, shadowOffY:3, letterSpacing:1 });
+      addTextLayer({ text:'React + TypeScript + Tailwind CSS', font:'Inter', size:28, weight:600, color:'#8b949e', alpha:90, align:'left', x:18, y:87, letterSpacing:1 });
+      S.watermark = { text:'', color:'#ffffff', opacity:0 };
+    }
+  },
+  {
+    name: 'Minimal Pro',
+    thumb: ['#f8f9fa','#e9ecef'],
+    setup() {
+      setPlatform('linkedin');
+      S.bgMode = 'solid';
+      S.solid.color = '#f8f9fa';
+      S.border = { style:'none', width:4, color:'#dee2e6', inset:0 };
+      S.overlay = { color:'#000000', opacity:0 };
+      S.textLayers = [];
+      document.getElementById('text-layers-list').innerHTML = '';
+      textIdCounter = 0;
+      addTextLayer({ text:'ACME CORPORATION', font:'Montserrat', size:22, weight:700, color:'#7c3aed', alpha:100, align:'left', x:6, y:22, letterSpacing:5 });
+      addTextLayer({ text:'Annual Report\n2026', font:'Playfair Display', size:88, weight:700, color:'#0d1117', alpha:100, align:'left', x:6, y:56, lineHeight:1.05, letterSpacing:-1 });
+      addTextLayer({ text:'Insight, Growth &amp; Innovation', font:'Inter', size:22, weight:300, color:'#6e7681', alpha:100, align:'left', x:6, y:86, letterSpacing:2 });
+      S.watermark = { text:'acme.com', color:'#0d1117', opacity:30 };
+    }
+  },
+  {
+    name: 'Neon Night',
+    thumb: ['#0a0a0a','#7c3aed'],
+    setup() {
+      setPlatform('twitter');
+      S.bgMode = 'solid';
+      S.solid.color = '#050505';
+      S.border = { style:'solid', width:2, color:'#7c3aed', inset:0 };
+      S.overlay = { color:'#000000', opacity:0 };
+      S.textLayers = [];
+      document.getElementById('text-layers-list').innerHTML = '';
+      textIdCounter = 0;
+      addTextLayer({ text:'CYBER', font:'Oswald', size:130, weight:700, color:'#7c3aed', alpha:100, align:'center', x:50, y:42, letterSpacing:20, shadow:true, shadowBlur:40, shadowColor:'#7c3aed', shadowOffX:0, shadowOffY:0 });
+      addTextLayer({ text:'PUNK 2077', font:'Oswald', size:56, weight:300, color:'#06b6d4', alpha:90, align:'center', x:50, y:68, letterSpacing:12, shadow:true, shadowBlur:25, shadowColor:'#06b6d4', shadowOffX:0, shadowOffY:0 });
+      addTextLayer({ text:'&#x2022; DIGITAL DREAMS AWAIT &#x2022;', font:'Inter', size:14, weight:400, color:'#c084fc', alpha:70, align:'center', x:50, y:87, letterSpacing:6 });
+      S.watermark = { text:'', color:'#ffffff', opacity:0 };
+    }
+  },
+  {
+    name: 'Nature / Calm',
+    thumb: ['#606c38','#dda15e'],
+    setup() {
+      setPlatform('ig-square');
+      S.bgMode = 'gradient';
+      S.gradient = { type:'linear', deg:135, c1:'#606c38', c2:'#dda15e', c3:'#fefae0', use3:true, preset:null };
+      S.border = { style:'none', width:4, color:'#dda15e', inset:0 };
+      S.overlay = { color:'#000000', opacity:15 };
+      S.textLayers = [];
+      document.getElementById('text-layers-list').innerHTML = '';
+      textIdCounter = 0;
+      addTextLayer({ text:'Find Your\nPeace', font:'Playfair Display', size:100, weight:700, color:'#fefae0', alpha:100, align:'center', x:50, y:44, lineHeight:1.15, shadow:true, shadowBlur:12, shadowColor:'rgba(0,0,0,0.3)', shadowOffX:0, shadowOffY:3 });
+      addTextLayer({ text:'&#127807; Slow down. Breathe. Be here now.', font:'Georgia', size:24, weight:400, color:'#fefae0', alpha:85, align:'center', x:50, y:78, letterSpacing:1 });
+      S.watermark = { text:'@mindfulmoments', color:'#fefae0', opacity:50 };
+    }
+  },
+  {
+    name: 'Breaking News',
+    thumb: ['#0d1117','#f85149'],
+    setup() {
+      setPlatform('twitter');
+      S.bgMode = 'solid';
+      S.solid.color = '#0d1117';
+      S.border = { style:'none', width:4, color:'#f85149', inset:0 };
+      S.overlay = { color:'#000000', opacity:0 };
+      S.textLayers = [];
+      document.getElementById('text-layers-list').innerHTML = '';
+      textIdCounter = 0;
+      addTextLayer({ text:'BREAKING NEWS', font:'Oswald', size:38, weight:700, color:'#ffffff', alpha:100, align:'left', x:4, y:20, letterSpacing:4, shadow:false });
+      addTextLayer({ text:'Major Tech Breakthrough\nChanges Everything', font:'Inter', size:78, weight:800, color:'#ffffff', alpha:100, align:'left', x:4, y:52, lineHeight:1.1, shadow:false, letterSpacing:-1 });
+      addTextLayer({ text:'SOURCE: Reuters &nbsp;&#8226;&nbsp; February 21, 2026', font:'Inter', size:20, weight:400, color:'#8b949e', alpha:90, align:'left', x:4, y:84, letterSpacing:1 });
+      S.watermark = { text:'', color:'#ffffff', opacity:0 };
+    }
+  },
+];
+
+function initTemplates() {
+  const grid = document.getElementById('template-grid');
+  TEMPLATES.forEach((t, i) => {
+    const card = document.createElement('div');
+    card.className = 'template-card';
+    const thumb = document.createElement('canvas');
+    thumb.className = 'template-thumb';
+    thumb.width = 200; thumb.height = 105;
+    const ctx = thumb.getContext('2d');
+    const grd = ctx.createLinearGradient(0,0,200,105);
+    grd.addColorStop(0, t.thumb[0]);
+    grd.addColorStop(1, t.thumb[1]);
+    ctx.fillStyle = grd;
+    ctx.fillRect(0,0,200,105);
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.font = 'bold 11px Inter';
+    ctx.textAlign = 'center';
+    ctx.fillText(t.name, 100, 58);
+    card.appendChild(thumb);
+    const label = document.createElement('div');
+    label.className = 'template-name';
+    label.textContent = t.name;
+    card.appendChild(label);
+    card.onclick = () => {
+      t.setup();
+      syncAllControls();
+      render();
+      setStatus('Template "' + t.name + '" loaded');
+    };
+    grid.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SYNC CONTROLS (after template load)
+// ═══════════════════════════════════════════════════════════════
+function syncAllControls() {
+  // bg mode
+  switchBgTab(S.bgMode, null);
+  // gradient
+  document.getElementById('grad-c1').value = S.gradient.c1;
+  document.getElementById('grad-c2').value = S.gradient.c2;
+  document.getElementById('grad-c3').value = S.gradient.c3;
+  document.getElementById('grad-3color').checked = S.gradient.use3;
+  // solid
+  document.getElementById('solid-color').value = S.solid.color;
+  // overlay
+  document.getElementById('overlay-color').value = S.overlay.color;
+  document.getElementById('overlay-op').value = S.overlay.opacity;
+  document.getElementById('v-overlay-op').textContent = S.overlay.opacity;
+  // border
+  document.getElementById('border-style').value = S.border.style;
+  document.getElementById('border-width').value = S.border.width;
+  document.getElementById('v-border-width').textContent = S.border.width;
+  document.getElementById('border-color').value = S.border.color;
+  document.getElementById('border-inset').value = S.border.inset;
+  document.getElementById('v-border-inset').textContent = S.border.inset;
+  // watermark
+  document.getElementById('watermark-text').value = S.watermark.text;
+  document.getElementById('watermark-color').value = S.watermark.color;
+  document.getElementById('watermark-op').value = S.watermark.opacity;
+  document.getElementById('v-watermark-op').textContent = S.watermark.opacity;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CANVAS RENDERING
+// ═══════════════════════════════════════════════════════════════
+let previewScale = 1;
+
+function resizePreviewCanvas() {
+  const area = document.getElementById('canvas-area');
+  const maxW = area.clientWidth - 40;
+  const maxH = area.clientHeight - 120;
+  const scaleW = maxW / S.w;
+  const scaleH = maxH / S.h;
+  previewScale = Math.min(scaleW, scaleH, 1);
+  const cv = document.getElementById('canvas-preview');
+  cv.width = Math.round(S.w * previewScale);
+  cv.height = Math.round(S.h * previewScale);
+}
+
+function drawCardToCtx(ctx, w, h) {
+  ctx.clearRect(0, 0, w, h);
+
+  // 1. BACKGROUND
+  if (S.bgMode === 'gradient') {
+    const g = S.gradient;
+    let grad;
+    if (g.deg === 360) {
+      // radial
+      const cx = w/2, cy = h/2, r = Math.max(w,h)*0.7;
+      grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    } else {
+      const rad = (g.deg - 90) * Math.PI / 180;
+      const len = Math.sqrt(w*w + h*h) / 2;
+      grad = ctx.createLinearGradient(
+        w/2 - Math.cos(rad)*len, h/2 - Math.sin(rad)*len,
+        w/2 + Math.cos(rad)*len, h/2 + Math.sin(rad)*len
+      );
+    }
+    grad.addColorStop(0, g.c1);
+    if (g.use3) { grad.addColorStop(0.5, g.c3); }
+    grad.addColorStop(1, g.c2);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+  } else if (S.bgMode === 'solid') {
+    ctx.fillStyle = S.solid.color;
+    ctx.fillRect(0, 0, w, h);
+
+  } else if (S.bgMode === 'pattern') {
+    const p = S.pattern;
+    drawPattern(ctx, w, h, p.type, p.base,
+      document.getElementById('pattern-fg').value,
+      parseInt(document.getElementById('pattern-scale').value),
+      parseInt(document.getElementById('pattern-opacity').value)
+    );
+
+  } else if (S.bgMode === 'image') {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, w, h);
+    if (S.bgImage) {
+      const fit = document.getElementById('bg-fit').value;
+      ctx.save();
+      ctx.globalAlpha = parseInt(document.getElementById('bg-img-opacity').value) / 100;
+      if (fit === 'cover') {
+        const scale = Math.max(w / S.bgImage.width, h / S.bgImage.height);
+        const sw = S.bgImage.width * scale, sh = S.bgImage.height * scale;
+        ctx.drawImage(S.bgImage, (w-sw)/2, (h-sh)/2, sw, sh);
+      } else if (fit === 'contain') {
+        const scale = Math.min(w / S.bgImage.width, h / S.bgImage.height);
+        const sw = S.bgImage.width * scale, sh = S.bgImage.height * scale;
+        ctx.drawImage(S.bgImage, (w-sw)/2, (h-sh)/2, sw, sh);
+      } else {
+        ctx.drawImage(S.bgImage, 0, 0, w, h);
+      }
+      ctx.restore();
+    }
+  }
+
+  // 2. OVERLAY
+  const ovOp = parseInt(document.getElementById('overlay-op').value);
+  if (ovOp > 0) {
+    ctx.save();
+    ctx.globalAlpha = ovOp / 100;
+    ctx.fillStyle = document.getElementById('overlay-color').value;
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+  }
+
+  // 3. LOGO
+  if (S.logo) {
+    const lx = S.logoX / 100 * w;
+    const ly = S.logoY / 100 * h;
+    const lsize = S.logoSize / 100 * Math.min(w, h);
+    const aspect = S.logo.width / S.logo.height;
+    const lw = lsize * aspect, lh = lsize;
+    ctx.drawImage(S.logo, lx - lw/2, ly - lh/2, lw, lh);
+  }
+
+  // 4. TEXT LAYERS
+  S.textLayers.forEach(layer => {
+    ctx.save();
+    ctx.globalAlpha = layer.alpha / 100;
+    if (layer.shadow) {
+      ctx.shadowBlur = layer.shadowBlur;
+      ctx.shadowColor = layer.shadowColor;
+      ctx.shadowOffsetX = layer.shadowOffX;
+      ctx.shadowOffsetY = layer.shadowOffY;
+    }
+    ctx.fillStyle = layer.color;
+    ctx.textAlign = layer.align;
+    const fontStyle = layer.font === 'Playfair Display' && layer.weight <= 400 ? 'italic ' : '';
+    ctx.font = `${fontStyle}${layer.weight} ${layer.size}px "${layer.font}", ${layer.font}`;
+
+    const px = layer.x / 100 * w;
+    const py = layer.y / 100 * h;
+    const lineH = layer.size * layer.lineHeight;
+
+    // letter spacing (manual)
+    const lines = layer.text.split('\n');
+    lines.forEach((line, li) => {
+      const lineY = py + li * lineH - (lines.length - 1) * lineH / 2;
+      if (layer.letterSpacing !== 0) {
+        drawTextWithSpacing(ctx, line, px, lineY, layer.letterSpacing, layer.align, w);
+      } else {
+        ctx.fillText(line, px, lineY);
+      }
+    });
+    ctx.restore();
+  });
+
+  // 5. BORDER
+  const bStyle = document.getElementById('border-style').value;
+  if (bStyle !== 'none') {
+    const bw = parseInt(document.getElementById('border-width').value);
+    const bi = parseInt(document.getElementById('border-inset').value);
+    ctx.save();
+    ctx.strokeStyle = document.getElementById('border-color').value;
+    ctx.lineWidth = bw;
+    if (bStyle === 'dashed') ctx.setLineDash([bw*3, bw*2]);
+    else if (bStyle === 'double') { ctx.setLineDash([]); }
+    const rx = bi + bw/2, ry = bi + bw/2;
+    const rw = w - bi*2 - bw, rh = h - bi*2 - bw;
+    ctx.strokeRect(rx, ry, rw, rh);
+    if (bStyle === 'double') {
+      const off = bw + 3;
+      ctx.strokeRect(rx+off, ry+off, rw-off*2, rh-off*2);
+    }
+    ctx.restore();
+  }
+
+  // 6. WATERMARK
+  const wm = document.getElementById('watermark-text').value;
+  if (wm) {
+    ctx.save();
+    ctx.globalAlpha = parseInt(document.getElementById('watermark-op').value) / 100;
+    ctx.fillStyle = document.getElementById('watermark-color').value;
+    ctx.textAlign = 'center';
+    ctx.font = `500 ${Math.round(h*0.022)}px "Inter", Inter`;
+    ctx.fillText(wm, w/2, h - h*0.03);
+    ctx.restore();
+  }
+}
+
+function drawTextWithSpacing(ctx, text, x, y, spacing, align, canvasW) {
+  // Simple letter-spacing implementation
+  const chars = text.split('');
+  const totalWidth = chars.reduce((acc, ch) => acc + ctx.measureText(ch).width + spacing, 0) - spacing;
+  let startX;
+  if (align === 'center') startX = x - totalWidth / 2;
+  else if (align === 'right') startX = x - totalWidth;
+  else startX = x;
+
+  let cx = startX;
+  chars.forEach(ch => {
+    ctx.fillText(ch, cx, y);
+    cx += ctx.measureText(ch).width + spacing;
+  });
+}
+
+function render() {
+  // Read live state from inputs
+  S.logoX = parseInt(document.getElementById('logo-x').value);
+  S.logoY = parseInt(document.getElementById('logo-y').value);
+  S.logoSize = parseInt(document.getElementById('logo-size').value);
+
+  const cv = document.getElementById('canvas-preview');
+  const ctx = cv.getContext('2d');
+
+  ctx.save();
+  ctx.scale(previewScale, previewScale);
+  drawCardToCtx(ctx, S.w, S.h);
+  ctx.restore();
+
+  // Pattern previews on pattern tab
+  if (S.bgMode === 'pattern') {
+    PATTERNS.forEach(p => drawPatternPreview(p.id));
+  }
+
+  saveToLocalStorage();
+}
+
+// Full-resolution render
+function renderFull() {
+  const cv = document.createElement('canvas');
+  cv.width = S.w; cv.height = S.h;
+  const ctx = cv.getContext('2d');
+  drawCardToCtx(ctx, S.w, S.h);
+  return cv;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  EXPORT
+// ═══════════════════════════════════════════════════════════════
+function downloadPNG() {
+  const cv = renderFull();
+  const a = document.createElement('a');
+  a.download = `social-card-${S.w}x${S.h}.png`;
+  a.href = cv.toDataURL('image/png');
+  a.click();
+  setStatus('PNG downloaded (' + S.w + 'x' + S.h + ')');
+}
+
+async function copyToClipboard() {
+  try {
+    const cv = renderFull();
+    cv.toBlob(async blob => {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+        setStatus('Copied to clipboard!');
+      } catch(e) {
+        setStatus('Clipboard copy failed: ' + e.message);
+      }
+    }, 'image/png');
+  } catch(e) {
+    setStatus('Error: ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  FULLSCREEN
+// ═══════════════════════════════════════════════════════════════
+function openFullscreen() {
+  const cv = renderFull();
+  const overlay = document.getElementById('fullscreen-overlay');
+  const fc = document.getElementById('canvas-fullscreen');
+  fc.width = cv.width; fc.height = cv.height;
+  fc.getContext('2d').drawImage(cv, 0, 0);
+  overlay.classList.add('open');
+}
+
+function closeFullscreen() {
+  document.getElementById('fullscreen-overlay').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════════════════════════════
+function toggleSection(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('.section-arrow');
+  const open = body.classList.toggle('open');
+  arrow.classList.toggle('open', open);
+}
+
+function rval(input, idSuffix) {
+  const id = idSuffix ? 'v-' + idSuffix : 'v-' + input.id;
+  const el = document.getElementById(id);
+  if (el) el.textContent = input.value;
+}
+
+function setStatus(msg) {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg;
+  setTimeout(() => { if (el.textContent === msg) el.textContent = ''; }, 3000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LOCALSTORAGE (simple state persistence)
+// ═══════════════════════════════════════════════════════════════
+function saveToLocalStorage() {
+  try {
+    const save = {
+      platform: S.platform,
+      bgMode: S.bgMode,
+      gradient: S.gradient,
+      solid: S.solid,
+      pattern: S.pattern,
+      overlay: S.overlay,
+      border: S.border,
+      watermark: S.watermark,
+    };
+    localStorage.setItem('scm_state', JSON.stringify(save));
+  } catch(e) {}
+}
+
+function loadFromLocalStorage() {
+  try {
+    const raw = localStorage.getItem('scm_state');
+    if (!raw) return false;
+    const save = JSON.parse(raw);
+    Object.assign(S, save);
+    return true;
+  } catch(e) { return false; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  initPlatformBtns();
+  initGradientPresets();
+  initSolidSwatches();
+  initPatternGrid();
+  initTemplates();
+
+  // Load saved state or default
+  const loaded = loadFromLocalStorage();
+  if (loaded) {
+    syncAllControls();
+  } else {
+    // Default template: Product Launch
+    TEMPLATES[1].setup();
+    syncAllControls();
+  }
+
+  resizePreviewCanvas();
+  render();
+
+  // wire up remaining inputs that need live reading
+  document.getElementById('solid-color').addEventListener('input', () => {
+    S.solid.color = document.getElementById('solid-color').value;
+    render();
+  });
+  document.getElementById('bg-fit').addEventListener('change', render);
+  document.getElementById('watermark-text').addEventListener('input', render);
+  document.getElementById('watermark-color').addEventListener('input', render);
+
+  // Window resize
+  window.addEventListener('resize', () => {
+    resizePreviewCanvas();
+    render();
+  });
+
+  // Keyboard: Escape closes fullscreen
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeFullscreen();
+  });
+
+  setStatus('Ready — pick a template or customize!');
+});
+</script>
+</body>
+</html>

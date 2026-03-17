@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Schema Generator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #0d1117; --surface: #161b22; --border: #30363d; --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; --green: #3fb950; --purple: #a371f7; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem; }
+    .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 800px) { .container { grid-template-columns: 1fr; } }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+    h1 { font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--purple); }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    textarea { width: 100%; min-height: 400px; padding: 1rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: 'Consolas', monospace; font-size: 0.85rem; resize: vertical; }
+    .btn-row { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    button { padding: 0.75rem 1.5rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-primary:hover { background: #4090e0; }
+    .btn-secondary { background: var(--border); color: var(--text); }
+    .options { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .opt { display: flex; align-items: center; gap: 0.5rem; color: var(--muted); font-size: 0.85rem; cursor: pointer; }
+    .opt input { accent-color: var(--accent); }
+    label { display: block; color: var(--muted); font-size: 0.8rem; margin-bottom: 0.5rem; }
+    pre { background: var(--bg); padding: 1rem; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; }
+    .key { color: #7ee787; }
+    .string { color: #a5d6ff; }
+    .number { color: #79c0ff; }
+    .bool { color: #ff7b72; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel">
+      <h1>JSON Schema Generator</h1>
+      <p class="subtitle">Generate JSON Schema from sample data</p>
+      <label>Input JSON</label>
+      <textarea id="input" placeholder='{"name": "John", "age": 30, "email": "john@example.com"}'></textarea>
+      <div class="options">
+        <label class="opt"><input type="checkbox" id="required" checked> Required fields</label>
+        <label class="opt"><input type="checkbox" id="descriptions"> Add descriptions</label>
+        <label class="opt"><input type="checkbox" id="examples"> Include examples</label>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="generate()">Generate Schema</button>
+        <button class="btn-secondary" onclick="loadSample()">Load Sample</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h1>Generated Schema</h1>
+      <p class="subtitle">JSON Schema Draft-07</p>
+      <pre id="output"></pre>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="copyOutput()">Copy Schema</button>
+        <button class="btn-secondary" onclick="download()">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function loadSample() {
+      document.getElementById('input').value = JSON.stringify({
+        "id": 1,
+        "name": "John Doe",
+        "email": "john@example.com",
+        "age": 30,
+        "isActive": true,
+        "roles": ["admin", "user"],
+        "profile": { "bio": "Hello", "avatar": "https://example.com/avatar.png" },
+        "createdAt": "2024-01-15T10:30:00Z",
+        "metadata": null
+      }, null, 2);
+    }
+
+    function inferType(value) {
+      if (value === null) return { type: "null" };
+      if (Array.isArray(value)) {
+        if (value.length === 0) return { type: "array" };
+        const itemType = inferType(value[0]);
+        return { type: "array", items: itemType };
+      }
+      if (typeof value === 'number') {
+        return Number.isInteger(value) ? { type: "integer" } : { type: "number" };
+      }
+      if (typeof value === 'boolean') return { type: "boolean" };
+      if (typeof value === 'string') {
+        if (/^\d{4}-\d{2}-\d{2}/.test(value)) return { type: "string", format: "date-time" };
+        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return { type: "string", format: "email" };
+        if (/^https?:\/\//.test(value)) return { type: "string", format: "uri" };
+        return { type: "string" };
+      }
+      if (typeof value === 'object') {
+        const props = {};
+        const required = [];
+        for (const [k, v] of Object.entries(value)) {
+          props[k] = inferType(v);
+          required.push(k);
+        }
+        return { type: "object", properties: props, required };
+      }
+      return {};
+    }
+
+    function generate() {
+      const input = document.getElementById('input').value.trim();
+      if (!input) return;
+
+      try {
+        const data = JSON.parse(input);
+        const schema = {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "title": "Generated Schema",
+          "type": "object"
+        };
+
+        const required = document.getElementById('required').checked;
+        const descriptions = document.getElementById('descriptions').checked;
+        const examples = document.getElementById('examples').checked;
+
+        const props = {};
+        const req = [];
+
+        for (const [k, v] of Object.entries(data)) {
+          const typeObj = inferType(v);
+          if (descriptions) typeObj.description = `The ${k} field`;
+          if (examples && v !== null) typeObj.examples = [v];
+          props[k] = typeObj;
+          if (required) req.push(k);
+        }
+
+        schema.properties = props;
+        if (required && req.length > 0) schema.required = req;
+
+        document.getElementById('output').textContent = JSON.stringify(schema, null, 2);
+      } catch (e) {
+        document.getElementById('output').textContent = "Error: " + e.message;
+      }
+    }
+
+    function copyOutput() {
+      navigator.clipboard.writeText(document.getElementById('output').textContent);
+    }
+
+    function download() {
+      const blob = new Blob([document.getElementById('output').textContent], {type: 'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'schema.json';
+      a.click();
+    }
+
+    loadSample();
+    generate();
+  </script>
+</body>
+</html>

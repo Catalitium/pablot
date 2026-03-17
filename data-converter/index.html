@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Converter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <h1>CSV / JSON / YAML Converter</h1>
+
+    <section class="toolbar">
+      <label for="sourceFormat">Source format</label>
+      <select id="sourceFormat">
+        <option value="csv">CSV</option>
+        <option value="json">JSON</option>
+        <option value="yaml">YAML</option>
+      </select>
+
+      <label for="targetFormat">Target format</label>
+      <select id="targetFormat">
+        <option value="csv">CSV</option>
+        <option value="json" selected>JSON</option>
+        <option value="yaml">YAML</option>
+      </select>
+
+      <button id="convertBtn" type="button">Convert</button>
+      <button id="swapBtn" type="button">Swap Formats</button>
+      <button id="downloadBtn" type="button">Download Output</button>
+    </section>
+
+    <p id="message" role="status" aria-live="polite"></p>
+    <p id="error" class="error" role="alert" aria-live="assertive"></p>
+
+    <section class="editors">
+      <article>
+        <h2>Input</h2>
+        <textarea id="inputText" rows="18" placeholder="Paste source data here"></textarea>
+      </article>
+      <article>
+        <h2>Output</h2>
+        <textarea id="outputText" rows="18" readonly></textarea>
+      </article>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

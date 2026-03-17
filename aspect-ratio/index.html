@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aspect Ratio Calculator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3352;
+    --accent: #7c6af7; --text: #e2e8f0; --muted: #8892b0;
+    --success: #56d4a0; --warn: #f78c6c;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+  header { padding: 1.25rem 2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
+  header h1 { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+  header span { color: var(--muted); font-size: 0.875rem; }
+  .main { flex: 1; display: grid; grid-template-columns: 340px 1fr; gap: 0; }
+  .sidebar { border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 0; overflow-y: auto; }
+  .section { padding: 1.25rem; border-bottom: 1px solid var(--border); }
+  .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 1rem; }
+  .input-group { display: flex; flex-direction: column; gap: 0.6rem; }
+  .input-row { display: flex; align-items: center; gap: 0.6rem; }
+  .input-row label { width: 60px; font-size: 0.85rem; color: var(--muted); flex-shrink: 0; }
+  input[type=number], input[type=text] {
+    flex: 1; padding: 0.5rem 0.75rem; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-size: 0.9rem; outline: none;
+  }
+  input:focus { border-color: var(--accent); }
+  .ratio-display { text-align: center; padding: 0.75rem; background: var(--surface2); border-radius: 8px; margin-top: 0.75rem; }
+  .ratio-big { font-size: 2rem; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; }
+  .ratio-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+  .lock-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; }
+  .lock-row label { font-size: 0.85rem; color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: 0.4rem; }
+  .lock-row input { accent-color: var(--accent); }
+  .presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
+  .preset-btn {
+    padding: 0.4rem 0.3rem; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 5px; color: var(--text); font-size: 0.75rem; cursor: pointer; text-align: center;
+    transition: all 0.15s;
+  }
+  .preset-btn:hover, .preset-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .find-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+  .find-row input { width: 80px; }
+  .btn {
+    padding: 0.45rem 1rem; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .content { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; overflow-y: auto; }
+  .preview-box { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+  .preview-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); align-self: flex-start; }
+  .preview-frame { background: var(--surface2); border: 2px solid var(--accent); border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; position: relative; }
+  .preview-label { position: absolute; bottom: -1.5rem; font-size: 0.75rem; color: var(--muted); }
+  .sizes-table { width: 100%; border-collapse: collapse; }
+  .sizes-table th { text-align: left; padding: 0.5rem 0.75rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .sizes-table td { padding: 0.5rem 0.75rem; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+  .sizes-table tr:last-child td { border-bottom: none; }
+  .sizes-table tr:hover td { background: var(--surface2); }
+  .tag { display: inline-block; padding: 0.15rem 0.5rem; background: var(--surface2); border-radius: 4px; font-size: 0.7rem; color: var(--muted); }
+  @media (max-width: 700px) {
+    .main { grid-template-columns: 1fr; }
+    .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>⊡ Aspect Ratio Calculator</h1>
+  <span>Dimensions · Ratios · Presets</span>
+</header>
+<div class="main">
+  <div class="sidebar">
+    <div class="section">
+      <div class="section-title">Dimensions</div>
+      <div class="input-group">
+        <div class="input-row">
+          <label>Width</label>
+          <input type="number" id="width" value="1920" min="1" oninput="onWidthChange()">
+          <span style="color:var(--muted);font-size:0.85rem;">px</span>
+        </div>
+        <div class="input-row">
+          <label>Height</label>
+          <input type="number" id="height" value="1080" min="1" oninput="onHeightChange()">
+          <span style="color:var(--muted);font-size:0.85rem;">px</span>
+        </div>
+      </div>
+      <div class="lock-row">
+        <label><input type="checkbox" id="lockRatio" checked> Lock aspect ratio</label>
+      </div>
+      <div class="ratio-display">
+        <div class="ratio-big" id="ratioDisplay">16:9</div>
+        <div class="ratio-sub" id="ratioSub">Diagonal: 2202.9 px</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Common Presets</div>
+      <div class="presets" id="presets"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Find Dimensions</div>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.75rem;">Enter a ratio and target width to get height</p>
+      <div class="find-row">
+        <input type="text" id="findRatio" placeholder="16:9" style="width:80px;">
+        <span style="color:var(--muted);">×</span>
+        <input type="number" id="findWidth" placeholder="1920" style="width:90px;">
+        <button class="btn" onclick="findDimensions()">=</button>
+      </div>
+      <div id="findResult" style="margin-top:0.6rem;font-size:0.9rem;color:var(--success);font-weight:600;"></div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="preview-box">
+      <div class="preview-title">Preview</div>
+      <div id="previewFrame" class="preview-frame" style="width:320px;height:180px;">
+        <span style="font-size:0.8rem;color:var(--muted);" id="previewText">1920 × 1080</span>
+      </div>
+      <div style="height:1.5rem;"></div>
+    </div>
+
+    <div>
+      <div class="preview-title" style="margin-bottom:0.75rem;">Common Sizes for This Ratio</div>
+      <table class="sizes-table">
+        <thead><tr><th>Width</th><th>Height</th><th>Name</th></tr></thead>
+        <tbody id="sizesBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const PRESETS = [
+  { label: '16:9', w: 16, h: 9 }, { label: '4:3', w: 4, h: 3 },
+  { label: '1:1', w: 1, h: 1 }, { label: '9:16', w: 9, h: 16 },
+  { label: '21:9', w: 21, h: 9 }, { label: '3:2', w: 3, h: 2 },
+  { label: '2:3', w: 2, h: 3 }, { label: '4:5', w: 4, h: 5 },
+  { label: '5:4', w: 5, h: 4 }, { label: '2:1', w: 2, h: 1 },
+  { label: '8:5', w: 8, h: 5 }, { label: '3:4', w: 3, h: 4 },
+];
+
+const SIZE_NAMES = {
+  '1920x1080': 'Full HD', '1280x720': 'HD', '3840x2160': '4K UHD',
+  '2560x1440': '2K QHD', '854x480': '480p', '640x360': '360p',
+  '1024x768': 'XGA', '800x600': 'SVGA', '1440x1080': 'HDV',
+  '1080x1920': 'Portrait FHD', '1080x1350': 'Portrait IG',
+  '1080x1080': 'Square', '720x720': 'Square SM',
+};
+
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+function getSimplifiedRatio(w, h) {
+  const g = gcd(Math.round(w), Math.round(h));
+  return [Math.round(w) / g, Math.round(h) / g];
+}
+
+function buildPresets() {
+  const container = document.getElementById('presets');
+  PRESETS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn';
+    btn.textContent = p.label;
+    btn.onclick = () => applyPreset(p);
+    container.appendChild(btn);
+  });
+}
+
+function applyPreset(p) {
+  const currentW = parseInt(document.getElementById('width').value) || 1920;
+  document.getElementById('width').value = currentW;
+  document.getElementById('height').value = Math.round(currentW * p.h / p.w);
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  update();
+}
+
+function onWidthChange() {
+  if (document.getElementById('lockRatio').checked) {
+    const w = parseFloat(document.getElementById('width').value);
+    const [rw, rh] = getCurrentRatio();
+    if (rw && rh) document.getElementById('height').value = Math.round(w * rh / rw);
+  }
+  update();
+}
+
+function onHeightChange() {
+  if (document.getElementById('lockRatio').checked) {
+    const h = parseFloat(document.getElementById('height').value);
+    const [rw, rh] = getCurrentRatio();
+    if (rw && rh) document.getElementById('width').value = Math.round(h * rw / rh);
+  }
+  update();
+}
+
+let lockedRatio = [16, 9];
+function getCurrentRatio() { return lockedRatio; }
+
+function update() {
+  const w = parseFloat(document.getElementById('width').value) || 0;
+  const h = parseFloat(document.getElementById('height').value) || 0;
+  if (!w || !h) return;
+  const [rw, rh] = getSimplifiedRatio(w, h);
+  lockedRatio = [rw, rh];
+  document.getElementById('ratioDisplay').textContent = `${rw}:${rh}`;
+  const diag = Math.sqrt(w * w + h * h);
+  document.getElementById('ratioSub').textContent = `Diagonal: ${diag.toFixed(1)} px`;
+  updatePreview(w, h, rw, rh);
+  updateSizes(rw, rh, w);
+  highlightPreset(rw, rh);
+}
+
+function updatePreview(w, h, rw, rh) {
+  const maxW = 400, maxH = 280;
+  let pw = maxW, ph = pw * rh / rw;
+  if (ph > maxH) { ph = maxH; pw = ph * rw / rh; }
+  const frame = document.getElementById('previewFrame');
+  frame.style.width = pw + 'px';
+  frame.style.height = ph + 'px';
+  document.getElementById('previewText').textContent = `${Math.round(w)} × ${Math.round(h)}`;
+}
+
+function updateSizes(rw, rh, currentW) {
+  const widths = [3840, 2560, 1920, 1366, 1280, 1024, 854, 720, 640, 480, 360];
+  const tbody = document.getElementById('sizesBody');
+  tbody.innerHTML = '';
+  widths.forEach(bw => {
+    const bh = Math.round(bw * rh / rw);
+    const key = `${bw}x${bh}`;
+    const name = SIZE_NAMES[key] || '';
+    const tr = document.createElement('tr');
+    const isCurrent = Math.round(currentW) === bw;
+    tr.innerHTML = `
+      <td style="${isCurrent ? 'color:var(--accent);font-weight:700;' : ''}">${bw}</td>
+      <td style="${isCurrent ? 'color:var(--accent);font-weight:700;' : ''}">${bh}</td>
+      <td>${name ? `<span class="tag">${name}</span>` : ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function highlightPreset(rw, rh) {
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent === `${rw}:${rh}`);
+  });
+}
+
+function findDimensions() {
+  const ratioStr = document.getElementById('findRatio').value.trim();
+  const targetW = parseFloat(document.getElementById('findWidth').value);
+  const parts = ratioStr.split(':').map(Number);
+  const result = document.getElementById('findResult');
+  if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1]) || !targetW) {
+    result.textContent = 'Enter a valid ratio (e.g. 16:9) and width';
+    result.style.color = 'var(--warn)';
+    return;
+  }
+  const h = Math.round(targetW * parts[1] / parts[0]);
+  result.textContent = `${Math.round(targetW)} × ${h} px`;
+  result.style.color = 'var(--success)';
+}
+
+buildPresets();
+update();
+</script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YAML Formatter</title>
+  <style>
+    :root { --bg: #1e1e1e; --surface: #252526; --border: #3c3c3c; --text: #d4d4d4; --accent: #569cd6; --string: #ce9178; --key: #9cdcfe; --num: #b5cea8; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Consolas', monospace; background: var(--bg); color: var(--text); min-height: 100vh; padding: 1.5rem; }
+    .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 700px) { .container { grid-template-columns: 1fr; } }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+    h1 { font-size: 1rem; color: var(--accent); margin-bottom: 0.5rem; }
+    textarea { width: 100%; min-height: 450px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; color: var(--text); font-family: inherit; font-size: 0.9rem; resize: vertical; outline: none; }
+    textarea:focus { border-color: var(--accent); }
+    .btn-row { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    button { padding: 0.6rem 1rem; border-radius: 4px; border: none; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-secondary { background: var(--border); color: var(--text); }
+    .options { display: flex; gap: 1rem; margin-top: 0.5rem; }
+    label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: #888; cursor: pointer; }
+    .error { color: #f44747; font-size: 0.85rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel">
+      <h1>Input YAML</h1>
+      <textarea id="input" placeholder="name: John
+age: 30
+roles:
+  - admin
+  - user
+config:
+  debug: true
+  timeout: 30"></textarea>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="format()">Format</button>
+        <button class="btn-secondary" onclick="clearAll()">Clear</button>
+        <button class="btn-secondary" onclick="sample()">Sample</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h1>Formatted Output</h1>
+      <textarea id="output" readonly></textarea>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="copy()">Copy</button>
+        <button class="btn-secondary" onclick="toJson()">To JSON</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple YAML parser and formatter
+    function parseYAML(text, indent = 0) {
+      const lines = text.split('\n');
+      const result = [];
+      let i = 0;
+
+      function parseValue(val) {
+        val = val.trim();
+        if (val === 'true') return true;
+        if (val === 'false') return false;
+        if (val === 'null' || val === '~') return null;
+        if (/^-?\d+$/.test(val)) return parseInt(val, 10);
+        if (/^-?\d+\.\d+$/.test(val)) return parseFloat(val);
+        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+          return val.slice(1, -1);
+        }
+        return val;
+      }
+
+      while (i < lines.length) {
+        let line = lines[i];
+        const currentIndent = line.search(/\S/);
+        if (currentIndent < 0) { i++; continue; }
+        if (currentIndent < indent) break;
+
+        line = line.trim();
+
+        // Comment
+        if (line.startsWith('#')) { i++; continue; }
+
+        // Array item
+        if (line.startsWith('- ')) {
+          const value = line.slice(2).trim();
+          if (value.includes(':')) {
+            result.push({ __array: true, __items: parseYAML(line.slice(2), indent + 2) });
+          } else {
+            result.push(parseValue(value));
+          }
+          i++;
+          continue;
+        }
+
+        // Key-value
+        const colonIdx = line.indexOf(':');
+        if (colonIdx > -1) {
+          const key = line.slice(0, colonIdx).trim();
+          let value = line.slice(colonIdx + 1).trim();
+
+          if (value === '') {
+            // Nested object
+            i++;
+            const nested = [];
+            while (i < lines.length) {
+              const nextLine = lines[i];
+              const nextIndent = nextLine.search(/\S/);
+              if (nextIndent <= currentIndent && nextLine.trim()) break;
+              const parsed = parseYAML(lines[i], currentIndent + 2);
+              if (parsed) nested.push(...parsed);
+              i++;
+            }
+            result.push({ [key]: nested.length === 1 ? nested[0] : nested });
+          } else {
+            result.push({ [key]: parseValue(value) });
+            i++;
+          }
+        } else {
+          i++;
+        }
+      }
+      return result;
+    }
+
+    function toYAML(obj, indent = 0) {
+      const spaces = '  '.repeat(indent);
+      let lines = [];
+
+      if (Array.isArray(obj)) {
+        for (const item of obj) {
+          if (typeof item === 'object' && item !== null && !item.__array) {
+            lines.push(spaces + '-');
+            lines.push(toYAML(item, indent + 1));
+          } else {
+            lines.push(spaces + '- ' + formatValue(item));
+          }
+        }
+      } else if (typeof obj === 'object' && obj !== null) {
+        for (const [key, val] of Object.entries(obj)) {
+          if (typeof val === 'object' && val !== null && !val.__array) {
+            if (Array.isArray(val) && val.length === 0) {
+              lines.push(`${spaces}${key}: []`);
+            } else if (typeof val === 'object' && Object.keys(val).length === 0) {
+              lines.push(`${spaces}${key}: {}`);
+            } else {
+              lines.push(`${spaces}${key}:`);
+              lines.push(toYAML(val, indent + 1));
+            }
+          } else {
+            lines.push(`${spaces}${key}: ${formatValue(val)}`);
+          }
+        }
+      }
+      return lines.join('\n');
+    }
+
+    function formatValue(val) {
+      if (val === null) return 'null';
+      if (typeof val === 'boolean') return val.toString();
+      if (typeof val === 'number') return val.toString();
+      if (typeof val === 'string') {
+        if (val.includes(':') || val.includes('#') || val.includes("'") || val.includes('"') || val.includes('\n')) {
+          return '"' + val.replace(/"/g, '\\"').replace(/\n/g, '\\n') + '"';
+        }
+        return val;
+      }
+      return String(val);
+    }
+
+    function yamlToJson(yaml) {
+      // Simple YAML to JSON conversion
+      const parsed = parseYAML(yaml);
+      return JSON.stringify(parsed, null, 2);
+    }
+
+    function format() {
+      const input = document.getElementById('input').value;
+      try {
+        const parsed = parseYAML(input);
+        const yaml = toYAML(parsed);
+        document.getElementById('output').value = yaml;
+      } catch (e) {
+        document.getElementById('output').value = 'Error: ' + e.message;
+      }
+    }
+
+    function sample() {
+      document.getElementById('input').value = `# Application Config
+name: MyApp
+version: 1.0.0
+
+database:
+  host: localhost
+  port: 5432
+  name: mydb
+
+features:
+  - auth
+  - api
+  - dashboard
+
+settings:
+  debug: true
+  timeout: 30
+  maxRetries: 3`;
+      format();
+    }
+
+    function clearAll() {
+      document.getElementById('input').value = '';
+      document.getElementById('output').value = '';
+    }
+
+    function copy() {
+      navigator.clipboard.writeText(document.getElementById('output').value);
+    }
+
+    function toJson() {
+      const yaml = document.getElementById('output').value || document.getElementById('input').value;
+      try {
+        const parsed = parseYAML(yaml);
+        document.getElementById('output').value = JSON.stringify(parsed, null, 2);
+      } catch (e) {
+        document.getElementById('output').value = 'Error: ' + e.message;
+      }
+    }
+
+    sample();
+  </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+{
+  "ollama_host": "http://127.0.0.1:11434",
+  "target_codebase": "C:\\Users\\catal\\Desktop\\code-base",
+  "iterations": 5,
+  "default_model": "qwen2.5-coder:3b",
+  "stage_models": {
+    "elena": "qwen2.5-coder:3b",
+    "colombo": "qwen2.5-coder:3b",
+    "vitalik": "qwen2.5-coder:3b",
+    "athena": "qwen2.5-coder:3b"
+  },
+  "github": {
+    "owner": "JPGBMR",
+    "default_base": "main",
+    "workflow_id": "",
+    "default_issue_labels": [
+      "mini-agent",
+      "automation",
+      "triage"
+    ]
+  },
+  "execution": {
+    "create_feature_branch": true,
+    "branch_prefix": "fleet",
+    "run_local_tests": true,
+    "auto_commit": true,
+    "auto_push": false,
+    "create_github_issues": true,
+    "vitalik_repair_pass_on_qa_fail": true,
+    "create_pull_request": false,
+    "trigger_github_actions": false
+  },
+  "network": {
+    "retries": 3,
+    "base_timeout": 30,
+    "max_timeout": 240,
+    "ollama_chat_timeout": 90,
+    "stage_timeouts": {
+      "colombo": 120,
+      "vitalik": 150,
+      "athena": 180
+    }
+  },
+  "request": "Randomly select one repository and produce practical code-improvement deliverables that can be implemented immediately.",
+  "stages": [
+    "elena",
+    "colombo",
+    "vitalik",
+    "athena"
+  ]
+}

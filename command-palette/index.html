@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command Palette</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --surface-hover: #1f1f1f;
+      --border: #2a2a2a;
+      --text: #e5e5e5;
+      --text-dim: #737373;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.2);
+      --error: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 10vh;
+      background-image:
+        radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 30%);
+    }
+
+    .container { width: 100%; max-width: 600px; padding: 0 1.5rem; }
+
+    .logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo::before { content: '▶'; color: var(--accent); }
+
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1.25rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+
+    #search {
+      width: 100%;
+      padding: 1.25rem 1.25rem 1.25rem 3.5rem;
+      font-size: 1.1rem;
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    #search:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-glow);
+    }
+
+    #search::placeholder { color: var(--text-dim); }
+
+    .results {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .result-item {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .result-item:last-child { border-bottom: none; }
+    .result-item:hover, .result-item.selected { background: var(--surface-hover); }
+
+    .result-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .result-content { flex: 1; min-width: 0; }
+
+    .result-title {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .result-desc {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .result-shortcut {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.5rem;
+      background: var(--bg);
+      border-radius: 4px;
+      color: var(--text-dim);
+    }
+
+    .section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      padding: 1rem 1.25rem 0.5rem;
+    }
+
+    .no-results {
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-dim);
+    }
+
+    .hint {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .hint kbd {
+      background: var(--surface);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      margin: 0 0.2rem;
+    }
+
+    /* Custom scrollbar */
+    .results::-webkit-scrollbar { width: 8px; }
+    .results::-webkit-scrollbar-track { background: var(--bg); }
+    .results::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .results::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+    /* Action panel */
+    .action-panel {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      display: none;
+    }
+
+    .action-panel.show { display: block; }
+
+    .action-title {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .action-preview {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      background: var(--bg);
+      padding: 0.75rem;
+      border-radius: 8px;
+      max-width: 300px;
+      word-break: break-all;
+    }
+
+    /* Colors for icons */
+    .icon-blue { background: rgba(59, 130, 246, 0.15); }
+    .icon-green { background: rgba(16, 185, 129, 0.15); }
+    .icon-purple { background: rgba(139, 92, 246, 0.15); }
+    .icon-orange { background: rgba(245, 158, 11, 0.15); }
+    .icon-pink { background: rgba(236, 72, 153, 0.15); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">Quick Command</div>
+
+    <div class="search-wrapper">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="search" placeholder="Type a command or search..." autofocus>
+    </div>
+
+    <div class="results" id="results"></div>
+
+    <div class="hint">
+      <kbd>↑↓</kbd> navigate <kbd>Enter</kbd> select <kbd>Esc</kbd> close
+    </div>
+  </div>
+
+  <div class="action-panel" id="actionPanel">
+    <div class="action-title">Command</div>
+    <div class="action-preview" id="actionPreview"></div>
+  </div>
+
+  <script>
+    const commands = [
+      { id: 'new-file', title: 'New File', desc: 'Create a new file', icon: '📄', shortcut: '⌘N', category: 'File', color: 'blue' },
+      { id: 'open-file', title: 'Open File', desc: 'Open existing file', icon: '📂', shortcut: '⌘O', category: 'File', color: 'blue' },
+      { id: 'save', title: 'Save', desc: 'Save current file', icon: '💾', shortcut: '⌘S', category: 'File', color: 'blue' },
+      { id: 'save-as', title: 'Save As', desc: 'Save with new name', icon: '📋', shortcut: '⌘⇧S', category: 'File', color: 'blue' },
+      { id: 'close', title: 'Close', desc: 'Close current file', icon: '✕', shortcut: '⌘W', category: 'File', color: 'blue' },
+      { id: 'undo', title: 'Undo', desc: 'Undo last action', icon: '↩', shortcut: '⌘Z', category: 'Edit', color: 'green' },
+      { id: 'redo', title: 'Redo', desc: 'Redo last action', icon: '↪', shortcut: '⌘⇧Z', category: 'Edit', color: 'green' },
+      { id: 'copy', title: 'Copy', desc: 'Copy selection', icon: '📋', shortcut: '⌘C', category: 'Edit', color: 'green' },
+      { id: 'paste', title: 'Paste', desc: 'Paste from clipboard', icon: '📌', shortcut: '⌘V', category: 'Edit', color: 'green' },
+      { id: 'find', title: 'Find', desc: 'Find in file', icon: '🔍', shortcut: '⌘F', category: 'Edit', color: 'green' },
+      { id: 'replace', title: 'Find & Replace', desc: 'Find and replace', icon: '🔁', shortcut: '⌘H', category: 'Edit', color: 'green' },
+      { id: 'terminal', title: 'Toggle Terminal', desc: 'Show/hide terminal', icon: '💻', shortcut: '⌘`', category: 'View', color: 'purple' },
+      { id: 'sidebar', title: 'Toggle Sidebar', desc: 'Show/hide sidebar', icon: '◧', shortcut: '⌘B', category: 'View', color: 'purple' },
+      { id: 'fullscreen', title: 'Fullscreen', desc: 'Toggle fullscreen', icon: '⛶', shortcut: '⌃⌘F', category: 'View', color: 'purple' },
+      { id: 'zoom-in', title: 'Zoom In', desc: 'Increase zoom', icon: '🔍', shortcut: '⌘+', category: 'View', color: 'purple' },
+      { id: 'zoom-out', title: 'Zoom Out', desc: 'Decrease zoom', icon: '🔍', shortcut: '⌘-', category: 'View', color: 'purple' },
+      { id: 'run', title: 'Run Code', desc: 'Execute current file', icon: '▶', shortcut: '⌘R', category: 'Run', color: 'orange' },
+      { id: 'debug', title: 'Debug', desc: 'Start debugging', icon: '🐛', shortcut: '⌘D', category: 'Run', color: 'orange' },
+      { id: 'test', title: 'Run Tests', desc: 'Run test suite', icon: '✓', shortcut: '⌘⇧T', category: 'Run', color: 'orange' },
+      { id: 'build', title: 'Build', desc: 'Build project', icon: '🔨', shortcut: '⌘⇧B', category: 'Run', color: 'orange' },
+      { id: 'git-init', title: 'Git Init', desc: 'Initialize repository', icon: '📦', shortcut: '', category: 'Git', color: 'pink' },
+      { id: 'git-commit', title: 'Git Commit', desc: 'Create commit', icon: '✓', shortcut: '⌘⇧C', category: 'Git', color: 'pink' },
+      { id: 'git-push', title: 'Git Push', desc: 'Push to remote', icon: '⬆', shortcut: '⌘⇧P', category: 'Git', color: 'pink' },
+      { id: 'git-pull', title: 'Git Pull', desc: 'Pull from remote', icon: '⬇', shortcut: '', category: 'Git', color: 'pink' },
+      { id: 'git-branch', title: 'Git Branch', desc: 'Manage branches', icon: '⑂', shortcut: '', category: 'Git', color: 'pink' },
+      { id: 'settings', title: 'Settings', desc: 'Open settings', icon: '⚙', shortcut: '⌘,', category: 'Config', color: 'blue' },
+      { id: 'extensions', title: 'Extensions', desc: 'Manage extensions', icon: '🧩', shortcut: '', category: 'Config', color: 'blue' },
+      { id: 'keybindings', title: 'Keybindings', desc: 'View keybindings', icon: '⌨', shortcut: '', category: 'Config', color: 'blue' },
+      { id: 'theme', title: 'Change Theme', desc: 'Switch color theme', icon: '🎨', shortcut: '', category: 'Config', color: 'blue' },
+    ];
+
+    let selectedIndex = 0;
+    let filteredCommands = [...commands];
+
+    const search = document.getElementById('search');
+    const results = document.getElementById('results');
+    const actionPanel = document.getElementById('actionPanel');
+    const actionPreview = document.getElementById('actionPreview');
+
+    function render() {
+      if (filteredCommands.length === 0) {
+        results.innerHTML = '<div class="no-results">No commands found</div>';
+        return;
+      }
+
+      // Group by category
+      const grouped = {};
+      filteredCommands.forEach(cmd => {
+        if (!grouped[cmd.category]) grouped[cmd.category] = [];
+        grouped[cmd.category].push(cmd);
+      });
+
+      let html = '';
+      let globalIndex = 0;
+
+      for (const [category, cmds] of Object.entries(grouped)) {
+        html += `<div class="section-title">${category}</div>`;
+        cmds.forEach(cmd => {
+          const selected = globalIndex === selectedIndex ? 'selected' : '';
+          html += `
+            <div class="result-item ${selected}" data-index="${globalIndex}">
+              <div class="result-icon icon-${cmd.color}">${cmd.icon}</div>
+              <div class="result-content">
+                <div class="result-title">${cmd.title}</div>
+                <div class="result-desc">${cmd.desc}</div>
+              </div>
+              ${cmd.shortcut ? `<span class="result-shortcut">${cmd.shortcut}</span>` : ''}
+            </div>
+          `;
+          globalIndex++;
+        });
+      }
+
+      results.innerHTML = html;
+
+      // Add click handlers
+      document.querySelectorAll('.result-item').forEach(item => {
+        item.addEventListener('click', () => {
+          selectCommand(parseInt(item.dataset.index));
+        });
+      });
+    }
+
+    function filterCommands(query) {
+      if (!query) {
+        filteredCommands = [...commands];
+      } else {
+        const q = query.toLowerCase();
+        filteredCommands = commands.filter(cmd =>
+          cmd.title.toLowerCase().includes(q) ||
+          cmd.desc.toLowerCase().includes(q) ||
+          cmd.category.toLowerCase().includes(q)
+        );
+      }
+      selectedIndex = 0;
+      render();
+    }
+
+    function selectCommand(index) {
+      if (index >= 0 && index < filteredCommands.length) {
+        const cmd = filteredCommands[index];
+        actionPreview.textContent = cmd.title;
+        actionPanel.classList.add('show');
+        setTimeout(() => actionPanel.classList.remove('show'), 1500);
+      }
+    }
+
+    search.addEventListener('input', (e) => {
+      filterCommands(e.target.value);
+    });
+
+    search.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = Math.min(selectedIndex + 1, filteredCommands.length - 1);
+        render();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = Math.max(selectedIndex - 1, 0);
+        render();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        selectCommand(selectedIndex);
+      } else if (e.key === 'Escape') {
+        search.value = '';
+        filterCommands('');
+        search.blur();
+      }
+    });
+
+    // Focus search on any key
+    document.addEventListener('keydown', (e) => {
+      if (!search.matches(':focus') && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+        search.focus();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>

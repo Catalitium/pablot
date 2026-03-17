@@ -1,0 +1,71 @@
+{
+  "verdict": "FAIL",
+  "score": 50,
+  "checklist": [
+    {
+      "item": "Requirements match",
+      "status": "fail",
+      "details": "Blueprint changes=0, build files=0"
+    },
+    {
+      "item": "File write evidence",
+      "status": "fail",
+      "details": "files_written=0"
+    },
+    {
+      "item": "Local tests",
+      "status": "fail",
+      "details": "tests=0"
+    },
+    {
+      "item": "Commit execution",
+      "status": "pass",
+      "details": "No changes to commit"
+    },
+    {
+      "item": "Push execution",
+      "status": "pass",
+      "details": "push disabled"
+    },
+    {
+      "item": "CI trigger evidence",
+      "status": "pass",
+      "details": "actions trigger disabled"
+    }
+  ],
+  "issues": [
+    {
+      "severity": "high",
+      "description": "Failed check: Requirements match",
+      "location": "execution",
+      "fix": "Blueprint changes=0, build files=0"
+    },
+    {
+      "severity": "high",
+      "description": "Failed check: File write evidence",
+      "location": "execution",
+      "fix": "files_written=0"
+    },
+    {
+      "severity": "high",
+      "description": "Failed check: Local tests",
+      "location": "execution",
+      "fix": "tests=0"
+    }
+  ],
+  "improvements": [],
+  "feedback_for_revision": {
+    "target_agent": "vitalik",
+    "message": "Execution or quality checks failed; revise build and delivery",
+    "priority_fixes": [
+      "Requirements match",
+      "File write evidence",
+      "Local tests"
+    ]
+  },
+  "ready_for_deployment": false,
+  "next_iteration_needed": true,
+  "agent": "athena",
+  "status": "reviewed",
+  "issues_created": []
+}
