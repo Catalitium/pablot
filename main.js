@@ -1,6 +1,5 @@
     const TOOLS = [
       // Code
-      {name:"API Builder",slug:"api-builder",category:"code",icon:"🔗",desc:"Visual API creation platform"},
       {name:"Case Converter",slug:"case-converter",category:"code",icon:"Aa",desc:"Convert case formats"},
       {name:"Cron Builder",slug:"cron-builder",category:"code",icon:"🕐",desc:"Build cron expressions"},
       {name:"CSS Minifier",slug:"css-minifier",category:"code",icon:"🎀",desc:"Minify CSS"},
@@ -8,6 +7,7 @@
       {name:"Data Converter",slug:"data-converter",category:"code",icon:"🔄",desc:"CSV/JSON/YAML"},
       {name:"Hash Generator",slug:"hash-generator",category:"code",icon:"#️⃣",desc:"MD5/SHA hashes"},
       {name:"JSON Formatter",slug:"json-formatter",category:"code",icon:"{ }",desc:"Format JSON"},
+      {name:"Markdown Preview",slug:"markdown-preview",category:"code",icon:"📑",desc:"Live markdown preview"},
       {name:"JSON Schema Gen",slug:"json-schema-generator",category:"code",icon:"📋",desc:"Generate JSON schemas"},
       {name:"JWT Decoder",slug:"jwt-decoder",category:"code",icon:"🔐",desc:"Decode JWT tokens"},
       {name:"Regex Tester",slug:"regex-tester",category:"code",icon:".*",desc:"Test regex patterns"},
@@ -22,12 +22,11 @@
       {name:"Hex Palette",slug:"hex-palette",category:"design",icon:"🖌️",desc:"Color palette"},
       {name:"Social Card",slug:"social-card",category:"design",icon:"📱",desc:"Design social cards"},
       {name:"Generative Art",slug:"generative-art",category:"design",icon:"✨",desc:"Mathematical art generation"},
+      {name:"Audio Visualizer",slug:"audio-visualizer",category:"design",icon:"🎵",desc:"Realtime audio FFT"},
 
       // Data
       {name:"Base64",slug:"base64",category:"data",icon:"🔤",desc:"Encode/decode Base64"},
       {name:"Binary Converter",slug:"binary-converter",category:"data",icon:"0️⃣",desc:"Binary/hex converter"},
-      {name:"Image Compressor",slug:"image-compressor",category:"data",icon:"🖼️",desc:"Compress images"},
-      {name:"URL Shortener",slug:"url-shortener",category:"data",icon:"✂️",desc:"Shorten URLs"},
 
       // Math
       {name:"Complex Plane",slug:"complex-plane",category:"math",icon:"📊",desc:"Julia sets visualization"},
@@ -38,14 +37,15 @@
 
       // AI
       {name:"Token Counter",slug:"token-counter",category:"ai",icon:"🔢",desc:"Count tokens"},
+      {name:"Context Packer",slug:"context-packer",category:"ai",icon:"📦",desc:"Pack context for LLMs"},
 
       // Tools
       {name:"Aspect Ratio",slug:"aspect-ratio",category:"tools",icon:"📐",desc:"Image dimension calculator"},
       {name:"Countdown Timer",slug:"countdown-timer",category:"tools",icon:"⏱",desc:"Countdown to date"},
-      {name:"Password Generator",slug:"password-generator",category:"tools",icon:"🔐",desc:"Secure passwords"},
+      {name:"DNA Helix",slug:"dna-helix",category:"tools",icon:"🔬",desc:"3D DNA visualization"},
       {name:"Timezone Converter",slug:"timezone-converter",category:"tools",icon:"🌍",desc:"Time zones"},
-      {name:"Unit Converter",slug:"unit-converter",category:"tools",icon:"🔄",desc:"Convert units"},
       {name:"Word Counter",slug:"word-counter",category:"tools",icon:"📊",desc:"Count words"},
+      {name:"CV Builder",slug:"cv-builder",category:"tools",icon:"📋",desc:"Upload, clean, export PDF"},
     ];
 
     const CATEGORIES = {
@@ -59,6 +59,9 @@
 
     let activeCategory = "all";
 
+    const RECENT_KEY = "pablobot_recent_tools_v1";
+    const MAX_RECENT = 5;
+
     const tabsEl      = document.getElementById("tabs");
     const toolsGridEl = document.getElementById("toolsGrid");
     const searchInput = document.getElementById("searchInput");
@@ -70,11 +73,65 @@
       return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
     }
 
+    function readRecent() {
+      try {
+        const raw = localStorage.getItem(RECENT_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch (_) { return []; }
+    }
+
+    function writeRecent(items) {
+      try { localStorage.setItem(RECENT_KEY, JSON.stringify(items.slice(0, MAX_RECENT))); } catch (_) {}
+    }
+
+    function recordRecent(slug, name) {
+      if (!slug) return;
+      const next = readRecent().filter(x => x.slug !== slug);
+      next.unshift({ slug, name: name || slug, t: Date.now() });
+      writeRecent(next);
+      renderRecentStrip();
+    }
+
+    function renderRecentStrip() {
+      const strip = document.getElementById("recentStrip");
+      const chips = document.getElementById("recentChips");
+      if (!strip || !chips) return;
+      const items = readRecent();
+      if (!items.length) { strip.hidden = true; return; }
+      strip.hidden = false;
+      chips.innerHTML = items.map(x =>
+        `<a href="${escapeHtml(x.slug)}/" class="recent-chip">${escapeHtml(x.name)}</a>`
+      ).join("");
+    }
+
+    function applyUrlToState() {
+      const params = new URLSearchParams(window.location.search);
+      const cat = params.get("cat");
+      const q = params.get("q");
+      if (cat === "all" || (cat && CATEGORIES[cat])) activeCategory = cat;
+      if (typeof q === "string" && searchInput) searchInput.value = q;
+    }
+
+    function syncAddressBar() {
+      const params = new URLSearchParams();
+      if (activeCategory !== "all") params.set("cat", activeCategory);
+      const q = searchInput ? searchInput.value.trim() : "";
+      if (q) params.set("q", q);
+      const qs = params.toString();
+      const path = window.location.pathname || "/";
+      const next = qs ? `${path}?${qs}` : path;
+      const cur = path + (window.location.search || "");
+      if (next !== cur) history.replaceState(null, "", next);
+    }
+
     function init() {
-      const heroSub = document.getElementById("heroSub");
-      if (heroSub) heroSub.textContent = `${TOOLS.length} live tools · ${WIP_TOOLS.length} in progress`;
+      applyUrlToState();
+      const heroStats = document.getElementById("heroStats");
+      if (heroStats) heroStats.textContent = `${TOOLS.length} curated tools · static · no signup · ${WIP_TOOLS.length} more in the lab`;
       renderTabs();
-      renderTools();
+      renderTools(searchInput ? searchInput.value : "");
+      renderRecentStrip();
       initPageBehaviours();
     }
 
@@ -104,17 +161,19 @@
           <div class="tools-empty">
             <div class="tools-empty-icon">🔍</div>
             <p>No tools match "<strong>${escapeHtml(q)}</strong>"</p>
-            <button class="tools-empty-clear" onclick="clearSearch()">Clear search</button>
+            <button type="button" class="tools-empty-clear">Clear search</button>
           </div>`;
+        syncAddressBar();
         return;
       }
 
       toolsGridEl.innerHTML = filtered.map(tool => `
-        <a href="${escapeHtml(tool.slug)}/" class="tool-card" target="_blank" rel="noopener noreferrer">
+        <a href="${escapeHtml(tool.slug)}/" class="tool-card" target="_blank" rel="noopener noreferrer" data-tool-slug="${escapeHtml(tool.slug)}">
           <div class="tool-icon">${tool.icon}</div>
           <div class="tool-name">${escapeHtml(tool.name)}</div>
           <div class="tool-desc">${escapeHtml(tool.desc)}</div>
         </a>`).join("");
+      syncAddressBar();
     }
 
     function clearSearch() {
@@ -125,6 +184,27 @@
     }
 
     function initPageBehaviours() {
+      const heroBrowse = document.getElementById("heroBrowseBtn");
+      if (heroBrowse) {
+        heroBrowse.addEventListener("click", () => {
+          document.getElementById("toolsSection").scrollIntoView({ behavior: "smooth", block: "start" });
+          searchInput.focus();
+        });
+      }
+
+      toolsGridEl.addEventListener("click", e => {
+        if (e.target.closest(".tools-empty-clear")) {
+          e.preventDefault();
+          clearSearch();
+          return;
+        }
+        const card = e.target.closest("a.tool-card");
+        if (!card) return;
+        const slug = card.dataset.toolSlug;
+        const nameEl = card.querySelector(".tool-name");
+        recordRecent(slug, nameEl ? nameEl.textContent.trim() : slug);
+      });
+
       // Sticky header — blur on scroll
       window.addEventListener("scroll", () => {
         headerEl.classList.toggle("scrolled", window.scrollY > 10);
@@ -173,7 +253,6 @@
       { name:"Audio Visualizer",    slug:"audio-visualizer",    icon:"🎵", desc:"Real-time audio visualization",          type:"Web" },
       { name:"Cache Cleaner",       slug:"cache-cleaner",       icon:"🧹", desc:"Browser cache management tool",          type:"Web" },
       { name:"Conway's Game",       slug:"conway-game",         icon:"🧬", desc:"Cellular automaton simulator",           type:"Web" },
-      { name:"DNA Helix",           slug:"dna-helix",           icon:"🔬", desc:"Interactive 3D DNA visualization",       type:"Web" },
       { name:"Fake Data Gen",       slug:"fake-data-gen",       icon:"🎭", desc:"Generate realistic test data",           type:"Web" },
       { name:"Git Helper",          slug:"git-helper",          icon:"🌿", desc:"Git commands and workflow assistant",     type:"Web" },
       { name:"LLM Cost Tracker",    slug:"llm-cost-tracker",    icon:"💰", desc:"Track and estimate AI API spending",     type:"Web" },
@@ -488,10 +567,15 @@
       return conceptActiveGroup === "all" ? AI_CONCEPTS : AI_CONCEPTS.filter(c => c.group === conceptActiveGroup);
     }
 
-    function openLightbox(set, index) {
-      const items = set === "models"
-        ? getFilteredModels().map(m => ({ src:`assets/architectures/${m.filename}.webp`, title:m.name, meta:`${m.family} · ${m.paramsLabel} parameters` }))
-        : getFilteredConcepts().map(c => ({ src:`assets/concepts/${c.filename}.${c.ext}`,  title:c.name,  meta:c.group }));
+    function openLightbox(setOrItems, index) {
+      let items;
+      if (Array.isArray(setOrItems)) {
+        items = setOrItems;
+      } else if (setOrItems === "models") {
+        items = getFilteredModels().map(m => ({ src:`assets/architectures/${m.filename}.webp`, title:m.name, meta:`${m.family} · ${m.paramsLabel} parameters` }));
+      } else {
+        items = getFilteredConcepts().map(c => ({ src:`assets/concepts/${c.filename}.${c.ext}`,  title:c.name,  meta:c.group }));
+      }
 
       lightboxItems = items;
       lightboxIndex = index;
@@ -612,10 +696,6 @@
     }
 
     initGallery();
-
-    // Header nav buttons → open galleries
-    document.getElementById("aiNavBtn").addEventListener("click", openGallery);
-    document.getElementById("chainNavBtn").addEventListener("click", openCrypto);
 
     /* ============================================================
        BLOCKCHAIN ARCHITECTURE GALLERY — DATA & LOGIC

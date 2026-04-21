@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CV Builder — Pablobot</title>
+  <meta name="description" content="Upload your CV, review the Harvard-style layout, save a PDF. Everything stays in your browser.">
+  <meta name="theme-color" content="#fafafa">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a href="../" class="skip-link">Back to tools</a>
+
+  <header class="app-header no-print">
+    <div class="app-header-inner">
+      <a class="back-link" href="../">← Pablobot</a>
+      <div class="app-title-block">
+        <h1 class="app-title">CV Builder</h1>
+        <p class="app-subtitle">Upload your CV, review the document, save a PDF. No file leaves your browser.</p>
+      </div>
+    </div>
+  </header>
+
+  <p class="trust-line no-print">Everything runs locally — review the preview, then save a PDF.</p>
+
+  <main class="main-flow">
+    <p class="status-msg no-print" id="statusMsg" aria-live="polite"></p>
+
+    <section class="upload-ribbon no-print" id="uploadRibbon" aria-label="Upload">
+      <div class="upload-zone" id="dropzone" tabindex="0" role="button" aria-label="Upload resume PDF, DOCX, or TXT">
+        <input type="file" id="fileInput" accept=".txt,.pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
+        <p class="upload-zone-title">Upload your CV <span class="upload-zone-muted">PDF, DOCX, or TXT</span></p>
+        <p class="upload-zone-hint">No file yet? <button type="button" class="text-link" id="btnSample">See a sample layout</button> — same preview and export flow.</p>
+      </div>
+      <div class="upload-actions">
+        <button type="button" class="btn btn--ghost btn-textual" id="btnReset">Start over</button>
+      </div>
+    </section>
+
+    <section class="document-hero" aria-label="CV preview">
+      <div class="toolbar-doc toolbar-doc--sticky no-print" id="toolbarDoc" hidden>
+        <div class="toolbar-doc-row">
+          <button type="button" class="btn btn--primary" id="btnSavePdf">Save PDF (via print)</button>
+          <p class="toolbar-hint">Opens the print dialog — choose <strong>Save as PDF</strong> (Chrome / Edge / Safari). Output matches the preview.</p>
+        </div>
+      </div>
+      <div id="cvPreview" class="cv-doc cv-doc--hero" aria-live="polite"></div>
+    </section>
+
+    <div class="thin-banner no-print" id="thinBanner" hidden></div>
+
+    <section class="edit-stack no-print" id="editStack" hidden>
+      <h2 class="edit-stack-heading">Edit</h2>
+      <p class="edit-stack-lead">Open a section only when something needs fixing. The preview above updates live.</p>
+
+      <label class="intent-row">
+        <span class="intent-label">Resume style</span>
+        <select id="resumeIntent" aria-describedby="intent-hint">
+          <option value="student">Student / campus (education before experience)</option>
+          <option value="professional">Professional (experience before education)</option>
+        </select>
+      </label>
+      <p id="intent-hint" class="toolbar-sub intent-hint">Sets section order to match common Harvard-style vs industry CV patterns.</p>
+
+      <details class="edit-panel" id="detailsPersonal">
+        <summary>Edit personal details</summary>
+        <div class="field-grid">
+          <label>Full name <input type="text" id="fullName" autocomplete="name"></label>
+          <label>Headline <span class="label-optional">(optional)</span> <input type="text" id="headline" placeholder="e.g. Software Engineer"></label>
+          <label>Email <input type="email" id="email" autocomplete="email"></label>
+          <label>Phone <input type="tel" id="phone" autocomplete="tel"></label>
+          <label>Location <input type="text" id="location" placeholder="City, State"></label>
+          <label class="field-span-2">Links <input type="text" id="links" placeholder="LinkedIn, GitHub — spaces or commas"></label>
+        </div>
+        <label class="block-label">Professional summary <span class="label-optional">(optional)</span> <textarea id="summary" rows="4" placeholder="2–4 lines if you use a summary"></textarea></label>
+      </details>
+
+      <details class="edit-panel">
+        <summary>Edit experience</summary>
+        <div id="experienceList"></div>
+        <button type="button" class="btn btn--small btn--secondary" id="btnAddExp">+ Add role</button>
+      </details>
+
+      <details class="edit-panel">
+        <summary>Edit education</summary>
+        <div id="educationList"></div>
+        <button type="button" class="btn btn--small btn--secondary" id="btnAddEdu">+ Add school</button>
+      </details>
+
+      <details class="edit-panel">
+        <summary>Skills &amp; languages</summary>
+        <label class="block-label">Skills <textarea id="skills" rows="4" placeholder="Comma-separated or one per line"></textarea></label>
+        <label class="block-label">Languages <textarea id="languages" rows="2"></textarea></label>
+      </details>
+
+      <details class="edit-panel">
+        <summary>Certifications, projects &amp; more</summary>
+        <label class="block-label">Certifications <textarea id="certifications" rows="3" placeholder="One per line"></textarea></label>
+        <div id="projectsList"></div>
+        <button type="button" class="btn btn--small btn--secondary" id="btnAddProj">+ Add project</button>
+        <label class="block-label">Additional information <textarea id="additional" rows="3"></textarea></label>
+      </details>
+
+      <details class="edit-panel edit-panel--advanced">
+        <summary>Advanced: raw text &amp; repair</summary>
+        <p class="panel-hint">Paste or fix extracted text, then apply to structured fields. Section order follows <strong>Resume style</strong> above.</p>
+        <label for="rawText" class="visually-hidden">Raw text</label>
+        <textarea id="rawText" rows="8" class="raw-textarea" placeholder="Extracted text appears here after upload…"></textarea>
+        <div class="raw-actions">
+          <button type="button" class="btn btn--secondary" id="btnApplyRaw">Apply text to fields</button>
+          <button type="button" class="btn btn--ghost" id="btnDetectContact">Detect email / phone / links</button>
+        </div>
+      </details>
+    </section>
+
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="template-config.js"></script>
+  <script src="main.js" defer></script>
+</body>
+</html>

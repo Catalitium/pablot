@@ -3,32 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pablot — Developer Tools &amp; AI Models Gallery</title>
-  <meta name="description" content="Explore 37 AI model architecture diagrams and 24 deep-learning concept visualizations — MoE, MLA, GQA, SWA, Sparse Attention and more — plus 36 live developer tools, curated by Pablot.">
-  <meta name="keywords" content="AI models, LLM architectures, DeepSeek, Qwen3, Llama 4, Gemma, Mistral, Mixture of Experts, Multi-Head Latent Attention, Grouped Query Attention, Sliding Window Attention, developer tools">
+  <title>Pablobot — Fast utility desk for builders</title>
+  <meta name="description" content="Curated in-browser tools for engineers and founders—static, fast, no signup. Optional LLM architecture diagrams and chain reference maps when you need them.">
   <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://pablobot.com/">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="AI Models Gallery — Pablot">
-  <meta property="og:description" content="37 LLM architecture diagrams and 24 concept visualizations. Compare DeepSeek, Qwen3, Llama 4, Mistral, Gemma and more.">
-  <meta property="og:image" content="assets/hero/architecture-gallery-hero.webp">
+  <meta property="og:url" content="https://pablobot.com/">
+  <meta property="og:title" content="Pablobot — Fast utility desk for builders">
+  <meta property="og:description" content="Curated browser utilities—static, no accounts. Optional architecture references for LLMs and chains.">
+  <meta property="og:image" content="https://pablobot.com/assets/hero/architecture-gallery-hero.webp">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="AI Models Gallery — Pablot">
-  <meta name="twitter:description" content="37 LLM architecture diagrams and 24 concept visualizations.">
-  <meta name="twitter:image" content="assets/hero/architecture-gallery-hero.webp">
+  <meta name="twitter:title" content="Pablobot — Fast utility desk for builders">
+  <meta name="twitter:description" content="Curated browser utilities—static, no accounts. Optional LLM and chain reference maps.">
+  <meta name="twitter:image" content="https://pablobot.com/assets/hero/architecture-gallery-hero.webp">
   <meta name="theme-color" content="#171717">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23333'>P</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23171717'>P</text></svg>">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": "AI Models Architecture Gallery",
-    "description": "37 LLM architecture diagrams and 24 deep-learning concept visualizations.",
-    "url": "https://pablot.com/#ai-models-gallery",
-    "publisher": { "@type": "Organization", "name": "Pablot", "url": "https://pablot.com" },
-    "hasPart": [
-      { "@type": "ImageGallery", "name": "LLM Architecture Diagrams", "numberOfItems": 37 },
-      { "@type": "ImageGallery", "name": "Deep Learning Concepts", "numberOfItems": 24 }
-    ]
+    "@type": "WebSite",
+    "name": "Pablobot",
+    "description": "Curated in-browser utilities for builders; optional LLM architecture and blockchain reference diagrams.",
+    "url": "https://pablobot.com/",
+    "publisher": { "@type": "Organization", "name": "Pablobot", "url": "https://pablobot.com/" }
   }
   </script>
   <link rel="stylesheet" href="style.css">
@@ -44,8 +41,6 @@
     </div>
 
     <nav class="header-nav" aria-label="Quick links">
-      <button class="header-nav-btn" id="aiNavBtn" aria-label="Open AI Models gallery">AI Models</button>
-      <button class="header-nav-btn" id="chainNavBtn" aria-label="Open Blockchain gallery">Blockchain</button>
       <a href="https://github.com/Catalitium/pablot" target="_blank" rel="noopener noreferrer"
          class="header-nav-btn header-nav-gh" aria-label="GitHub repository">
         <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18" aria-hidden="true">
@@ -59,54 +54,76 @@
   <main class="main">
     <!-- Hero -->
     <div class="hero">
-      <h1>Developer Tools Hub</h1>
-      <p id="heroSub"></p>
+      <p class="hero-eyebrow">Pablobot</p>
+      <h1>A fast utility desk for builders.</h1>
+      <p class="hero-lead">Curated in-browser tools you’ll actually reopen—plus optional architecture maps when you’re reading papers or comparing models.</p>
+      <p class="hero-stats" id="heroStats" aria-live="polite"></p>
+      <div class="hero-actions">
+        <button type="button" class="hero-btn hero-btn--primary" id="heroBrowseBtn">Browse tools</button>
+      </div>
+      <div class="hero-actions hero-actions--secondary" role="group" aria-label="Reference libraries">
+        <button type="button" class="hero-btn hero-btn--secondary" id="aiModelsBtn" aria-haspopup="dialog" aria-expanded="false">LLM architecture reference</button>
+        <button type="button" class="hero-btn hero-btn--ghost" id="cryptoBtn" aria-haspopup="dialog" aria-expanded="false">Blockchain reference</button>
+      </div>
     </div>
 
-    <!-- Quick Links -->
-    <div class="quick-links">
-      <button id="aiModelsBtn" class="quick-link" aria-haspopup="dialog" aria-expanded="false">🤖 AI Models Gallery</button>
-      <button id="cryptoBtn" class="quick-link" aria-haspopup="dialog" aria-expanded="false">🐋 Crypto Blockchain</button>
-      <a href="https://github.com/Catalitium/pablot" target="_blank" rel="noopener noreferrer" class="quick-link">GitHub →</a>
+    <section class="why-strip" aria-labelledby="why-heading">
+      <h2 id="why-heading" class="why-strip-title">Why Pablobot</h2>
+      <ul class="why-strip-list">
+        <li><strong>Static &amp; fast</strong> — no framework payload; the hub stays snappy.</li>
+        <li><strong>Curated</strong> — one bar for quality; utilities first, references when you need them.</li>
+        <li><strong>No accounts</strong> — tools run in the browser; optional references are read-only maps.</li>
+      </ul>
+    </section>
+
+    <div class="recent-strip" id="recentStrip" hidden>
+      <div class="recent-strip-inner">
+        <span class="recent-label">Recently used</span>
+        <div class="recent-chips" id="recentChips"></div>
+      </div>
     </div>
 
     <!-- Tools Section -->
     <div class="section" id="toolsSection">
-      <h2 class="section-title" id="sectionTitle">All Tools <span class="tool-count" id="toolCount"></span></h2>
+      <h2 class="section-title" id="sectionTitle">Tools <span class="tool-count" id="toolCount"></span></h2>
       <div class="tabs" id="tabs"></div>
       <div class="tools-grid" id="toolsGrid"></div>
     </div>
 
-    <!-- WIP Tools Section -->
-    <div class="wip-section">
-      <div class="wip-header">
-        <h2 class="wip-title">WIP Tools</h2>
-        <span class="wip-badge">🚧 In Progress</span>
-      </div>
-      <p class="wip-desc">These tools are in early development — no UI yet. Check back soon.</p>
+    <!-- WIP: collapsed by default — keeps the hub focused -->
+    <details class="wip-section" id="wipDetails">
+      <summary class="wip-summary">
+        <span class="wip-summary-main">
+          <span class="wip-title">WIP &amp; experiments</span>
+          <span class="wip-badge">In progress</span>
+        </span>
+        <span class="wip-summary-hint" aria-hidden="true"></span>
+      </summary>
+      <p class="wip-desc">Rough drafts, scripts, and ideas — not production-ready.</p>
       <div class="wip-grid" id="wipGrid"></div>
-    </div>
+    </details>
   </main>
 
   <!-- Footer -->
   <footer class="footer">
-    <p>© 2026 Built by <a href="https://github.com/Catalitium" target="_blank" rel="noopener noreferrer">Catalitium</a></p>
+    <p class="footer-trust">Open source · Static site · No accounts</p>
+    <p class="footer-meta">© 2026 Pablobot · <a href="https://github.com/Catalitium/pablot" target="_blank" rel="noopener noreferrer">Source on GitHub</a></p>
   </footer>
 
   <!-- ============================================================
-       AI MODELS GALLERY OVERLAY
+       LLM ARCHITECTURE REFERENCE OVERLAY
   ============================================================ -->
   <div id="aiGallery" class="gallery-overlay" role="dialog" aria-modal="true"
-       aria-label="AI Models Architecture Gallery" aria-hidden="true" tabindex="-1">
+       aria-label="LLM architecture reference" aria-hidden="true" tabindex="-1">
 
     <!-- Sticky header -->
     <header class="gallery-header">
       <div class="gallery-header-inner">
         <div class="gallery-header-left">
           <div class="logo-icon">P</div>
-          <span class="gallery-header-title">AI Models Gallery</span>
+          <span class="gallery-header-title">LLM architecture reference</span>
         </div>
-        <button id="galleryClose" class="gallery-close-btn" aria-label="Close gallery">✕</button>
+        <button id="galleryClose" class="gallery-close-btn" aria-label="Close architecture reference">✕</button>
       </div>
     </header>
 
@@ -114,20 +131,22 @@
     <div class="gallery-content" id="galleryContent">
 
       <!-- Hero -->
-      <section class="gallery-hero" aria-label="Gallery hero">
+      <section class="gallery-hero" aria-label="Reference hero">
         <img
           src="assets/hero/architecture-gallery-hero.webp"
           alt="Abstract visualization of neural network architectures and large language model families including DeepSeek, Qwen3, Llama 4, and Mistral"
           class="gallery-hero-img"
-          loading="eager"
-          fetchpriority="high"
+          loading="lazy"
+          decoding="async"
           width="1400"
           height="500">
         <div class="gallery-hero-overlay">
-          <h1 class="gallery-hero-title">AI Models Architecture Gallery</h1>
+          <h1 class="gallery-hero-title">Model &amp; concept diagrams</h1>
           <p class="gallery-hero-sub">37 model diagrams &middot; 24 concept visualizations &middot; 14 families</p>
         </div>
       </section>
+
+      <p class="gallery-contract">For comparing papers and families—click any image to enlarge. Content grows as the model landscape shifts.</p>
 
       <!-- Models Section -->
       <section class="gallery-section" id="modelsSection" aria-labelledby="modelsSectionTitle">
@@ -184,48 +203,34 @@
 
     </div><!-- /gallery-content -->
 
-    <!-- Lightbox -->
-    <div id="lightbox" class="lightbox" role="dialog" aria-modal="true"
-         aria-label="Image viewer" aria-hidden="true">
-      <button class="lightbox-close" id="lightboxClose" aria-label="Close image viewer">✕</button>
-      <button class="lightbox-prev"  id="lightboxPrev"  aria-label="Previous image">&#8249;</button>
-      <button class="lightbox-next"  id="lightboxNext"  aria-label="Next image">&#8250;</button>
-      <div class="lightbox-inner">
-        <img id="lightboxImg" src="" alt="" class="lightbox-img" loading="lazy">
-        <div class="lightbox-caption">
-          <p id="lightboxTitle" class="lightbox-caption-title"></p>
-          <p id="lightboxMeta"  class="lightbox-caption-meta"></p>
-        </div>
-      </div>
-      <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
-    </div>
-
   </div><!-- /aiGallery -->
 
   <!-- ============================================================
        BLOCKCHAIN ARCHITECTURE OVERLAY
   ============================================================ -->
   <div id="cryptoGallery" class="gallery-overlay" role="dialog" aria-modal="true"
-       aria-label="Blockchain Architecture Gallery" aria-hidden="true" tabindex="-1">
+       aria-label="Blockchain reference maps" aria-hidden="true" tabindex="-1">
 
     <header class="gallery-header">
       <div class="gallery-header-inner">
         <div class="gallery-header-left">
           <div class="logo-icon">P</div>
-          <span class="gallery-header-title">Blockchain Architecture</span>
+          <span class="gallery-header-title">Blockchain reference</span>
         </div>
-        <button id="cryptoClose" class="gallery-close-btn" aria-label="Close blockchain gallery">✕</button>
+        <button id="cryptoClose" class="gallery-close-btn" aria-label="Close blockchain reference">✕</button>
       </div>
     </header>
 
     <div class="gallery-content" id="cryptoContent">
 
-      <section class="gallery-hero crypto-hero" aria-label="Blockchain hero">
+      <section class="gallery-hero crypto-hero" aria-label="Blockchain reference hero">
         <div class="crypto-hero-inner">
-          <h1 class="gallery-hero-title">Blockchain Architecture</h1>
+          <h1 class="gallery-hero-title">Chain &amp; consensus maps</h1>
           <p class="gallery-hero-sub">Architecture diagrams &middot; Consensus mechanisms &middot; Official whitepapers</p>
         </div>
       </section>
+
+      <p class="gallery-contract">Side reference when you need consensus or layer context—not the main desk.</p>
 
       <section class="gallery-section">
         <div class="gallery-section-header">
@@ -257,6 +262,22 @@
 
   </div><!-- /cryptoGallery -->
 
-  <script src="main.js"></script>
+  <!-- Global lightbox (AI + chain galleries share this; must not sit inside a closed overlay or it stays invisible) -->
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true"
+       aria-label="Image viewer" aria-hidden="true">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Close image viewer">✕</button>
+    <button class="lightbox-prev"  id="lightboxPrev"  aria-label="Previous image">&#8249;</button>
+    <button class="lightbox-next"  id="lightboxNext"  aria-label="Next image">&#8250;</button>
+    <div class="lightbox-inner">
+      <img id="lightboxImg" src="" alt="" class="lightbox-img" loading="lazy">
+      <div class="lightbox-caption">
+        <p id="lightboxTitle" class="lightbox-caption-title"></p>
+        <p id="lightboxMeta"  class="lightbox-caption-meta"></p>
+      </div>
+    </div>
+    <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+  </div>
+
+  <script src="main.js" defer></script>
 </body>
 </html>
