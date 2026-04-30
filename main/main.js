@@ -523,6 +523,11 @@ REF_MODEL_ROWS.forEach(m => {
       { name:"Markdown Preview",    slug:"markdown-preview",    icon:"📑", desc:"Live markdown editor and preview",        type:"Web" },
       { name:"Prompt Tester",       slug:"prompt-tester",       icon:"💬", desc:"Test and compare AI prompts",            type:"Web" },
       { name:"Text Summarizer",     slug:"text-summarizer",     icon:"📝", desc:"Summarize text with AI",                 type:"Web" },
+      { name:"PDF Summarizer",      slug:"pdf-summarizer",      icon:"📕", desc:"Extract and summarize PDF content in-browser", type:"Web" },
+      { name:"Image Analyzer",      slug:"image-analyzer",      icon:"🖼️", desc:"Inspect images with captions and metadata locally", type:"Web" },
+      { name:"Code Explainer",      slug:"code-explainer",      icon:"📘", desc:"Explain snippets or files without leaving the tab", type:"Web" },
+      { name:"Meeting Notes Cleaner", slug:"meeting-notes-cleaner", icon:"🗒️", desc:"Structure and clean raw meeting notes", type:"Web" },
+      { name:"URL Shortener",       slug:"url-shortener",       icon:"🔗", desc:"Shorten URLs client-side or via static mapping", type:"Web" },
       // No index.html — never listed
       { name:"Audio Visualizer",    slug:"audio-visualizer",    icon:"🎵", desc:"Real-time audio visualization",          type:"Web" },
       { name:"Cache Cleaner",       slug:"cache-cleaner",       icon:"🧹", desc:"Browser cache management tool",          type:"Web" },

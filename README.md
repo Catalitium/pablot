@@ -74,6 +74,11 @@ Grid-only on homepage; **not** first-class linked cards. **`surface`** is the ba
 | `markdown-preview` | Web | Live markdown editor and preview |
 | `prompt-tester` | Web | Test and compare AI prompts |
 | `text-summarizer` | Web | Summarize text with AI |
+| `pdf-summarizer` | Web | Extract and summarize PDF content in-browser |
+| `image-analyzer` | Web | Inspect images with captions and metadata locally |
+| `code-explainer` | Web | Explain snippets or files without leaving the tab |
+| `meeting-notes-cleaner` | Web | Structure and clean raw meeting notes |
+| `url-shortener` | Web | Shorten URLs client-side or via static mapping |
 | `audio-visualizer` | Web | Real-time audio visualization |
 | `cache-cleaner` | Web | Browser cache management tool |
 | `conway-game` | Web | Cellular automaton simulator |
