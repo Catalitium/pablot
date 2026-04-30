@@ -21,7 +21,8 @@ Thumbs.db
 *.swo
 *~
 
-# Logs
+# Logs / crash dumps
+*.stackdump
 *.log
 npm-debug.log*
 yarn-debug.log*

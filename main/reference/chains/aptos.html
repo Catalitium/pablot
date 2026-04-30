@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aptos — Pablobot</title>
+  <meta name="description" content="Aptos blockchain: L1 layer, BFT consensus mechanism, launched 2022.">
+  <link rel="stylesheet" href="../../../style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23171717'>P</text></svg>">
+  <style>
+    .chain-header { display: flex; align-items: flex-start; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .chain-title-group { flex: 1; min-width: 200px; }
+    .chain-name { font-size: 2rem; font-weight: 700; margin: 0 0 0.5rem 0; }
+    .chain-ticker { font-size: 1rem; color: #666; }
+    .chain-badge { display: inline-block; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; background: #dbeafe; color: #1e40af; }
+    .chain-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 2rem 0; }
+    .chain-meta-item { padding: 1rem; background: #f9f9f9; border-radius: 8px; }
+    .chain-meta-label { font-size: 0.75rem; color: #888; text-transform: uppercase; }
+    .chain-meta-value { font-size: 1.25rem; font-weight: 600; margin-top: 0.25rem; }
+    .chain-desc { line-height: 1.7; color: #444; max-width: 700px; }
+    .chain-sources { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e5e5e5; }
+    .chain-sources h3 { font-size: 1rem; margin-bottom: 0.75rem; }
+    .chain-sources a { display: block; color: #2563eb; text-decoration: none; margin: 0.5rem 0; }
+    .back-link { display: inline-block; color: #666; text-decoration: none; margin-bottom: 1.5rem; }
+    .back-link:hover { color: #222; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <nav class="header-nav">
+      <a href="/" class="header-nav-btn">← Tools</a>
+      <a href="../" class="header-nav-btn">← Chains</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <a href="../" class="back-link">← Back to all chains</a>
+
+    <div class="chain-header">
+      <div class="chain-title-group">
+        <h1 class="chain-name">Aptos</h1>
+        <p class="chain-ticker">APT</p>
+      </div>
+      <span class="chain-badge">L1</span>
+    </div>
+
+    <div class="chain-meta">
+      <div class="chain-meta-item">
+        <div class="chain-meta-label">Layer</div>
+        <div class="chain-meta-value">L1</div>
+      </div>
+      <div class="chain-meta-item">
+        <div class="chain-meta-label">Consensus</div>
+        <div class="chain-meta-value">BFT</div>
+      </div>
+      <div class="chain-meta-item">
+        <div class="chain-meta-label">Launch</div>
+        <div class="chain-meta-value">2022</div>
+      </div>
+    </div>
+
+    <p class="chain-desc">Move-based L1. Block-STM parallel execution engine, DiemBFT v4 consensus protocol.</p>
+
+    <div class="chain-sources">
+      <h3>Whitepaper</h3>
+      <a href="https://aptos.dev/assets/files/Aptos-Whitepaper-47099b4b907b432f81fc0effd34f3b6a.pdf" target="_blank" rel="noopener">Read whitepaper →</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-trust">Open source · Static site · No accounts</p>
+    <p class="footer-meta">© 2026 Pablobot</p>
+  </footer>
+</body>
+</html>

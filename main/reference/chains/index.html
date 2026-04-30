@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blockchain Chains — Pablobot</title>
+  <meta name="description" content="18 blockchain chains with consensus mechanisms, layers, and architecture details.">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23171717'>P</text></svg>">
+  <style>
+    .chain-table { width: 100%; border-collapse: collapse; margin: 2rem 0; }
+    .chain-table th, .chain-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #e5e5e5; }
+    .chain-table th { background: #f5f5f5; font-weight: 600; font-size: 0.875rem; }
+    .chain-table tr:hover { background: #fafafa; }
+    .chain-table a { color: #2563eb; text-decoration: none; }
+    .chain-table a:hover { text-decoration: underline; }
+    .layer-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+    .layer-L0 { background: #fef3c7; color: #92400e; }
+    .layer-L1 { background: #dbeafe; color: #1e40af; }
+    .layer-L2 { background: #d1fae5; color: #065f46; }
+    .cons-badge { display: inline-block; padding: 0.125rem 0.375rem; background: #f3f4f6; border-radius: 3px; font-size: 0.75rem; }
+    .filters { display: flex; gap: 1rem; margin: 1.5rem 0; flex-wrap: wrap; }
+    .filter-select { padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; background: white; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <nav class="header-nav" aria-label="Quick links">
+      <a href="/" class="header-nav-btn">← Back to tools</a>
+      <a href="../" class="header-nav-btn">← Reference</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <div class="hero" style="padding-bottom: 1rem;">
+      <p class="hero-eyebrow">Blockchain Chains</p>
+      <h1>Chain reference.</h1>
+      <p class="hero-lead">18 blockchain chains with consensus mechanisms, layers, and architecture details.</p>
+    </div>
+
+    <div class="filters">
+      <select id="layerFilter" class="filter-select">
+        <option value="all">All layers</option>
+        <option value="L0">L0</option>
+        <option value="L1">L1</option>
+        <option value="L2">L2</option>
+      </select>
+      <select id="consensusFilter" class="filter-select">
+        <option value="all">All consensus</option>
+        <option value="PoW">PoW</option>
+        <option value="PoS">PoS</option>
+        <option value="PoH">PoH</option>
+        <option value="BFT">BFT</option>
+        <option value="Optimistic">Optimistic</option>
+        <option value="ZK">ZK</option>
+      </select>
+    </div>
+
+    <table class="chain-table">
+      <thead>
+        <tr>
+          <th>Chain</th>
+          <th>Ticker</th>
+          <th>Layer</th>
+          <th>Consensus</th>
+          <th>Year</th>
+        </tr>
+      </thead>
+      <tbody id="chainsTable"></tbody>
+    </table>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-trust">Open source · Static site · No accounts</p>
+    <p class="footer-meta">© 2026 Pablobot</p>
+  </footer>
+
+  <script>
+    const chains = [
+      { name: "Bitcoin", ticker: "BTC", layer: "L1", consensus: "PoW", year: 2009, id: "bitcoin" },
+      { name: "Ethereum", ticker: "ETH", layer: "L1", consensus: "PoS", year: 2015, id: "ethereum" },
+      { name: "Solana", ticker: "SOL", layer: "L1", consensus: "PoH", year: 2020, id: "solana" },
+      { name: "Cardano", ticker: "ADA", layer: "L1", consensus: "PoS", year: 2017, id: "cardano" },
+      { name: "Polkadot", ticker: "DOT", layer: "L0", consensus: "NPoS", year: 2020, id: "polkadot" },
+      { name: "Avalanche", ticker: "AVAX", layer: "L1", consensus: "Snowball", year: 2020, id: "avalanche" },
+      { name: "Cosmos", ticker: "ATOM", layer: "L0", consensus: "BFT", year: 2019, id: "cosmos" },
+      { name: "BNB Chain", ticker: "BNB", layer: "L1", consensus: "PoSA", year: 2020, id: "bnb-chain" },
+      { name: "NEAR Protocol", ticker: "NEAR", layer: "L1", consensus: "PoS", year: 2020, id: "near" },
+      { name: "Sui", ticker: "SUI", layer: "L1", consensus: "BFT", year: 2023, id: "sui" },
+      { name: "Aptos", ticker: "APT", layer: "L1", consensus: "BFT", year: 2022, id: "aptos" },
+      { name: "Arbitrum", ticker: "ARB", layer: "L2", consensus: "Optimistic", year: 2021, id: "arbitrum" },
+      { name: "Optimism", ticker: "OP", layer: "L2", consensus: "Optimistic", year: 2021, id: "optimism" },
+      { name: "Polygon", ticker: "POL", layer: "L2", consensus: "ZK", year: 2021, id: "polygon" },
+      { name: "Base", ticker: "BASE", layer: "L2", consensus: "Optimistic", year: 2023, id: "base" },
+      { name: "zkSync Era", ticker: "ZK", layer: "L2", consensus: "ZK", year: 2023, id: "zksync" },
+      { name: "Stellar", ticker: "XLM", layer: "L1", consensus: "SCP", year: 2014, id: "stellar" },
+      { name: "Algorand", ticker: "ALGO", layer: "L1", consensus: "PoS", year: 2019, id: "algorand" }
+    ];
+
+    function renderChains() {
+      const layer = document.getElementById("layerFilter").value;
+      const consensus = document.getElementById("consensusFilter").value;
+      const tbody = document.getElementById("chainsTable");
+
+      const filtered = chains.filter(c => {
+        const layerMatch = layer === "all" || c.layer === layer;
+        const consensusMatch = consensus === "all" || c.consensus.includes(consensus);
+        return layerMatch && consensusMatch;
+      });
+
+      tbody.innerHTML = filtered.map(c => `
+        <tr>
+          <td><a href="chains/${c.id}.html">${c.name}</a></td>
+          <td>${c.ticker}</td>
+          <td><span class="layer-badge layer-${c.layer}">${c.layer}</span></td>
+          <td><span class="cons-badge">${c.consensus}</span></td>
+          <td>${c.year}</td>
+        </tr>
+      `).join("");
+    }
+
+    document.getElementById("layerFilter").addEventListener("change", renderChains);
+    document.getElementById("consensusFilter").addEventListener("change", renderChains);
+    renderChains();
+  </script>
+</body>
+</html>

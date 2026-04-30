@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Models — Pablobot</title>
+  <meta name="description" content="37 AI model architectures with parameters, context lengths, and architecture details.">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23171717'>P</text></svg>">
+  <style>
+    .ref-table { width: 100%; border-collapse: collapse; margin: 2rem 0; }
+    .ref-table th, .ref-table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #e5e5e5; }
+    .ref-table th { background: #f5f5f5; font-weight: 600; font-size: 0.875rem; }
+    .ref-table tr:hover { background: #fafafa; }
+    .ref-table a { color: #2563eb; text-decoration: none; }
+    .ref-table a:hover { text-decoration: underline; }
+    .badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+    .badge--small { background: #e5e7eb; color: #374151; }
+    .badge--medium { background: #dbeafe; color: #1e40af; }
+    .badge--large { background: #fef3c7; color: #92400e; }
+    .badge--xlarge { background: #fee2e2; color: #991b1b; }
+    .arch-tag { display: inline-block; padding: 0.125rem 0.375rem; background: #f3f4f6; border-radius: 3px; font-size: 0.75rem; margin-right: 0.25rem; margin-bottom: 0.25rem; }
+    .filters { display: flex; gap: 1rem; margin: 1.5rem 0; flex-wrap: wrap; }
+    .filter-select { padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; background: white; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <nav class="header-nav" aria-label="Quick links">
+      <a href="/" class="header-nav-btn">← Back to tools</a>
+      <a href="../" class="header-nav-btn">← Reference</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <div class="hero" style="padding-bottom: 1rem;">
+      <p class="hero-eyebrow">AI Models</p>
+      <h1>Model architectures.</h1>
+      <p class="hero-lead">37 model architectures with parameters, context lengths, and architecture details.</p>
+      <p><a href="select.html" style="display:inline-block;margin-top:1rem;padding:0.75rem 1.5rem;background:#2563eb;color:white;text-decoration:none;border-radius:6px;font-weight:600;">Find the right model →</a></p>
+    </div>
+
+    <div class="filters">
+      <select id="familyFilter" class="filter-select">
+        <option value="all">All families</option>
+        <option value="Arcee">Arcee</option>
+        <option value="DeepSeek">DeepSeek</option>
+        <option value="Google">Google</option>
+        <option value="GLM">GLM</option>
+        <option value="OpenAI">OpenAI</option>
+        <option value="xAI">xAI</option>
+        <option value="Moonshot">Moonshot</option>
+        <option value="Meta">Meta</option>
+        <option value="MiniMax">MiniMax</option>
+        <option value="Mistral">Mistral</option>
+        <option value="Nvidia">Nvidia</option>
+        <option value="AllenAI">AllenAI</option>
+        <option value="Qwen">Qwen</option>
+        <option value="Others">Others</option>
+      </select>
+      <select id="sizeFilter" class="filter-select">
+        <option value="all">All sizes</option>
+        <option value="small">&lt; 10B</option>
+        <option value="medium">10B – 100B</option>
+        <option value="large">100B – 500B</option>
+        <option value="xlarge">&gt; 500B</option>
+      </select>
+    </div>
+
+    <table class="ref-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Family</th>
+          <th>Parameters</th>
+          <th>Context</th>
+          <th>Architecture</th>
+        </tr>
+      </thead>
+      <tbody id="modelsTable"></tbody>
+    </table>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-trust">Open source · Static site · No accounts</p>
+    <p class="footer-meta">© 2026 Pablobot</p>
+  </footer>
+
+  <script>
+    const models = [
+      { name: "Trinity Large 400B", family: "Arcee", params: "400B", context: "128K", arch: ["MoE"], id: "arcee-trinity-large-400b" },
+      { name: "DeepSeek V3.2 671B", family: "DeepSeek", params: "671B", context: "200K", arch: ["MoE", "MLA"], id: "deepseek-v3-2-671b" },
+      { name: "DeepSeek R1 671B", family: "DeepSeek", params: "671B", context: "200K", arch: ["MoE", "RL"], id: "deepseek-r1-671b" },
+      { name: "Gemma 3 27B", family: "Google", params: "27B", context: "128K", arch: ["GQA", "SWA"], id: "gemma-3-27b" },
+      { name: "GLM 4.5 355B", family: "GLM", params: "355B", context: "1M", arch: ["MoE", "Sparse"], id: "glm-4-5-355b" },
+      { name: "GLM 4.7 355B", family: "GLM", params: "355B", context: "1M", arch: ["MoE", "Sparse"], id: "glm-4-7-355b" },
+      { name: "GLM 5 744B", family: "GLM", params: "744B", context: "1M", arch: ["MoE", "Sparse"], id: "glm-5-744b" },
+      { name: "GPT OSS 120B", family: "OpenAI", params: "120B", context: "32K", arch: ["Dense"], id: "gpt-oss-120b" },
+      { name: "GPT OSS 20B", family: "OpenAI", params: "20B", context: "32K", arch: ["Dense"], id: "gpt-oss-20b" },
+      { name: "Grok 2.5 270B", family: "xAI", params: "270B", context: "131K", arch: ["MoE"], id: "grok-2-5-270b" },
+      { name: "Kimi K2 1T", family: "Moonshot", params: "1T", context: "1M", arch: ["MoE"], id: "kimi-k2-1t" },
+      { name: "Kimi Linear 48B A3B", family: "Moonshot", params: "48B", context: "1M", arch: ["MoE"], id: "kimi-linear-48b-a3b" },
+      { name: "Ling 2.5 1T", family: "Others", params: "1T", context: "32K", arch: ["MoE"], id: "ling-2-5-1t" },
+      { name: "Llama 3 8B", family: "Meta", params: "8B", context: "128K", arch: ["Dense", "GQA"], id: "llama-3-8b" },
+      { name: "Llama 4 Maverick 400B", family: "Meta", params: "400B", context: "1M", arch: ["MoE", "Gated"], id: "llama-4-maverick-400b" },
+      { name: "MiniMax M2 230B", family: "MiniMax", params: "230B", context: "1M", arch: ["MoE"], id: "minimax-m2-230b" },
+      { name: "MiniMax M2.5 230B", family: "MiniMax", params: "230B", context: "1M", arch: ["MoE"], id: "minimax-m2-5-230b" },
+      { name: "Mistral 3.1 Small 24B", family: "Mistral", params: "24B", context: "128K", arch: ["GQA"], id: "mistral-3-1-small-24b" },
+      { name: "Mistral 3 Large 673B", family: "Mistral", params: "673B", context: "1M", arch: ["MoE"], id: "mistral-3-large-673b" },
+      { name: "Nanbeige 4.1 3B", family: "Others", params: "3B", context: "32K", arch: ["Dense"], id: "nanbeige-4-1-3b" },
+      { name: "Nemotron 3 Nano 30B A3B", family: "Nvidia", params: "30B", context: "128K", arch: ["GQA"], id: "nemotron-3-nano-30b-a3b" },
+      { name: "Nemotron 3 Super 120B A12B", family: "Nvidia", params: "120B", context: "128K", arch: ["MoE"], id: "nemotron-3-super-120b-a12b" },
+      { name: "OLMo 2 7B", family: "AllenAI", params: "7B", context: "4K", arch: ["Dense"], id: "olmo-2-7b" },
+      { name: "OLMo 3 32B", family: "AllenAI", params: "32B", context: "4K", arch: ["Dense"], id: "olmo-3-32b" },
+      { name: "OLMo 3 7B", family: "AllenAI", params: "7B", context: "4K", arch: ["Dense"], id: "olmo-3-7b" },
+      { name: "Qwen3 235B A22B", family: "Qwen", params: "235B", context: "32K", arch: ["MoE", "Gated"], id: "qwen3-235b-a22b" },
+      { name: "Qwen3 32B", family: "Qwen", params: "32B", context: "32K", arch: ["Dense"], id: "qwen3-32b" },
+      { name: "Qwen3 4B", family: "Qwen", params: "4B", context: "32K", arch: ["Dense"], id: "qwen3-4b" },
+      { name: "Qwen3.5 397B", family: "Qwen", params: "397B", context: "32K", arch: ["MoE", "Gated"], id: "qwen3-5-397b" },
+      { name: "Qwen3 8B", family: "Qwen", params: "8B", context: "32K", arch: ["Dense"], id: "qwen3-8b" },
+      { name: "Qwen3 Next 80B A3B", family: "Qwen", params: "80B", context: "32K", arch: ["MoE", "Gated"], id: "qwen3-next-80b-a3b" },
+      { name: "Sarvam 105B", family: "Others", params: "105B", context: "32K", arch: ["MoE"], id: "sarvam-105b" },
+      { name: "Sarvam 30B", family: "Others", params: "30B", context: "32K", arch: ["MoE"], id: "sarvam-30b" },
+      { name: "SmolLM3 3B", family: "Others", params: "3B", context: "4K", arch: ["Dense", "NoPE"], id: "smollm3-3b" },
+      { name: "Step 3.5 Flash 196B", family: "Others", params: "196B", context: "1M", arch: ["MoE"], id: "step-3-5-flash-196b" },
+      { name: "Tiny Aya 3 35B", family: "Others", params: "35B", context: "4K", arch: ["Dense"], id: "tiny-aya-3-35b" },
+      { name: "Xiaomi MiMo V2 Flash 309B", family: "Others", params: "309B", context: "32K", arch: ["MoE"], id: "xiaomi-mimo-v2-flash-309b" }
+    ];
+
+    function getSizeClass(params) {
+      const n = parseInt(params);
+      if (n < 10) return "small";
+      if (n <= 100) return "medium";
+      if (n <= 500) return "large";
+      return "xlarge";
+    }
+
+    function renderModels() {
+      const family = document.getElementById("familyFilter").value;
+      const size = document.getElementById("sizeFilter").value;
+      const tbody = document.getElementById("modelsTable");
+
+      const filtered = models.filter(m => {
+        const familyMatch = family === "all" || m.family === family;
+        const sizeMatch = size === "all" || getSizeClass(m.params.replace("T", "000").replace("B", "")) === size;
+        return familyMatch && sizeMatch;
+      });
+
+      tbody.innerHTML = filtered.map(m => `
+        <tr>
+          <td><a href="models/${m.id}.html">${m.name}</a></td>
+          <td>${m.family}</td>
+          <td><span class="badge badge--${getSizeClass(m.params.replace("T", "000").replace("B", ""))}">${m.params}</span></td>
+          <td>${m.context}</td>
+          <td>${m.arch.map(a => `<span class="arch-tag">${a}</span>`).join("")}</td>
+        </tr>
+      `).join("");
+    }
+
+    document.getElementById("familyFilter").addEventListener("change", renderModels);
+    document.getElementById("sizeFilter").addEventListener("change", renderModels);
+    renderModels();
+  </script>
+</body>
+</html>

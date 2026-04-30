@@ -1,0 +1,114 @@
+[
+  {
+    "id": "arcee",
+    "name": "Arcee",
+    "provider": "Arcee AI",
+    "color": "#a855f7",
+    "description": "Arcee AI focuses on compact, efficient models with novel architecture designs.",
+    "modelCount": 1
+  },
+  {
+    "id": "deepseek",
+    "name": "DeepSeek",
+    "provider": "DeepSeek",
+    "color": "#0ea5e9",
+    "description": "DeepSeek produces open-weight models with cutting-edge MoE architectures and strong reasoning capabilities.",
+    "modelCount": 2
+  },
+  {
+    "id": "google",
+    "name": "Google",
+    "provider": "Google DeepMind",
+    "color": "#f59e0b",
+    "description": "Google's Gemma family offers efficient open models with state-of-the-art performance.",
+    "modelCount": 1
+  },
+  {
+    "id": "glm",
+    "name": "GLM",
+    "provider": "Zhipu AI",
+    "color": "#8b5cf6",
+    "description": "Zhipu AI's GLM series features extremely long context windows and advanced MoE architectures.",
+    "modelCount": 3
+  },
+  {
+    "id": "openai",
+    "name": "OpenAI",
+    "provider": "OpenAI",
+    "color": "#10b981",
+    "description": "OpenAI's open-source releases for research and development purposes.",
+    "modelCount": 2
+  },
+  {
+    "id": "xai",
+    "name": "xAI",
+    "provider": "xAI",
+    "color": "#64748b",
+    "description": "xAI's Grok series with real-time knowledge and witty personality.",
+    "modelCount": 1
+  },
+  {
+    "id": "moonshot",
+    "name": "Moonshot",
+    "provider": "Moonshot AI",
+    "color": "#06b6d4",
+    "description": "Moonshot AI's Kimi series with industry-leading context lengths.",
+    "modelCount": 2
+  },
+  {
+    "id": "meta",
+    "name": "Meta",
+    "provider": "Meta AI",
+    "color": "#3b82f6",
+    "description": "Meta's Llama family is the cornerstone of open AI development.",
+    "modelCount": 2
+  },
+  {
+    "id": "minimax",
+    "name": "MiniMax",
+    "provider": "MiniMax",
+    "color": "#ec4899",
+    "description": "MiniMax produces large-scale MoE models optimized for various tasks.",
+    "modelCount": 2
+  },
+  {
+    "id": "mistral",
+    "name": "Mistral",
+    "provider": "Mistral AI",
+    "color": "#f97316",
+    "description": "Mistral AI delivers efficient open models with strong coding capabilities.",
+    "modelCount": 2
+  },
+  {
+    "id": "nvidia",
+    "name": "Nvidia",
+    "provider": "NVIDIA",
+    "color": "#22c55e",
+    "description": "NVIDIA's Nemotron series optimized for inference and enterprise deployment.",
+    "modelCount": 2
+  },
+  {
+    "id": "allenai",
+    "name": "AllenAI",
+    "provider": "Allen AI",
+    "color": "#84cc16",
+    "description": "Allen AI's OLMo offers fully open training pipelines and reproducible research.",
+    "modelCount": 3
+  },
+  {
+    "id": "qwen",
+    "name": "Qwen",
+    "provider": "Alibaba Cloud",
+    "color": "#ef4444",
+    "description": "Alibaba's Qwen family provides strong multilingual and coding performance.",
+    "modelCount": 6
+  },
+  {
+    "id": "others",
+    "name": "Others",
+    "provider": "Various",
+    "color": "#94a3b8",
+    "description": "Other notable open-weight models from various organizations.",
+    "modelCount": 6
+  }
+]

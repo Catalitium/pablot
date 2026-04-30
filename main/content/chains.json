@@ -1,0 +1,200 @@
+[
+  {
+    "id": "bitcoin",
+    "name": "Bitcoin",
+    "ticker": "BTC",
+    "layer": "L1",
+    "consensus": "PoW",
+    "ecosystem": "Bitcoin",
+    "year": 2009,
+    "description": "Original peer-to-peer cash. Nakamoto consensus, UTXO model, SHA-256 mining.",
+    "whitepaper": "https://bitcoin.org/bitcoin.pdf"
+  },
+  {
+    "id": "ethereum",
+    "name": "Ethereum",
+    "ticker": "ETH",
+    "layer": "L1",
+    "consensus": "PoS",
+    "ecosystem": "Ethereum",
+    "year": 2015,
+    "description": "Programmable blockchain. EVM, smart contracts, Gasper proof-of-stake consensus.",
+    "whitepaper": "https://ethereum.org/en/whitepaper/"
+  },
+  {
+    "id": "solana",
+    "name": "Solana",
+    "ticker": "SOL",
+    "layer": "L1",
+    "consensus": "PoH",
+    "ecosystem": "Solana",
+    "year": 2020,
+    "description": "High-throughput L1. Proof-of-History clock + Tower BFT. Sealevel parallel VM.",
+    "whitepaper": "https://solana.com/solana-whitepaper.pdf"
+  },
+  {
+    "id": "cardano",
+    "name": "Cardano",
+    "ticker": "ADA",
+    "layer": "L1",
+    "consensus": "PoS",
+    "ecosystem": "Cardano",
+    "year": 2017,
+    "description": "Peer-reviewed design. Ouroboros PoS, eUTXO model, Plutus smart contracts.",
+    "whitepaper": "https://docs.cardano.org/about-cardano/overview"
+  },
+  {
+    "id": "polkadot",
+    "name": "Polkadot",
+    "ticker": "DOT",
+    "layer": "L0",
+    "consensus": "NPoS",
+    "ecosystem": "Polkadot",
+    "year": 2020,
+    "description": "Multichain relay network. Nominated PoS, parachain sharding, XCM cross-chain messaging.",
+    "whitepaper": "https://polkadot.com/papers/polkadot-lightpaper.pdf"
+  },
+  {
+    "id": "avalanche",
+    "name": "Avalanche",
+    "ticker": "AVAX",
+    "layer": "L1",
+    "consensus": "Snowball",
+    "ecosystem": "Avalanche",
+    "year": 2020,
+    "description": "Triple-chain architecture (X/P/C). Snowflake/Snowball consensus, sub-second finality.",
+    "whitepaper": "https://assets.website-files.com/5d80307810123f5ffbb34d6e/6008d7bc56430d6b8792b8d1_Avalanche%20Platform%20Whitepaper.pdf"
+  },
+  {
+    "id": "cosmos",
+    "name": "Cosmos",
+    "ticker": "ATOM",
+    "layer": "L0",
+    "consensus": "BFT",
+    "ecosystem": "Cosmos",
+    "year": 2019,
+    "description": "Internet of Blockchains. Tendermint BFT, IBC protocol, app-specific chain architecture.",
+    "whitepaper": "https://cosmos.network/cosmos-whitepaper.pdf"
+  },
+  {
+    "id": "bnb-chain",
+    "name": "BNB Chain",
+    "ticker": "BNB",
+    "layer": "L1",
+    "consensus": "PoSA",
+    "ecosystem": "BNB",
+    "year": 2020,
+    "description": "EVM-compatible high-throughput chain. Proof-of-Staked-Authority with 21 validators.",
+    "whitepaper": "https://github.com/bnb-chain/whitepaper/blob/master/WHITEPAPER.md"
+  },
+  {
+    "id": "near",
+    "name": "NEAR Protocol",
+    "ticker": "NEAR",
+    "layer": "L1",
+    "consensus": "PoS",
+    "ecosystem": "NEAR",
+    "year": 2020,
+    "description": "Sharded L1. Nightshade sharding, Doomslug PoS, account-based model, Rainbow Bridge.",
+    "whitepaper": "https://near.org/papers/the-official-near-white-paper/"
+  },
+  {
+    "id": "sui",
+    "name": "Sui",
+    "ticker": "SUI",
+    "layer": "L1",
+    "consensus": "BFT",
+    "ecosystem": "Sui",
+    "year": 2023,
+    "description": "Object-centric L1. Mysticeti BFT, Move VM, parallel object execution, DAG mempool.",
+    "whitepaper": "https://docs.sui.io/paper/sui.pdf"
+  },
+  {
+    "id": "aptos",
+    "name": "Aptos",
+    "ticker": "APT",
+    "layer": "L1",
+    "consensus": "BFT",
+    "ecosystem": "Aptos",
+    "year": 2022,
+    "description": "Move-based L1. Block-STM parallel execution engine, DiemBFT v4 consensus protocol.",
+    "whitepaper": "https://aptos.dev/assets/files/Aptos-Whitepaper-47099b4b907b432f81fc0effd34f3b6a.pdf"
+  },
+  {
+    "id": "arbitrum",
+    "name": "Arbitrum",
+    "ticker": "ARB",
+    "layer": "L2",
+    "consensus": "Optimistic",
+    "ecosystem": "Arbitrum",
+    "year": 2021,
+    "description": "Optimistic rollup on Ethereum. Nitro engine, interactive fraud proofs, EVM equivalence.",
+    "whitepaper": "https://github.com/OffchainLabs/nitro/blob/master/docs/Nitro-whitepaper.pdf"
+  },
+  {
+    "id": "optimism",
+    "name": "Optimism",
+    "ticker": "OP",
+    "layer": "L2",
+    "consensus": "Optimistic",
+    "ecosystem": "Optimism",
+    "year": 2021,
+    "description": "OP Stack modular rollup. Bedrock architecture, fault proofs, EVM-equivalent execution.",
+    "whitepaper": "https://community.optimism.io/docs/protocol/"
+  },
+  {
+    "id": "polygon",
+    "name": "Polygon",
+    "ticker": "POL",
+    "layer": "L2",
+    "consensus": "ZK",
+    "ecosystem": "Polygon",
+    "year": 2021,
+    "description": "ZK rollup with zkEVM. Plonky2 proving system, EVM equivalence, AggLayer aggregation.",
+    "whitepaper": "https://polygon.technology/papers/pol-whitepaper"
+  },
+  {
+    "id": "base",
+    "name": "Base",
+    "ticker": "BASE",
+    "layer": "L2",
+    "consensus": "Optimistic",
+    "ecosystem": "Base",
+    "year": 2023,
+    "description": "Coinbase OP Stack rollup. Bedrock fork, EVM-equivalent execution, no native gas token.",
+    "whitepaper": "https://base.mirror.xyz/jjQnUq_UNTQOk7psnGBFop02-bLgqiqgrn9ZVFkiJj4"
+  },
+  {
+    "id": "zksync",
+    "name": "zkSync Era",
+    "ticker": "ZK",
+    "layer": "L2",
+    "consensus": "ZK",
+    "ecosystem": "zkSync",
+    "year": 2023,
+    "description": "ZK rollup with zkEVM. Boojum proof system, native account abstraction, zkPorter DA.",
+    "whitepaper": "https://zksync.io/whitepaper.pdf"
+  },
+  {
+    "id": "stellar",
+    "name": "Stellar",
+    "ticker": "XLM",
+    "layer": "L1",
+    "consensus": "SCP",
+    "ecosystem": "Stellar",
+    "year": 2014,
+    "description": "Federated Byzantine agreement. Stellar Consensus Protocol, built-in DEX, fast payments.",
+    "whitepaper": "https://www.stellar.org/papers/stellar-consensus-protocol"
+  },
+  {
+    "id": "algorand",
+    "name": "Algorand",
+    "ticker": "ALGO",
+    "layer": "L1",
+    "consensus": "PoS",
+    "ecosystem": "Algorand",
+    "year": 2019,
+    "description": "Pure PoS with cryptographic sortition. Immediate finality, no forks, AVM smart contracts.",
+    "whitepaper": "https://algorandcom.cdn.prismic.io/algorandcom/d5407f96-8e7d-4418-9ce4-0ce9e42ab087_theoretical.pdf"
+  }
+]

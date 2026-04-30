@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Families — Pablobot</title>
+  <meta name="description" content="14 AI model families with provider info and shared characteristics.">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23171717'>P</text></svg>">
+  <style>
+    .family-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+    .family-card { border: 1px solid #e5e5e5; border-radius: 8px; padding: 1.5rem; transition: box-shadow 0.2s; }
+    .family-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .family-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .family-color { width: 12px; height: 12px; border-radius: 50%; }
+    .family-name { font-size: 1.25rem; font-weight: 600; margin: 0; }
+    .family-provider { font-size: 0.875rem; color: #666; margin-bottom: 0.75rem; }
+    .family-desc { font-size: 0.875rem; color: #444; line-height: 1.5; margin-bottom: 1rem; }
+    .family-stats { font-size: 0.75rem; color: #888; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <nav class="header-nav" aria-label="Quick links">
+      <a href="/" class="header-nav-btn">← Back to tools</a>
+      <a href="../" class="header-nav-btn">← Reference</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <div class="hero" style="padding-bottom: 1rem;">
+      <p class="hero-eyebrow">Model Families</p>
+      <h1>Family overview.</h1>
+      <p class="hero-lead">14 AI model families with provider info and shared characteristics.</p>
+    </div>
+
+    <div class="family-grid">
+      <a href="arcee.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #a855f7;"></span>
+          <h3 class="family-name">Arcee</h3>
+        </div>
+        <p class="family-provider">Arcee AI</p>
+        <p class="family-desc">Arcee AI focuses on compact, efficient models with novel architecture designs.</p>
+        <span class="family-stats">1 model</span>
+      </a>
+
+      <a href="deepseek.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #0ea5e9;"></span>
+          <h3 class="family-name">DeepSeek</h3>
+        </div>
+        <p class="family-provider">DeepSeek</p>
+        <p class="family-desc">DeepSeek produces open-weight models with cutting-edge MoE architectures and strong reasoning capabilities.</p>
+        <span class="family-stats">2 models</span>
+      </a>
+
+      <a href="google.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #f59e0b;"></span>
+          <h3 class="family-name">Google</h3>
+        </div>
+        <p class="family-provider">Google DeepMind</p>
+        <p class="family-desc">Google's Gemma family offers efficient open models with state-of-the-art performance.</p>
+        <span class="family-stats">1 model</span>
+      </a>
+
+      <a href="glm.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #8b5cf6;"></span>
+          <h3 class="family-name">GLM</h3>
+        </div>
+        <p class="family-provider">Zhipu AI</p>
+        <p class="family-desc">Zhipu AI's GLM series features extremely long context windows and advanced MoE architectures.</p>
+        <span class="family-stats">3 models</span>
+      </a>
+
+      <a href="openai.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #10b981;"></span>
+          <h3 class="family-name">OpenAI</h3>
+        </div>
+        <p class="family-provider">OpenAI</p>
+        <p class="family-desc">OpenAI's open-source releases for research and development purposes.</p>
+        <span class="family-stats">2 models</span>
+      </a>
+
+      <a href="xai.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #64748b;"></span>
+          <h3 class="family-name">xAI</h3>
+        </div>
+        <p class="family-provider">xAI</p>
+        <p class="family-desc">xAI's Grok series with real-time knowledge and witty personality.</p>
+        <span class="family-stats">1 model</span>
+      </a>
+
+      <a href="moonshot.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #06b6d4;"></span>
+          <h3 class="family-name">Moonshot</h3>
+        </div>
+        <p class="family-provider">Moonshot AI</p>
+        <p class="family-desc">Moonshot AI's Kimi series with industry-leading context lengths.</p>
+        <span class="family-stats">2 models</span>
+      </a>
+
+      <a href="meta.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #3b82f6;"></span>
+          <h3 class="family-name">Meta</h3>
+        </div>
+        <p class="family-provider">Meta AI</p>
+        <p class="family-desc">Meta's Llama family is the cornerstone of open AI development.</p>
+        <span class="family-stats">2 models</span>
+      </a>
+
+      <a href="minimax.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #ec4899;"></span>
+          <h3 class="family-name">MiniMax</h3>
+        </div>
+        <p class="family-provider">MiniMax</p>
+        <p class="family-desc">MiniMax produces large-scale MoE models optimized for various tasks.</p>
+        <span class="family-stats">2 models</span>
+      </a>
+
+      <a href="mistral.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #f97316;"></span>
+          <h3 class="family-name">Mistral</h3>
+        </div>
+        <p class="family-provider">Mistral AI</p>
+        <p class="family-desc">Mistral AI delivers efficient open models with strong coding capabilities.</p>
+        <span class="family-stats">2 models</span>
+      </a>
+
+      <a href="nvidia.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #22c55e;"></span>
+          <h3 class="family-name">Nvidia</h3>
+        </div>
+        <p class="family-provider">NVIDIA</p>
+        <p class="family-desc">NVIDIA's Nemotron series optimized for inference and enterprise deployment.</p>
+        <span class="family-stats">2 models</span>
+      </a>
+
+      <a href="allenai.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #84cc16;"></span>
+          <h3 class="family-name">AllenAI</h3>
+        </div>
+        <p class="family-provider">Allen AI</p>
+        <p class="family-desc">Allen AI's OLMo offers fully open training pipelines and reproducible research.</p>
+        <span class="family-stats">3 models</span>
+      </a>
+
+      <a href="qwen.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #ef4444;"></span>
+          <h3 class="family-name">Qwen</h3>
+        </div>
+        <p class="family-provider">Alibaba Cloud</p>
+        <p class="family-desc">Alibaba's Qwen family provides strong multilingual and coding performance.</p>
+        <span class="family-stats">6 models</span>
+      </a>
+
+      <a href="others.html" class="family-card">
+        <div class="family-card-header">
+          <span class="family-color" style="background: #94a3b8;"></span>
+          <h3 class="family-name">Others</h3>
+        </div>
+        <p class="family-provider">Various</p>
+        <p class="family-desc">Other notable open-weight models from various organizations.</p>
+        <span class="family-stats">6 models</span>
+      </a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-trust">Open source · Static site · No accounts</p>
+    <p class="footer-meta">© 2026 Pablobot</p>
+  </footer>
+</body>
+</html>

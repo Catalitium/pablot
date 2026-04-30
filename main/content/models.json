@@ -1,0 +1,543 @@
+[
+  {
+    "id": "arcee-trinity-large-400b",
+    "name": "Trinity Large 400B",
+    "family": "Arcee",
+    "provider": "Arcee AI",
+    "parameters": 400,
+    "parametersLabel": "400B",
+    "sizeBucket": "large",
+    "contextLength": "128K",
+    "releaseDate": "2025-02",
+    "architecture": ["MoE"],
+    "sources": [
+      { "label": "Arcee AI", "url": "https://arcee.ai" }
+    ]
+  },
+  {
+    "id": "deepseek-v3-2-671b",
+    "name": "DeepSeek V3.2 671B",
+    "family": "DeepSeek",
+    "provider": "DeepSeek",
+    "parameters": 671,
+    "parametersLabel": "671B",
+    "sizeBucket": "xlarge",
+    "contextLength": "200K",
+    "releaseDate": "2025-01",
+    "architecture": ["MoE", "MLA"],
+    "sources": [
+      { "label": "GitHub", "url": "https://github.com/deepseek-ai/DeepSeek-V3" }
+    ]
+  },
+  {
+    "id": "deepseek-r1-671b",
+    "name": "DeepSeek R1 671B",
+    "family": "DeepSeek",
+    "provider": "DeepSeek",
+    "parameters": 671,
+    "parametersLabel": "671B",
+    "sizeBucket": "xlarge",
+    "contextLength": "200K",
+    "releaseDate": "2025-01",
+    "architecture": ["MoE", "RL"],
+    "sources": [
+      { "label": "GitHub", "url": "https://github.com/deepseek-ai/DeepSeek-R1" }
+    ]
+  },
+  {
+    "id": "gemma-3-27b",
+    "name": "Gemma 3 27B",
+    "family": "Google",
+    "provider": "Google DeepMind",
+    "parameters": 27,
+    "parametersLabel": "27B",
+    "sizeBucket": "medium",
+    "contextLength": "128K",
+    "releaseDate": "2025-03",
+    "architecture": ["GQA", "SWA"],
+    "sources": [
+      { "label": "HuggingFace", "url": "https://huggingface.co/google/gemma-3-27b" }
+    ]
+  },
+  {
+    "id": "glm-4-5-355b",
+    "name": "GLM 4.5 355B",
+    "family": "GLM",
+    "provider": "Zhipu AI",
+    "parameters": 355,
+    "parametersLabel": "355B",
+    "sizeBucket": "large",
+    "contextLength": "1M",
+    "releaseDate": "2024-12",
+    "architecture": ["MoE", "Sparse Attention"],
+    "sources": [
+      { "label": "Zhipu AI", "url": "https://chatglm.cn" }
+    ]
+  },
+  {
+    "id": "glm-4-7-355b",
+    "name": "GLM 4.7 355B",
+    "family": "GLM",
+    "provider": "Zhipu AI",
+    "parameters": 355,
+    "parametersLabel": "355B",
+    "sizeBucket": "large",
+    "contextLength": "1M",
+    "releaseDate": "2025-02",
+    "architecture": ["MoE", "Sparse Attention"],
+    "sources": [
+      { "label": "Zhipu AI", "url": "https://chatglm.cn" }
+    ]
+  },
+  {
+    "id": "glm-5-744b",
+    "name": "GLM 5 744B",
+    "family": "GLM",
+    "provider": "Zhipu AI",
+    "parameters": 744,
+    "parametersLabel": "744B",
+    "sizeBucket": "xlarge",
+    "contextLength": "1M",
+    "releaseDate": "2025-03",
+    "architecture": ["MoE", "Sparse Attention"],
+    "sources": [
+      { "label": "Zhipu AI", "url": "https://chatglm.cn" }
+    ]
+  },
+  {
+    "id": "gpt-oss-120b",
+    "name": "GPT OSS 120B",
+    "family": "OpenAI",
+    "provider": "OpenAI",
+    "parameters": 120,
+    "parametersLabel": "120B",
+    "sizeBucket": "large",
+    "contextLength": "32K",
+    "releaseDate": "2024-05",
+    "architecture": ["Dense"],
+    "sources": []
+  },
+  {
+    "id": "gpt-oss-20b",
+    "name": "GPT OSS 20B",
+    "family": "OpenAI",
+    "provider": "OpenAI",
+    "parameters": 20,
+    "parametersLabel": "20B",
+    "sizeBucket": "medium",
+    "contextLength": "32K",
+    "releaseDate": "2024-05",
+    "architecture": ["Dense"],
+    "sources": []
+  },
+  {
+    "id": "grok-2-5-270b",
+    "name": "Grok 2.5 270B",
+    "family": "xAI",
+    "provider": "xAI",
+    "parameters": 270,
+    "parametersLabel": "270B",
+    "sizeBucket": "large",
+    "contextLength": "131K",
+    "releaseDate": "2024-11",
+    "architecture": ["MoE"],
+    "sources": [
+      { "label": "xAI", "url": "https://x.ai" }
+    ]
+  },
+  {
+    "id": "kimi-k2-1t",
+    "name": "Kimi K2 1T",
+    "family": "Moonshot",
+    "provider": "Moonshot AI",
+    "parameters": 1000,
+    "parametersLabel": "1T",
+    "sizeBucket": "xlarge",
+    "contextLength": "1M",
+    "releaseDate": "2025-03",
+    "architecture": ["MoE"],
+    "sources": [
+      { "label": "Moonshot AI", "url": "https://kimi.moonshot.cn" }
+    ]
+  },
+  {
+    "id": "kimi-linear-48b-a3b",
+    "name": "Kimi Linear 48B A3B",
+    "family": "Moonshot",
+    "provider": "Moonshot AI",
+    "parameters": 48,
+    "parametersLabel": "48B (A3B)",
+    "sizeBucket": "medium",
+    "contextLength": "1M",
+    "releaseDate": "2025-02",
+    "architecture": ["MoE"],
+    "sources": [
+      { "label": "Moonshot AI", "url": "https://kimi.moonshot.cn" }
+    ]
+  },
+  {
+    "id": "ling-2-5-1t",
+    "name": "Ling 2.5 1T",
+    "family": "Others",
+    "provider": "01 AI",
+    "parameters": 1000,
+    "parametersLabel": "1T",
+    "sizeBucket": "xlarge",
+    "contextLength": "32K",
+    "releaseDate": "2024-08",
+    "architecture": ["MoE"],
+    "sources": [
+      { "label": "01 AI", "url": "https://01.ai" }
+    ]
+  },
+  {
+    "id": "llama-3-8b",
+    "name": "Llama 3 8B",
+    "family": "Meta",
+    "provider": "Meta AI",
+    "parameters": 8,
+    "parametersLabel": "8B",
+    "sizeBucket": "small",
+    "contextLength": "128K",
+    "releaseDate": "2024-04",
+    "architecture": ["Dense", "GQA"],
+    "sources": [
+      { "label": "Meta AI", "url": "https://llama.meta.com/llama3" }
+    ]
+  },
+  {
+    "id": "llama-4-maverick-400b",
+    "name": "Llama 4 Maverick 400B",
+    "family": "Meta",
+    "provider": "Meta AI",
+    "parameters": 400,
+    "parametersLabel": "400B",
+    "sizeBucket": "large",
+    "contextLength": "1M",
+    "releaseDate": "2025-03",
+    "architecture": ["MoE", "Gated Attention"],
+    "sources": [
+      { "label": "Meta AI", "url": "https://llama.meta.com" }
+    ]
+  },
+  {
+    "id": "minimax-m2-230b",
+    "name": "MiniMax M2 230B",
+    "family": "MiniMax",
+    "provider": "MiniMax",
+    "parameters": 230,
+    "parametersLabel": "230B",
+    "sizeBucket": "large",
+    "contextLength": "1M",
+    "releaseDate": "2025-01",
+    "architecture": ["MoE"],
+    "sources": [
+      { "label": "MiniMax", "url": "https://www.minimax.io" }
+    ]
+  },
+  {
+    "id": "minimax-m2-5-230b",
+    "name": "MiniMax M2.5 230B",
+    "family": "MiniMax",
+    "provider": "MiniMax",
+    "parameters": 230,
+    "parametersLabel": "230B",
+    "sizeBucket": "large",
+    "contextLength": "1M",
+    "releaseDate": "2025-02",
+    "architecture": ["MoE"],
+    "sources": [
+      { "label": "MiniMax", "url": "https://www.minimax.io" }
+    ]
+  },
+  {
+    "id": "mistral-3-1-small-24b",
+    "name": "Mistral 3.1 Small 24B",
+    "family": "Mistral",
+    "provider": "Mistral AI",
+    "parameters": 24,
+    "parametersLabel": "24B",
+    "sizeBucket": "medium",
+    "contextLength": "128K",
+    "releaseDate": "2025-02",
+    "architecture": ["GQA"],
+    "sources": [
+      { "label": "Mistral AI", "url": "https://mistral.ai" }
+    ]
+  },
+  {
+    "id": "mistral-3-large-673b",
+    "name": "Mistral 3 Large 673B",
+    "family": "Mistral",
+    "provider": "Mistral AI",
+    "parameters": 673,
+    "parametersLabel": "673B",
+    "sizeBucket": "xlarge",
+    "contextLength": "1M",
+    "releaseDate": "2025-03",
+    "architecture": ["MoE"],
+    "sources": [
+      { "label": "Mistral AI", "url": "https://mistral.ai" }
+    ]
+  },
+  {
+    "id": "nanbeige-4-1-3b",
+    "name": "Nanbeige 4.1 3B",
+    "family": "Others",
+    "provider": "01 AI",
+    "parameters": 3,
+    "parametersLabel": "3B",
+    "sizeBucket": "small",
+    "contextLength": "32K",
+    "releaseDate": "2024-11",
+    "architecture": ["Dense"],
+    "sources": []
+  },
+  {
+    "id": "nemotron-3-nano-30b-a3b",
+    "name": "Nemotron 3 Nano 30B A3B",
+    "family": "Nvidia",
+    "provider": "NVIDIA",
+    "parameters": 30,
+    "parametersLabel": "30B (A3B)",
+    "sizeBucket": "medium",
+    "contextLength": "128K",
+    "releaseDate": "2024-11",
+    "architecture": ["GQA"],
+    "sources": [
+      { "label": "NVIDIA", "url": "https://developer.nvidia.com/nemotron-3" }
+    ]
+  },
+  {
+    "id": "nemotron-3-super-120b-a12b",
+    "name": "Nemotron 3 Super 120B A12B",
+    "family": "Nvidia",
+    "provider": "NVIDIA",
+    "parameters": 120,
+    "parametersLabel": "120B (A12B)",
+    "sizeBucket": "large",
+    "contextLength": "128K",
+    "releaseDate": "2024-12",
+    "architecture": ["MoE"],
+    "sources": [
+      { "label": "NVIDIA", "url": "https://developer.nvidia.com/nemotron-3" }
+    ]
+  },
+  {
+    "id": "olmo-2-7b",
+    "name": "OLMo 2 7B",
+    "family": "AllenAI",
+    "provider": "Allen AI",
+    "parameters": 7,
+    "parametersLabel": "7B",
+    "sizeBucket": "small",
+    "contextLength": "4K",
+    "releaseDate": "2024-10",
+    "architecture": ["Dense"],
+    "sources": [
+      { "label": "Allen AI", "url": "https://allenai.org/olmo" }
+    ]
+  },
+  {
+    "id": "olmo-3-32b",
+    "name": "OLMo 3 32B",
+    "family": "AllenAI",
+    "provider": "Allen AI",
+    "parameters": 32,
+    "parametersLabel": "32B",
+    "sizeBucket": "medium",
+    "contextLength": "4K",
+    "releaseDate": "2025-02",
+    "architecture": ["Dense"],
+    "sources": [
+      { "label": "Allen AI", "url": "https://allenai.org/olmo" }
+    ]
+  },
+  {
+    "id": "olmo-3-7b",
+    "name": "OLMo 3 7B",
+    "family": "AllenAI",
+    "provider": "Allen AI",
+    "parameters": 7,
+    "parametersLabel": "7B",
+    "sizeBucket": "small",
+    "contextLength": "4K",
+    "releaseDate": "2025-02",
+    "architecture": ["Dense"],
+    "sources": [
+      { "label": "Allen AI", "url": "https://allenai.org/olmo" }
+    ]
+  },
+  {
+    "id": "qwen3-235b-a22b",
+    "name": "Qwen3 235B A22B",
+    "family": "Qwen",
+    "provider": "Alibaba Cloud",
+    "parameters": 235,
+    "parametersLabel": "235B (A22B)",
+    "sizeBucket": "large",
+    "contextLength": "32K",
+    "releaseDate": "2025-03",
+    "architecture": ["MoE", "Gated Attention"],
+    "sources": [
+      { "label": "Qwen", "url": "https://qwen.ai" }
+    ]
+  },
+  {
+    "id": "qwen3-32b",
+    "name": "Qwen3 32B",
+    "family": "Qwen",
+    "provider": "Alibaba Cloud",
+    "parameters": 32,
+    "parametersLabel": "32B",
+    "sizeBucket": "medium",
+    "contextLength": "32K",
+    "releaseDate": "2025-03",
+    "architecture": ["Dense"],
+    "sources": [
+      { "label": "Qwen", "url": "https://qwen.ai" }
+    ]
+  },
+  {
+    "id": "qwen3-4b",
+    "name": "Qwen3 4B",
+    "family": "Qwen",
+    "provider": "Alibaba Cloud",
+    "parameters": 4,
+    "parametersLabel": "4B",
+    "sizeBucket": "small",
+    "contextLength": "32K",
+    "releaseDate": "2025-03",
+    "architecture": ["Dense"],
+    "sources": [
+      { "label": "Qwen", "url": "https://qwen.ai" }
+    ]
+  },
+  {
+    "id": "qwen3-5-397b",
+    "name": "Qwen3.5 397B",
+    "family": "Qwen",
+    "provider": "Alibaba Cloud",
+    "parameters": 397,
+    "parametersLabel": "397B",
+    "sizeBucket": "large",
+    "contextLength": "32K",
+    "releaseDate": "2024-09",
+    "architecture": ["MoE", "Gated Attention"],
+    "sources": [
+      { "label": "Qwen", "url": "https://qwen.ai" }
+    ]
+  },
+  {
+    "id": "qwen3-8b",
+    "name": "Qwen3 8B",
+    "family": "Qwen",
+    "provider": "Alibaba Cloud",
+    "parameters": 8,
+    "parametersLabel": "8B",
+    "sizeBucket": "small",
+    "contextLength": "32K",
+    "releaseDate": "2025-03",
+    "architecture": ["Dense"],
+    "sources": [
+      { "label": "Qwen", "url": "https://qwen.ai" }
+    ]
+  },
+  {
+    "id": "qwen3-next-80b-a3b",
+    "name": "Qwen3 Next 80B A3B",
+    "family": "Qwen",
+    "provider": "Alibaba Cloud",
+    "parameters": 80,
+    "parametersLabel": "80B (A3B)",
+    "sizeBucket": "medium",
+    "contextLength": "32K",
+    "releaseDate": "2025-02",
+    "architecture": ["MoE", "Gated Attention"],
+    "sources": [
+      { "label": "Qwen", "url": "https://qwen.ai" }
+    ]
+  },
+  {
+    "id": "sarvam-105b",
+    "name": "Sarvam 105B",
+    "family": "Others",
+    "provider": "Sarvam AI",
+    "parameters": 105,
+    "parametersLabel": "105B",
+    "sizeBucket": "large",
+    "contextLength": "32K",
+    "releaseDate": "2024-12",
+    "architecture": ["MoE"],
+    "sources": []
+  },
+  {
+    "id": "sarvam-30b",
+    "name": "Sarvam 30B",
+    "family": "Others",
+    "provider": "Sarvam AI",
+    "parameters": 30,
+    "parametersLabel": "30B",
+    "sizeBucket": "medium",
+    "contextLength": "32K",
+    "releaseDate": "2024-12",
+    "architecture": ["MoE"],
+    "sources": []
+  },
+  {
+    "id": "smollm3-3b",
+    "name": "SmolLM3 3B",
+    "family": "Others",
+    "provider": "HuggingFace",
+    "parameters": 3,
+    "parametersLabel": "3B",
+    "sizeBucket": "small",
+    "contextLength": "4K",
+    "releaseDate": "2024-10",
+    "architecture": ["Dense", "NoPE"],
+    "sources": [
+      { "label": "HuggingFace", "url": "https://huggingface.co/HuggingFaceTB/SmolLM3-3B" }
+    ]
+  },
+  {
+    "id": "step-3-5-flash-196b",
+    "name": "Step 3.5 Flash 196B",
+    "family": "Others",
+    "provider": "StepFun",
+    "parameters": 196,
+    "parametersLabel": "196B",
+    "sizeBucket": "large",
+    "contextLength": "1M",
+    "releaseDate": "2025-01",
+    "architecture": ["MoE"],
+    "sources": []
+  },
+  {
+    "id": "tiny-aya-3-35b",
+    "name": "Tiny Aya 3 35B",
+    "family": "Others",
+    "provider": "Cohere",
+    "parameters": 35,
+    "parametersLabel": "35B",
+    "sizeBucket": "medium",
+    "contextLength": "4K",
+    "releaseDate": "2025-01",
+    "architecture": ["Dense"],
+    "sources": []
+  },
+  {
+    "id": "xiaomi-mimo-v2-flash-309b",
+    "name": "Xiaomi MiMo V2 Flash 309B",
+    "family": "Others",
+    "provider": "Xiaomi",
+    "parameters": 309,
+    "parametersLabel": "309B",
+    "sizeBucket": "large",
+    "contextLength": "32K",
+    "releaseDate": "2025-02",
+    "architecture": ["MoE"],
+    "sources": [
+      { "label": "Xiaomi", "url": "https://ai.xiaomi.com" }
+    ]
+  }
+]

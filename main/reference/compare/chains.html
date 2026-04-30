@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compare Chains — Pablobot</title>
+  <meta name="description" content="Compare all blockchain chains by layer, consensus mechanism, and launch year.">
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23171717'>P</text></svg>">
+  <style>
+    .compare-table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-size: 0.875rem; }
+    .compare-table th, .compare-table td { padding: 0.625rem 0.75rem; text-align: left; border-bottom: 1px solid #e5e5e5; }
+    .compare-table th { background: #f5f5f5; font-weight: 600; position: sticky; top: 0; }
+    .compare-table tr:hover { background: #fafafa; }
+    .compare-table th.sortable { cursor: pointer; user-select: none; }
+    .compare-table th.sortable:hover { background: #e5e5e5; }
+    .compare-table th.sorted-asc::after { content: " ↑"; }
+    .compare-table th.sorted-desc::after { content: " ↓"; }
+    .layer-badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+    .layer-L0 { background: #fef3c7; color: #92400e; }
+    .layer-L1 { background: #dbeafe; color: #1e40af; }
+    .layer-L2 { background: #d1fae5; color: #065f46; }
+    .cons-tag { display: inline-block; padding: 0.125rem 0.375rem; background: #f3f4f6; border-radius: 3px; font-size: 0.75rem; }
+    .filters { display: flex; gap: 1rem; margin: 1.5rem 0; flex-wrap: wrap; align-items: center; }
+    .filter-select { padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; background: white; }
+    .table-wrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <nav class="header-nav" aria-label="Quick links">
+      <a href="/" class="header-nav-btn">← Back to tools</a>
+      <a href="../" class="header-nav-btn">← Reference</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <div class="hero" style="padding-bottom: 1rem;">
+      <p class="hero-eyebrow">Compare</p>
+      <h1>Chain comparison.</h1>
+      <p class="hero-lead">Side-by-side comparison of all 18 blockchain chains.</p>
+    </div>
+
+    <div class="filters">
+      <select id="layerFilter" class="filter-select">
+        <option value="all">All layers</option>
+        <option value="L0">L0</option>
+        <option value="L1">L1</option>
+        <option value="L2">L2</option>
+      </select>
+      <select id="consensusFilter" class="filter-select">
+        <option value="all">All consensus</option>
+        <option value="PoW">PoW</option>
+        <option value="PoS">PoS</option>
+        <option value="PoH">PoH</option>
+        <option value="BFT">BFT</option>
+        <option value="Optimistic">Optimistic</option>
+        <option value="ZK">ZK</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table class="compare-table" id="compareTable">
+        <thead>
+          <tr>
+            <th class="sortable" data-sort="name">Chain</th>
+            <th class="sortable" data-sort="ticker">Ticker</th>
+            <th class="sortable" data-sort="layer">Layer</th>
+            <th class="sortable" data-sort="consensus">Consensus</th>
+            <th class="sortable" data-sort="year">Launch</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-trust">Open source · Static site · No accounts</p>
+    <p class="footer-meta">© 2026 Pablobot</p>
+  </footer>
+
+  <script>
+    const chains = [
+      { name: "Bitcoin", ticker: "BTC", layer: "L1", consensus: "PoW", year: 2009, id: "bitcoin" },
+      { name: "Ethereum", ticker: "ETH", layer: "L1", consensus: "PoS", year: 2015, id: "ethereum" },
+      { name: "Solana", ticker: "SOL", layer: "L1", consensus: "PoH", year: 2020, id: "solana" },
+      { name: "Cardano", ticker: "ADA", layer: "L1", consensus: "PoS", year: 2017, id: "cardano" },
+      { name: "Polkadot", ticker: "DOT", layer: "L0", consensus: "NPoS", year: 2020, id: "polkadot" },
+      { name: "Avalanche", ticker: "AVAX", layer: "L1", consensus: "Snowball", year: 2020, id: "avalanche" },
+      { name: "Cosmos", ticker: "ATOM", layer: "L0", consensus: "BFT", year: 2019, id: "cosmos" },
+      { name: "BNB Chain", ticker: "BNB", layer: "L1", consensus: "PoSA", year: 2020, id: "bnb-chain" },
+      { name: "NEAR Protocol", ticker: "NEAR", layer: "L1", consensus: "PoS", year: 2020, id: "near" },
+      { name: "Sui", ticker: "SUI", layer: "L1", consensus: "BFT", year: 2023, id: "sui" },
+      { name: "Aptos", ticker: "APT", layer: "L1", consensus: "BFT", year: 2022, id: "aptos" },
+      { name: "Arbitrum", ticker: "ARB", layer: "L2", consensus: "Optimistic", year: 2021, id: "arbitrum" },
+      { name: "Optimism", ticker: "OP", layer: "L2", consensus: "Optimistic", year: 2021, id: "optimism" },
+      { name: "Polygon", ticker: "POL", layer: "L2", consensus: "ZK", year: 2021, id: "polygon" },
+      { name: "Base", ticker: "BASE", layer: "L2", consensus: "Optimistic", year: 2023, id: "base" },
+      { name: "zkSync Era", ticker: "ZK", layer: "L2", consensus: "ZK", year: 2023, id: "zksync" },
+      { name: "Stellar", ticker: "XLM", layer: "L1", consensus: "SCP", year: 2014, id: "stellar" },
+      { name: "Algorand", ticker: "ALGO", layer: "L1", consensus: "PoS", year: 2019, id: "algorand" }
+    ];
+
+    let sortCol = "name";
+    let sortAsc = true;
+
+    function renderTable() {
+      const layer = document.getElementById("layerFilter").value;
+      const consensus = document.getElementById("consensusFilter").value;
+      const tbody = document.querySelector("#compareTable tbody");
+
+      let filtered = chains.filter(c => {
+        const layerMatch = layer === "all" || c.layer === layer;
+        const consensusMatch = consensus === "all" || c.consensus.includes(consensus);
+        return layerMatch && consensusMatch;
+      });
+
+      filtered.sort((a, b) => {
+        let va, vb;
+        if (sortCol === "name") { va = a.name; vb = b.name; }
+        else if (sortCol === "ticker") { va = a.ticker; vb = b.ticker; }
+        else if (sortCol === "layer") { va = a.layer; vb = b.layer; }
+        else if (sortCol === "consensus") { va = a.consensus; vb = b.consensus; }
+        else if (sortCol === "year") { va = a.year; vb = b.year; }
+        else { return 0; }
+        if (va < vb) return sortAsc ? -1 : 1;
+        if (va > vb) return sortAsc ? 1 : -1;
+        return 0;
+      });
+
+      tbody.innerHTML = filtered.map(c => `
+        <tr>
+          <td><a href="../chains/${c.id}.html">${c.name}</a></td>
+          <td>${c.ticker}</td>
+          <td><span class="layer-badge layer-${c.layer}">${c.layer}</span></td>
+          <td><span class="cons-tag">${c.consensus}</span></td>
+          <td>${c.year}</td>
+        </tr>
+      `).join("");
+
+      document.querySelectorAll(".compare-table th.sortable").forEach(th => {
+        th.classList.remove("sorted-asc", "sorted-desc");
+        if (th.dataset.sort === sortCol) {
+          th.classList.add(sortAsc ? "sorted-asc" : "sorted-desc");
+        }
+      });
+    }
+
+    document.querySelectorAll(".compare-table th.sortable").forEach(th => {
+      th.addEventListener("click", () => {
+        const col = th.dataset.sort;
+        if (sortCol === col) sortAsc = !sortAsc;
+        else { sortCol = col; sortAsc = true; }
+        renderTable();
+      });
+    });
+
+    document.getElementById("layerFilter").addEventListener("change", renderTable);
+    document.getElementById("consensusFilter").addEventListener("change", renderTable);
+    renderTable();
+  </script>
+</body>
+</html>

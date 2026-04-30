@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Which Model? — Pablobot</title>
+  <meta name="description" content="Find the right AI model for your use case. Filter by parameters, context length, architecture, and more.">
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23171717'>P</text></svg>">
+  <style>
+    .selector-container { max-width: 800px; margin: 0 auto; }
+    .selector-title { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; text-align: center; }
+    .selector-subtitle { text-align: center; color: #666; margin-bottom: 2rem; }
+    .selector-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .filter-group label { display: block; font-size: 0.75rem; font-weight: 600; color: #666; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .filter-group select { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; background: white; }
+    .results-count { text-align: center; color: #666; margin-bottom: 1rem; }
+    .results-grid { display: grid; gap: 1rem; }
+    .result-card { display: block; border: 1px solid #e5e5e5; border-radius: 8px; padding: 1.25rem; text-decoration: none; color: inherit; transition: border-color 0.2s, box-shadow 0.2s; }
+    .result-card:hover { border-color: #2563eb; box-shadow: 0 2px 8px rgba(37,99,235,0.1); }
+    .result-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+    .result-card-name { font-weight: 600; font-size: 1.125rem; }
+    .result-card-family { font-size: 0.75rem; color: #888; }
+    .result-card-meta { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.875rem; }
+    .result-card-meta span { color: #666; }
+    .result-card-arch { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
+    .arch-pill { display: inline-block; padding: 0.25rem 0.5rem; background: #f3f4f6; border-radius: 4px; font-size: 0.75rem; }
+    .result-card-link { display: inline-block; margin-top: 0.75rem; color: #2563eb; font-size: 0.875rem; }
+    .no-results { text-align: center; padding: 3rem; color: #888; }
+    .back-link { display: inline-block; color: #666; text-decoration: none; margin-bottom: 1.5rem; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <nav class="header-nav">
+      <a href="/" class="header-nav-btn">← Tools</a>
+      <a href="./" class="header-nav-btn">← Models</a>
+    </nav>
+  </header>
+  <main class="main">
+    <a href="./" class="back-link">← Back to all models</a>
+
+    <div class="selector-container">
+      <h1 class="selector-title">Which model should I use?</h1>
+      <p class="selector-subtitle">Find the right AI model for your use case</p>
+
+      <div class="selector-filters">
+        <div class="filter-group">
+          <label>What do you need?</label>
+          <select id="useCase">
+            <option value="">Any use case</option>
+            <option value="reasoning">Reasoning &amp; math</option>
+            <option value="coding">Code generation</option>
+            <option value="long-context">Long context (100K+)</option>
+            <option value="efficient">Efficient / small</option>
+            <option value="frontier">Frontier / largest</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Parameters</label>
+          <select id="size">
+            <option value="">Any size</option>
+            <option value="small">&lt; 10B (efficient)</option>
+            <option value="medium">10B – 100B (mid-size)</option>
+            <option value="large">100B – 500B (large)</option>
+            <option value="xlarge">&gt; 500B (frontier)</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Context length</label>
+          <select id="context">
+            <option value="">Any context</option>
+            <option value="short">Up to 32K</option>
+            <option value="medium">32K – 128K</option>
+            <option value="long">128K+</option>
+            <option value="million">1M+</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Architecture</label>
+          <select id="arch">
+            <option value="">Any architecture</option>
+            <option value="MoE">MoE (Mixture of Experts)</option>
+            <option value="Dense">Dense</option>
+            <option value="GQA">GQA (Grouped Query)</option>
+            <option value="SWA">Sliding Window</option>
+            <option value="Gated">Gated Attention</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="results-count" id="resultsCount"></p>
+      <div class="results-grid" id="results"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-trust">Open source · Static site · No accounts</p>
+    <p class="footer-meta">© 2026 Pablobot</p>
+  </footer>
+
+  <script>
+    const models = [
+      { name: "Trinity Large 400B", family: "Arcee", params: "400B", context: "128K", arch: ["MoE"], id: "arcee-trinity-large-400b" },
+      { name: "DeepSeek V3.2 671B", family: "DeepSeek", params: "671B", context: "200K", arch: ["MoE", "MLA"], id: "deepseek-v3-2-671b", reasoning: true },
+      { name: "DeepSeek R1 671B", family: "DeepSeek", params: "671B", context: "200K", arch: ["MoE", "RL"], id: "deepseek-r1-671b", reasoning: true },
+      { name: "Gemma 3 27B", family: "Google", params: "27B", context: "128K", arch: ["GQA", "SWA"], id: "gemma-3-27b", efficient: true },
+      { name: "GLM 4.5 355B", family: "GLM", params: "355B", context: "1M", arch: ["MoE", "Sparse"], id: "glm-4-5-355b", longContext: true },
+      { name: "GLM 4.7 355B", family: "GLM", params: "355B", context: "1M", arch: ["MoE", "Sparse"], id: "glm-4-7-355b", longContext: true },
+      { name: "GLM 5 744B", family: "GLM", params: "744B", context: "1M", arch: ["MoE", "Sparse"], id: "glm-5-744b", longContext: true, frontier: true },
+      { name: "GPT OSS 120B", family: "OpenAI", params: "120B", context: "32K", arch: ["Dense"], id: "gpt-oss-120b" },
+      { name: "GPT OSS 20B", family: "OpenAI", params: "20B", context: "32K", arch: ["Dense"], id: "gpt-oss-20b", efficient: true },
+      { name: "Grok 2.5 270B", family: "xAI", params: "270B", context: "131K", arch: ["MoE"], id: "grok-2-5-270b" },
+      { name: "Kimi K2 1T", family: "Moonshot", params: "1T", context: "1M", arch: ["MoE"], id: "kimi-k2-1t", longContext: true, frontier: true },
+      { name: "Kimi Linear 48B A3B", family: "Moonshot", params: "48B", context: "1M", arch: ["MoE"], id: "kimi-linear-48b-a3b", longContext: true, efficient: true },
+      { name: "Llama 3 8B", family: "Meta", params: "8B", context: "128K", arch: ["Dense", "GQA"], id: "llama-3-8b", coding: true, efficient: true },
+      { name: "Llama 4 Maverick 400B", family: "Meta", params: "400B", context: "1M", arch: ["MoE", "Gated"], id: "llama-4-maverick-400b", longContext: true },
+      { name: "MiniMax M2 230B", family: "MiniMax", params: "230B", context: "1M", arch: ["MoE"], id: "minimax-m2-230b", longContext: true },
+      { name: "MiniMax M2.5 230B", family: "MiniMax", params: "230B", context: "1M", arch: ["MoE"], id: "minimax-m2-5-230b", longContext: true },
+      { name: "Mistral 3.1 Small 24B", family: "Mistral", params: "24B", context: "128K", arch: ["GQA"], id: "mistral-3-1-small-24b", coding: true, efficient: true },
+      { name: "Mistral 3 Large 673B", family: "Mistral", params: "673B", context: "1M", arch: ["MoE"], id: "mistral-3-large-673b", longContext: true, frontier: true },
+      { name: "Nemotron 3 Nano 30B A3B", family: "Nvidia", params: "30B", context: "128K", arch: ["GQA"], id: "nemotron-3-nano-30b-a3b", efficient: true },
+      { name: "Nemotron 3 Super 120B A12B", family: "Nvidia", params: "120B", context: "128K", arch: ["MoE"], id: "nemotron-3-super-120b-a12b" },
+      { name: "OLMo 2 7B", family: "AllenAI", params: "7B", context: "4K", arch: ["Dense"], id: "olmo-2-7b", efficient: true },
+      { name: "OLMo 3 32B", family: "AllenAI", params: "32B", context: "4K", arch: ["Dense"], id: "olmo-3-32b" },
+      { name: "OLMo 3 7B", family: "AllenAI", params: "7B", context: "4K", arch: ["Dense"], id: "olmo-3-7b", efficient: true },
+      { name: "Qwen3 235B A22B", family: "Qwen", params: "235B", context: "32K", arch: ["MoE", "Gated"], id: "qwen3-235b-a22b" },
+      { name: "Qwen3 32B", family: "Qwen", params: "32B", context: "32K", arch: ["Dense"], id: "qwen3-32b", coding: true },
+      { name: "Qwen3 4B", family: "Qwen", params: "4B", context: "32K", arch: ["Dense"], id: "qwen3-4b", efficient: true },
+      { name: "Qwen3.5 397B", family: "Qwen", params: "397B", context: "32K", arch: ["MoE", "Gated"], id: "qwen3-5-397b", coding: true },
+      { name: "Qwen3 8B", family: "Qwen", params: "8B", context: "32K", arch: ["Dense"], id: "qwen3-8b", coding: true, efficient: true },
+      { name: "Qwen3 Next 80B A3B", family: "Qwen", params: "80B", context: "32K", arch: ["MoE", "Gated"], id: "qwen3-next-80b-a3b" }
+    ];
+
+    function parseParams(p) {
+      if (p.includes("T")) return parseFloat(p) * 1000;
+      return parseFloat(p);
+    }
+
+    function parseContext(c) {
+      if (c.includes("M")) return parseFloat(c) * 1000;
+      if (c.includes("K")) return parseFloat(c);
+      return 1;
+    }
+
+    function getSizeBucket(p) {
+      const n = parseParams(p);
+      if (n < 10) return "small";
+      if (n <= 100) return "medium";
+      if (n <= 500) return "large";
+      return "xlarge";
+    }
+
+    function getContextBucket(c) {
+      const n = parseContext(c);
+      if (n <= 32) return "short";
+      if (n <= 128) return "medium";
+      if (n < 1000) return "long";
+      return "million";
+    }
+
+    function initFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("use")) document.getElementById("useCase").value = params.get("use");
+      if (params.get("size")) document.getElementById("size").value = params.get("size");
+      if (params.get("ctx")) document.getElementById("context").value = params.get("ctx");
+      if (params.get("arch")) document.getElementById("arch").value = params.get("arch");
+    }
+
+    function updateUrl() {
+      const use = document.getElementById("useCase").value;
+      const size = document.getElementById("size").value;
+      const ctx = document.getElementById("context").value;
+      const arch = document.getElementById("arch").value;
+      const params = new URLSearchParams();
+      if (use) params.set("use", use);
+      if (size) params.set("size", size);
+      if (ctx) params.set("ctx", ctx);
+      if (arch) params.set("arch", arch);
+      const qs = params.toString();
+      const url = qs ? window.location.pathname + "?" + qs : window.location.pathname;
+      history.replaceState(null, "", url);
+    }
+
+    function render() {
+      const useCase = document.getElementById("useCase").value;
+      const size = document.getElementById("size").value;
+      const context = document.getElementById("context").value;
+      const arch = document.getElementById("arch").value;
+
+      let filtered = models.filter(m => {
+        if (useCase && !m[useCase] && !(useCase === "coding" && m.coding) && !(useCase === "reasoning" && m.reasoning)) return false;
+        if (size && getSizeBucket(m.params) !== size) return false;
+        if (context && getContextBucket(m.context) !== context) return false;
+        if (arch && !m.arch.some(a => a.toLowerCase().includes(arch.toLowerCase()))) return false;
+        return true;
+      });
+
+      // Sort by params (descending)
+      filtered.sort((a, b) => parseParams(b.params) - parseParams(a.params));
+
+      const count = document.getElementById("resultsCount");
+      const grid = document.getElementById("results");
+
+      count.textContent = filtered.length + " model" + (filtered.length === 1 ? "" : "s") + " match" + (filtered.length === 1 ? "es" : "");
+
+      if (!filtered.length) {
+        grid.innerHTML = '<div class="no-results">No models match your criteria. Try adjusting the filters.</div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(m => `
+        <a href="../models/${m.id}.html" class="result-card">
+          <div class="result-card-header">
+            <div>
+              <div class="result-card-name">${m.name}</div>
+              <div class="result-card-family">${m.family}</div>
+            </div>
+          </div>
+          <div class="result-card-meta">
+            <span>${m.params}</span>
+            <span>${m.context} context</span>
+          </div>
+          <div class="result-card-arch">
+            ${m.arch.map(a => `<span class="arch-pill">${a}</span>`).join("")}
+          </div>
+          <span class="result-card-link">View details →</span>
+        </a>
+      `).join("");
+    }
+
+    document.querySelectorAll("select").forEach(s => s.addEventListener("change", render));
+    render();
+  </script>
+</body>
+</html>

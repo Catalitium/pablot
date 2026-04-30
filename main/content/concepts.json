@@ -1,0 +1,194 @@
+[
+  {
+    "id": "moe-active-vs-total",
+    "name": "MoE: Active vs Total Parameters",
+    "group": "MoE",
+    "filename": "moe-active-vs-total",
+    "ext": "png",
+    "description": "Comparison of active parameters vs total parameters in Mixture of Experts architectures."
+  },
+  {
+    "id": "moe-deepseek-v3-vs-ffn",
+    "name": "MoE: DeepSeek V3 vs FFN",
+    "group": "MoE",
+    "filename": "moe-deepseek-v3-vs-ffn",
+    "ext": "png",
+    "description": "DeepSeek V3's MoE architecture compared to standard Feed-Forward Networks."
+  },
+  {
+    "id": "latent-moe-nemotron-super",
+    "name": "Latent MoE: Nemotron Super",
+    "group": "MoE",
+    "filename": "latent-moe-nemotron-super",
+    "ext": "png",
+    "description": "Latent MoE implementation in NVIDIA's Nemotron Super model."
+  },
+  {
+    "id": "mla-deepseek-v2-ablation",
+    "name": "MLA: DeepSeek V2 Ablation",
+    "group": "MLA",
+    "filename": "mla-deepseek-v2-ablation",
+    "ext": "png",
+    "description": "Ablation study of Multi-Latent Attention in DeepSeek V2."
+  },
+  {
+    "id": "mla-memory-savings",
+    "name": "MLA: Memory Savings",
+    "group": "MLA",
+    "filename": "mla-memory-savings",
+    "ext": "png",
+    "description": "Memory efficiency gains from Multi-Latent Attention."
+  },
+  {
+    "id": "mla-vs-mha",
+    "name": "MLA vs MHA Comparison",
+    "group": "MLA",
+    "filename": "mla-vs-mha",
+    "ext": "webp",
+    "description": "Comparing Multi-Latent Attention to Multi-Head Attention."
+  },
+  {
+    "id": "gqa-memory-savings",
+    "name": "GQA: Memory Savings",
+    "group": "GQA",
+    "filename": "gqa-memory-savings",
+    "ext": "png",
+    "description": "Memory efficiency improvements from Grouped-Query Attention."
+  },
+  {
+    "id": "gqa-mha-vs-gqa",
+    "name": "GQA: MHA vs GQA",
+    "group": "GQA",
+    "filename": "gqa-mha-vs-gqa",
+    "ext": "webp",
+    "description": "Comparison of Multi-Head Attention vs Grouped-Query Attention."
+  },
+  {
+    "id": "gqa-vs-mla-relative-efficiency",
+    "name": "GQA vs MLA Relative Efficiency",
+    "group": "GQA",
+    "filename": "gqa-vs-mla-relative-efficiency",
+    "ext": "png",
+    "description": "Relative efficiency comparison of GQA and MLA."
+  },
+  {
+    "id": "swa-gemma-ablation",
+    "name": "SWA: Gemma Ablation Study",
+    "group": "SWA",
+    "filename": "swa-gemma-ablation",
+    "ext": "webp",
+    "description": "Ablation study of Sliding Window Attention in Google's Gemma."
+  },
+  {
+    "id": "swa-global-vs-local",
+    "name": "SWA: Global vs Local Attention",
+    "group": "SWA",
+    "filename": "swa-global-vs-local",
+    "ext": "webp",
+    "description": "Global vs Local attention patterns in Sliding Window Attention."
+  },
+  {
+    "id": "swa-memory-savings",
+    "name": "SWA: Memory Savings",
+    "group": "SWA",
+    "filename": "swa-memory-savings",
+    "ext": "png",
+    "description": "Memory efficiency gains from Sliding Window Attention."
+  },
+  {
+    "id": "deepseek-sparse-attention-deepseek-v3-2",
+    "name": "Sparse Attention: DeepSeek V3.2",
+    "group": "Sparse",
+    "filename": "deepseek-sparse-attention-deepseek-v3-2",
+    "ext": "webp",
+    "description": "Sparse Attention implementation in DeepSeek V3.2."
+  },
+  {
+    "id": "deepseek-sparse-attention-flow",
+    "name": "Sparse Attention: Flow Diagram",
+    "group": "Sparse",
+    "filename": "deepseek-sparse-attention-flow",
+    "ext": "png",
+    "description": "Flow diagram of Sparse Attention mechanism."
+  },
+  {
+    "id": "deepseek-sparse-attention-glm5-vs-glm45",
+    "name": "Sparse Attention: GLM5 vs GLM4.5",
+    "group": "Sparse",
+    "filename": "deepseek-sparse-attention-glm5-vs-glm45",
+    "ext": "webp",
+    "description": "Sparse Attention comparison between GLM5 and GLM4.5."
+  },
+  {
+    "id": "deepseek-sparse-attention-sliding-window",
+    "name": "Sparse Attention: Sliding Window",
+    "group": "Sparse",
+    "filename": "deepseek-sparse-attention-sliding-window",
+    "ext": "png",
+    "description": "Sliding Window Sparse Attention mechanism."
+  },
+  {
+    "id": "gated-attention-qwen3-next",
+    "name": "Gated Attention: Qwen3 Next",
+    "group": "Gated",
+    "filename": "gated-attention-qwen3-next",
+    "ext": "webp",
+    "description": "Gated Attention mechanism in Qwen3 Next."
+  },
+  {
+    "id": "gated-attention-trinity-mechanism",
+    "name": "Gated Attention: Trinity Mechanism",
+    "group": "Gated",
+    "filename": "gated-attention-trinity-mechanism",
+    "ext": "png",
+    "description": "Trinity Gated Attention mechanism overview."
+  },
+  {
+    "id": "gated-deltanet-hybrid-overview",
+    "name": "Gated DeltaNet: Hybrid Overview",
+    "group": "Gated",
+    "filename": "gated-deltanet-hybrid-overview",
+    "ext": "webp",
+    "description": "Hybrid overview of Gated DeltaNet architecture."
+  },
+  {
+    "id": "gated-deltanet-memory-savings",
+    "name": "Gated DeltaNet: Memory Savings",
+    "group": "Gated",
+    "filename": "gated-deltanet-memory-savings",
+    "ext": "png",
+    "description": "Memory efficiency of Gated DeltaNet."
+  },
+  {
+    "id": "gated-deltanet-qwen35",
+    "name": "Gated DeltaNet: Qwen3.5",
+    "group": "Gated",
+    "filename": "gated-deltanet-qwen35",
+    "ext": "png",
+    "description": "Gated DeltaNet implementation in Qwen3.5."
+  },
+  {
+    "id": "nope-length-generalization",
+    "name": "NoPE: Length Generalization",
+    "group": "Other",
+    "filename": "nope-length-generalization",
+    "ext": "webp",
+    "description": "No Position Embedding (NoPE) for improved length generalization."
+  },
+  {
+    "id": "nope-smollm3-3b",
+    "name": "NoPE: SmolLM3 3B",
+    "group": "Other",
+    "filename": "nope-smollm3-3b",
+    "ext": "webp",
+    "description": "NoPE implementation in HuggingFace's SmolLM3 3B."
+  },
+  {
+    "id": "qk-norm-training-stability",
+    "name": "QK-Norm: Training Stability",
+    "group": "Other",
+    "filename": "qk-norm-training-stability",
+    "ext": "webp",
+    "description": "QK-Normalization for improved training stability."
+  }
+]

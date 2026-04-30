@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deep Learning Concepts — Pablobot</title>
+  <meta name="description" content="Deep learning concept visualizations: MoE, MLA, GQA, and more.">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23171717'>P</text></svg>">
+  <style>
+    .concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+    .concept-card { border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; transition: box-shadow 0.2s; }
+    .concept-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .concept-card-img { width: 100%; height: 180px; object-fit: cover; background: #f5f5f5; }
+    .concept-card-body { padding: 1rem; }
+    .concept-card-title { font-size: 1rem; font-weight: 600; margin: 0 0 0.5rem 0; }
+    .concept-card-group { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; background: #f3f4f6; }
+    .concept-card-desc { font-size: 0.875rem; color: #666; margin-top: 0.5rem; }
+    .filters { display: flex; gap: 1rem; margin: 1.5rem 0; flex-wrap: wrap; }
+    .filter-select { padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; background: white; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <nav class="header-nav" aria-label="Quick links">
+      <a href="/" class="header-nav-btn">← Back to tools</a>
+      <a href="../" class="header-nav-btn">← Reference</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <div class="hero" style="padding-bottom: 1rem;">
+      <p class="hero-eyebrow">Concepts</p>
+      <h1>Deep learning visualizations.</h1>
+      <p class="hero-lead">Technique visualizations for MoE, MLA, GQA, Sliding Window, Gated Attention, and more.</p>
+    </div>
+
+    <div class="filters">
+      <select id="groupFilter" class="filter-select">
+        <option value="all">All techniques</option>
+        <option value="MoE">MoE</option>
+        <option value="MLA">MLA</option>
+        <option value="GQA">GQA</option>
+        <option value="SWA">SWA</option>
+        <option value="Sparse">Sparse</option>
+        <option value="Gated">Gated</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="concept-grid" id="conceptGrid"></div>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-trust">Open source · Static site · No accounts</p>
+    <p class="footer-meta">© 2026 Pablobot</p>
+  </footer>
+
+  <script>
+    const concepts = [
+      { name: "MoE: Active vs Total Parameters", group: "MoE", filename: "moe-active-vs-total", desc: "Comparison of active vs total parameters in MoE." },
+      { name: "MoE: DeepSeek V3 vs FFN", group: "MoE", filename: "moe-deepseek-v3-vs-ffn", desc: "DeepSeek V3's MoE vs standard FFN." },
+      { name: "Latent MoE: Nemotron Super", group: "MoE", filename: "latent-moe-nemotron-super", desc: "Latent MoE in NVIDIA's Nemotron Super." },
+      { name: "MLA: DeepSeek V2 Ablation", group: "MLA", filename: "mla-deepseek-v2-ablation", desc: "Ablation study of MLA in DeepSeek V2." },
+      { name: "MLA: Memory Savings", group: "MLA", filename: "mla-memory-savings", desc: "Memory efficiency from Multi-Latent Attention." },
+      { name: "MLA vs MHA Comparison", group: "MLA", filename: "mla-vs-mha", desc: "Comparing MLA to Multi-Head Attention." },
+      { name: "GQA: Memory Savings", group: "GQA", filename: "gqa-memory-savings", desc: "Memory efficiency from Grouped-Query Attention." },
+      { name: "GQA: MHA vs GQA", group: "GQA", filename: "gqa-mha-vs-gqa", desc: "MHA vs Grouped-Query Attention." },
+      { name: "GQA vs MLA Relative Efficiency", group: "GQA", filename: "gqa-vs-mla-relative-efficiency", desc: "Relative efficiency of GQA and MLA." },
+      { name: "SWA: Gemma Ablation Study", group: "SWA", filename: "swa-gemma-ablation", desc: "Sliding Window Attention in Google's Gemma." },
+      { name: "SWA: Global vs Local Attention", group: "SWA", filename: "swa-global-vs-local", desc: "Global vs Local attention patterns." },
+      { name: "SWA: Memory Savings", group: "SWA", filename: "swa-memory-savings", desc: "Memory efficiency from Sliding Window Attention." },
+      { name: "Sparse Attention: DeepSeek V3.2", group: "Sparse", filename: "deepseek-sparse-attention-deepseek-v3-2", desc: "Sparse Attention in DeepSeek V3.2." },
+      { name: "Sparse Attention: Flow Diagram", group: "Sparse", filename: "deepseek-sparse-attention-flow", desc: "Flow diagram of Sparse Attention." },
+      { name: "Sparse Attention: GLM5 vs GLM4.5", group: "Sparse", filename: "deepseek-sparse-attention-glm5-vs-glm45", desc: "Sparse Attention comparison." },
+      { name: "Sparse Attention: Sliding Window", group: "Sparse", filename: "deepseek-sparse-attention-sliding-window", desc: "Sliding Window Sparse Attention." },
+      { name: "Gated Attention: Qwen3 Next", group: "Gated", filename: "gated-attention-qwen3-next", desc: "Gated Attention in Qwen3 Next." },
+      { name: "Gated Attention: Trinity Mechanism", group: "Gated", filename: "gated-attention-trinity-mechanism", desc: "Trinity Gated Attention." },
+      { name: "Gated DeltaNet: Hybrid Overview", group: "Gated", filename: "gated-deltanet-hybrid-overview", desc: "Gated DeltaNet hybrid architecture." },
+      { name: "Gated DeltaNet: Memory Savings", group: "Gated", filename: "gated-deltanet-memory-savings", desc: "Memory efficiency of Gated DeltaNet." },
+      { name: "Gated DeltaNet: Qwen3.5", group: "Gated", filename: "gated-deltanet-qwen35", desc: "Gated DeltaNet in Qwen3.5." },
+      { name: "NoPE: Length Generalization", group: "Other", filename: "nope-length-generalization", desc: "No Position Embedding for length generalization." },
+      { name: "NoPE: SmolLM3 3B", group: "Other", filename: "nope-smollm3-3b", desc: "NoPE in HuggingFace's SmolLM3." },
+      { name: "QK-Norm: Training Stability", group: "Other", filename: "qk-norm-training-stability", desc: "QK-Normalization for training stability." }
+    ];
+
+    const GROUP_COLORS = {
+      "MoE": "#f97316", "MLA": "#8b5cf6", "GQA": "#0ea5e9", "SWA": "#10b981",
+      "Sparse": "#ef4444", "Gated": "#ec4899", "Other": "#94a3b8"
+    };
+
+    function renderConcepts() {
+      const group = document.getElementById("groupFilter").value;
+      const grid = document.getElementById("conceptGrid");
+
+      const filtered = group === "all" ? concepts : concepts.filter(c => c.group === group);
+
+      grid.innerHTML = filtered.map(c => `
+        <div class="concept-card">
+          <img class="concept-card-img" src="../../assets/concepts/${c.filename}.${c.filename.includes('webp') ? 'webp' : 'png'}" alt="${c.name}" onerror="this.style.display='none'">
+          <div class="concept-card-body">
+            <h3 class="concept-card-title">${c.name}</h3>
+            <span class="concept-card-group" style="background: ${GROUP_COLORS[c.group]}20; color: ${GROUP_COLORS[c.group]}">${c.group}</span>
+            <p class="concept-card-desc">${c.desc}</p>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    document.getElementById("groupFilter").addEventListener("change", renderConcepts);
+    renderConcepts();
+  </script>
+</body>
+</html>
