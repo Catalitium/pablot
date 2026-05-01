@@ -302,6 +302,7 @@ REF_MODEL_ROWS.forEach(m => {
 
       // Math
       {name:"Complex Plane",slug:"complex-plane",category:"math",icon:"📊",desc:"Julia sets visualization"},
+      {name:"Conway's Game",slug:"conway-game",category:"math",icon:"🧬",desc:"Cellular automaton simulator"},
       {name:"Fourier Visualizer",slug:"fourier-visualizer",category:"math",icon:"〰️",desc:"FFT decomposition"},
       {name:"Graphing Calculator",slug:"graphing-calculator",category:"math",icon:"📈",desc:"Plot functions"},
       {name:"Linear Solver",slug:"linear-solver",category:"math",icon:"➗",desc:"Solve linear equations"},
@@ -532,7 +533,6 @@ REF_MODEL_ROWS.forEach(m => {
       // No index.html — never listed
       { name:"Audio Visualizer",    slug:"audio-visualizer",    icon:"🎵", desc:"Real-time audio visualization",          type:"Web" },
       { name:"Cache Cleaner",       slug:"cache-cleaner",       icon:"🧹", desc:"Browser cache management tool",          type:"Web" },
-      { name:"Conway's Game",       slug:"conway-game",         icon:"🧬", desc:"Cellular automaton simulator",           type:"Web" },
       { name:"Fake Data Gen",       slug:"fake-data-gen",       icon:"🎭", desc:"Generate realistic test data",           type:"Web" },
       { name:"Git Helper",          slug:"git-helper",          icon:"🌿", desc:"Git commands and workflow assistant",     type:"Web" },
       { name:"LLM Cost Tracker",    slug:"llm-cost-tracker",    icon:"💰", desc:"Track and estimate AI API spending",     type:"Web" },

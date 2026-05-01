@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conway's Game of Life</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div>
+        <p class="eyebrow">Cellular Automaton</p>
+        <h1>Conway's Game of Life</h1>
+      </div>
+      <div class="status-pill" id="runStatus">Paused</div>
+    </header>
+
+    <section class="toolbar" aria-label="Simulation controls">
+      <button id="startPauseBtn" type="button">Start</button>
+      <button id="stepBtn" type="button">Step</button>
+      <button id="resetBtn" type="button">Reset</button>
+      <button id="randomBtn" type="button">Randomize</button>
+      <button id="clearBtn" type="button">Clear</button>
+      <label class="field">
+        <span>Speed</span>
+        <input id="speedSlider" type="range" min="1" max="20" value="8">
+      </label>
+    </section>
+
+    <section class="toolbar secondary" aria-label="Pattern and state controls">
+      <label class="field">
+        <span>Pattern</span>
+        <select id="patternSelect"></select>
+      </label>
+      <button id="loadPatternBtn" type="button">Load Pattern</button>
+      <button id="saveBtn" type="button">Save</button>
+      <button id="restoreBtn" type="button">Restore</button>
+      <button id="exportBtn" type="button">Export JSON</button>
+      <button id="importBtn" type="button">Import JSON</button>
+      <input id="importInput" type="file" accept="application/json,.json" hidden>
+    </section>
+
+    <section class="workspace">
+      <div class="board-wrap">
+        <canvas id="gameCanvas" aria-label="Conway game grid"></canvas>
+      </div>
+      <aside class="side-panel" aria-label="Simulation statistics">
+        <div class="stats">
+          <div>
+            <span>Generation</span>
+            <strong id="generation">0</strong>
+          </div>
+          <div>
+            <span>Population</span>
+            <strong id="population">0</strong>
+          </div>
+          <div>
+            <span>Max population</span>
+            <strong id="maxPopulation">0</strong>
+          </div>
+          <div>
+            <span>Growth</span>
+            <strong id="growthRate">0</strong>
+          </div>
+        </div>
+        <canvas id="graphCanvas" aria-label="Population graph"></canvas>
+      </aside>
+    </section>
+
+    <p class="note">Click or drag on the grid to paint cells. Rules: a live cell survives with 2-3 neighbors; a dead cell is born with exactly 3 neighbors.</p>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
