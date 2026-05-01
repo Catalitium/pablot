@@ -1,44 +1,25 @@
 # System Health
 
-A Python script that collects key system metrics, grades each one, and outputs a structured report to both the terminal and a dated log file.
-
-## What It Does
-
-Measures three metrics:
-
-| Metric | A (Good) | B (Okay) | C (Poor) |
-|--------|----------|----------|----------|
-| CPU Usage | < 30% | 30–60% | > 60% |
-| Memory Usage | < 50% | 50–75% | > 75% |
-| Disk Usage | < 40% | 40–70% | > 70% |
-
-Averages the grades numerically and outputs a single **Overall Grade (A / B / C)**.
+Offline developer diagnostics page for quick local machine checks.
 
 ## Usage
 
+Open `index.html` in a browser. The page displays copyable Bash, PowerShell, and Python diagnostics in a terminal-style panel. Bash is shown by default, and the copy button copies the currently selected script.
+
+Use **In-depth report** to render the longer PowerShell PC health report before copying it.
+
+On Windows, the single maintained script is:
+
+```powershell
+.\main.ps1
+```
+
+Use `.\main.ps1 -Json` for structured output.
+
+For Python, run:
+
 ```bash
-pip install psutil
-python benchmark.py
+python system-health.py
 ```
 
-A log file named `YYYYDDMM_system_health.log` is created in the working directory on each run.
-
-## Output Example
-
-```
-2026-02-16 23:52:33 - INFO - ===== System Health Report =====
-2026-02-16 23:52:33 - INFO - Report generated on: 2026-02-16 23:52:33
-2026-02-16 23:52:34 - INFO - CPU Usage: 47.0%
-2026-02-16 23:52:34 - INFO - Memory Usage: 91.8%
-2026-02-16 23:52:34 - INFO - Disk Usage: 27.2%
-2026-02-16 23:52:34 - INFO - CPU Grade: B
-2026-02-16 23:52:34 - INFO - Memory Grade: C
-2026-02-16 23:52:34 - INFO - Disk Grade: A
-2026-02-16 23:52:34 - INFO - Final Grade: B
-2026-02-16 23:52:34 - INFO - ===== End of Report =====
-```
-
-## Requirements
-
-- Python 3.x
-- `psutil`
+The browser page and scripts run locally. No build step, server, external library, or data collection is required.

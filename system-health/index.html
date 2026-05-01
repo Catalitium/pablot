@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>System Health</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="scripts" aria-label="Diagnostic scripts">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Local Diagnostics</p>
+          <h2>Run a Machine Check</h2>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Script type">
+          <button id="bashTab" class="tab active" type="button" role="tab" aria-selected="true" aria-controls="scriptBlock">Bash</button>
+          <button id="powershellTab" class="tab" type="button" role="tab" aria-selected="false" aria-controls="scriptBlock">PowerShell</button>
+          <button id="pythonTab" class="tab" type="button" role="tab" aria-selected="false" aria-controls="scriptBlock">Python</button>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span id="terminalTitle" class="terminal-title">bash</span>
+          <button id="inDepthButton" class="terminal-copy" type="button">In-depth report</button>
+          <button id="copyButton" class="terminal-copy" type="button">Copy</button>
+          <span id="copyStatus" class="copy-status" role="status" aria-live="polite"></span>
+        </div>
+        <pre id="scriptBlock" tabindex="0"><code></code></pre>
+      </div>
+      <p class="disclaimer">Privacy: this page and the diagnostic scripts run locally on your machine. No data is collected, uploaded, stored, or sent to a server.</p>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

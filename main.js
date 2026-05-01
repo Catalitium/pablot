@@ -315,6 +315,7 @@ REF_MODEL_ROWS.forEach(m => {
       {name:"Aspect Ratio",slug:"aspect-ratio",category:"tools",icon:"📐",desc:"Image dimension calculator"},
       {name:"Countdown Timer",slug:"countdown-timer",category:"tools",icon:"⏱",desc:"Countdown to date"},
       {name:"DNA Helix",slug:"dna-helix",category:"tools",icon:"🔬",desc:"3D DNA visualization"},
+      {name:"System Health",slug:"system-health",category:"tools",icon:"💚",desc:"Browser and machine diagnostics"},
       {name:"Timezone Converter",slug:"timezone-converter",category:"tools",icon:"🌍",desc:"Time zones"},
       {name:"Word Counter",slug:"word-counter",category:"tools",icon:"📊",desc:"Count words"},
       {name:"CV Builder",slug:"cv-builder",category:"tools",icon:"📋",desc:"Upload, clean, export PDF"},
@@ -542,7 +543,6 @@ REF_MODEL_ROWS.forEach(m => {
       { name:"QR Generator",        slug:"qr-generator",        icon:"📱", desc:"Generate and style QR codes",            type:"Web" },
       { name:"Secure Vault",        slug:"secure-vault",        icon:"🔒", desc:"Encrypted local password vault",         type:"Web" },
       { name:"SEO Intel",           slug:"seo-intel",           icon:"🔍", desc:"SEO analysis and keyword insights",      type:"Web" },
-      { name:"System Health",       slug:"system-health",       icon:"💚", desc:"Monitor system performance metrics",     type:"Web" },
       { name:"Typing Test",         slug:"typing-test",         icon:"⌨️", desc:"WPM speed and accuracy test",           type:"Web" },
       // No web UI — scripts only
       { name:"Backup Mirror",       slug:"backup-mirror",       icon:"🪞", desc:"Sync and mirror file backups",           type:"PowerShell" },
