@@ -1,0 +1,175 @@
+name: New Tool Request
+description: Request a new tool with clear behavior, a minimal UI, and a consolidation plan.
+title: "Create [tool-slug]"
+labels:
+  - enhancement
+  - new-tool
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Define the tool before implementation starts.
+
+        Allowed stack for new tools: **Bash, PowerShell, Python, HTML, CSS, JavaScript**.
+        Exceptions are possible only when the issue explains why this stack cannot reasonably solve the problem.
+
+  - type: input
+    id: tool_name
+    attributes:
+      label: Tool name
+      placeholder: "System Health"
+    validations:
+      required: true
+
+  - type: input
+    id: slug
+    attributes:
+      label: Tool slug
+      description: Repo folder and URL slug.
+      placeholder: "system-health"
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal_target_user
+    attributes:
+      label: Clear goal and target user
+      description: Who is this for, what problem does it solve, and what should the user be able to do afterward?
+      placeholder: "Developers need a local tool to copy and run system diagnostics without sending data anywhere."
+    validations:
+      required: true
+
+  - type: textarea
+    id: functional_spec
+    attributes:
+      label: Functional spec
+      description: Describe what it must do before describing how it should look.
+      placeholder: |
+        Must:
+        - Render copyable Bash, PowerShell, and Python diagnostics.
+        - Default to Bash.
+        - Include an in-depth PowerShell report option.
+        - Work offline with no backend.
+    validations:
+      required: true
+
+  - type: textarea
+    id: inputs_outputs
+    attributes:
+      label: Inputs, outputs, and actions
+      description: Include copied text, generated files, downloads, command output, or exports.
+      placeholder: |
+        Inputs:
+        - User selects script type.
+        Outputs/actions:
+        - Terminal-style code block.
+        - Copy button copies the visible script.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: allowed_stack
+    attributes:
+      label: Allowed tech stack
+      description: Check all technologies this tool will use.
+      options:
+        - label: HTML
+        - label: CSS
+        - label: JavaScript
+        - label: Bash
+        - label: PowerShell
+        - label: Python
+        - label: Other, with justification in the notes below
+
+  - type: dropdown
+    id: visual_ux_mode
+    attributes:
+      label: Visual/UX direction
+      description: Keep tools focused, readable, and useful. Avoid noisy chrome.
+      options:
+        - Minimal terminal/tool UI
+        - Form-based utility
+        - Dense dashboard
+        - Existing style match
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: visual_ux_expectations
+    attributes:
+      label: Visual/UX expectations
+      description: State the minimum UI quality bar.
+      placeholder: |
+        - Minimal, readable, responsive.
+        - Main action is obvious.
+        - No decorative clutter, oversized hero, or confusing cards.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: consolidation_sequence
+    attributes:
+      label: Consolidation sequence
+      description: Do this before adding or promoting a tool.
+      options:
+        - label: I listed existing related files/scripts.
+          required: true
+        - label: I identified the single canonical entrypoint.
+          required: true
+        - label: I described what to delete, rename, keep, or consolidate.
+          required: true
+        - label: I described copy/run/export behavior if scripts or snippets are included.
+          required: true
+        - label: I included README expectations.
+          required: true
+
+  - type: dropdown
+    id: promotion
+    attributes:
+      label: Hub status
+      description: Should the tool appear in the live hub catalog?
+      options:
+        - WIP only
+        - Promote to live TOOLS
+        - Unsure
+      default: 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: file_scope
+    attributes:
+      label: Allowed paths and references
+      description: List allowed edit paths and any existing files/examples to inspect.
+      placeholder: |
+        Allowed:
+        - /tool-slug/
+        - /main/main.js only if promoting
+
+        References:
+        - /similar-tool/
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria
+      description: Concrete checks that prove the tool is done.
+      placeholder: |
+        - Opens at /tool-slug/.
+        - Works on mobile and desktop.
+        - Works offline.
+        - README documents usage.
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes, exceptions, or close target
+      description: Use this for stack exceptions, privacy requirements, or PR closure text like Closes #123.
+      placeholder: "Closes #123"
+    validations:
+      required: false
