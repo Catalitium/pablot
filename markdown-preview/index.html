@@ -1,10 +1,89 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Markdown Preview</title><link rel="stylesheet" href="style.css"></head>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Markdown Preview</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
 <body>
-<main class="app">
-<h1>Markdown Preview</h1>
-<section class="toolbar panel"><button id="clearBtn" type="button">Clear</button><button id="copyBtn" type="button">Copy HTML</button><button id="downloadBtn" type="button">Download .md</button><p id="status"></p></section>
-<section class="split"><article class="panel"><h2>Editor</h2><textarea id="editor" rows="18"></textarea></article><article class="panel"><h2>Preview</h2><div id="preview"></div></article></section>
-</main>
-<script src="script.js"></script>
-</body></html>
+  <div class="app">
+    <!-- Header -->
+    <header class="app-header">
+      <h1 class="app-title">Markdown Preview</h1>
+      <p class="app-subtitle">Live editor with GitHub Flavored Markdown support</p>
+    </header>
+
+    <!-- Formatting Toolbar -->
+    <div class="formatting-toolbar">
+      <div class="toolbar-group">
+        <button class="toolbar-btn" id="boldBtn" title="Bold (Ctrl+B)" data-format="bold">
+          <span>B</span>
+        </button>
+        <button class="toolbar-btn" id="italicBtn" title="Italic (Ctrl+I)" data-format="italic">
+          <span>I</span>
+        </button>
+        <button class="toolbar-btn" id="strikeBtn" title="Strikethrough" data-format="strike">
+          <span>S</span>
+        </button>
+      </div>
+
+      <div class="toolbar-group">
+        <button class="toolbar-btn" id="h1Btn" title="Heading 1" data-format="h1">H1</button>
+        <button class="toolbar-btn" id="h2Btn" title="Heading 2" data-format="h2">H2</button>
+        <button class="toolbar-btn" id="h3Btn" title="Heading 3" data-format="h3">H3</button>
+      </div>
+
+      <div class="toolbar-group">
+        <button class="toolbar-btn" id="ulBtn" title="Unordered List" data-format="ul">
+          <span>•</span>
+        </button>
+        <button class="toolbar-btn" id="olBtn" title="Ordered List" data-format="ol">
+          <span>#</span>
+        </button>
+        <button class="toolbar-btn" id="codeBtn" title="Code Block" data-format="code">
+          <span>&lt;&gt;</span>
+        </button>
+      </div>
+
+      <div class="toolbar-group">
+        <button class="toolbar-btn" id="linkBtn" title="Insert Link" data-format="link">Link</button>
+        <button class="toolbar-btn" id="imageBtn" title="Insert Image" data-format="image">Img</button>
+      </div>
+
+      <div class="toolbar-group toolbar-actions">
+        <button class="toolbar-btn secondary" id="fullscreenBtn" title="Fullscreen Preview">Fullscreen</button>
+        <button class="toolbar-btn secondary" id="copyBtn" title="Copy HTML">Copy HTML</button>
+        <button class="toolbar-btn secondary" id="downloadBtn" title="Download as .md">Download</button>
+        <button class="toolbar-btn secondary danger" id="clearBtn" title="Clear All">Clear</button>
+      </div>
+    </div>
+
+    <!-- Status Message -->
+    <div class="status-message" id="status"></div>
+
+    <!-- Editor & Preview Container -->
+    <div class="editor-preview-container">
+      <div class="editor-panel">
+        <div class="panel-header">
+          <h2>Editor</h2>
+        </div>
+        <textarea id="editor" placeholder="Enter markdown here..." spellcheck="false"></textarea>
+      </div>
+
+      <div class="preview-panel" id="previewPanel">
+        <div class="panel-header">
+          <h2>Preview</h2>
+          <button class="close-preview" id="closePreview" title="Close Preview (Esc)">✕</button>
+        </div>
+        <div id="preview" class="preview-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
