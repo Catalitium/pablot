@@ -45,6 +45,7 @@ Single table; **`category`** matches hub tabs in [`main/main.js`](main/main.js).
 | Data | `base64` | Static | Encode/decode Base64 |
 | Data | `binary-converter` | Static | Binary/hex converter |
 | Math | `complex-plane` | Static | Julia sets visualization |
+| Math | `conway-game` | Static | Cellular automaton simulator |
 | Math | `fourier-visualizer` | Static | FFT decomposition |
 | Math | `graphing-calculator` | Static | Plot functions |
 | Math | `linear-solver` | Static | Solve linear equations |
@@ -82,7 +83,6 @@ Grid-only on homepage; **not** first-class linked cards. **`surface`** is the ba
 | `url-shortener` | Web | Shorten URLs client-side or via static mapping |
 | `audio-visualizer` | Web | Real-time audio visualization |
 | `cache-cleaner` | Web | Browser cache management tool |
-| `conway-game` | Web | Cellular automaton simulator |
 | `fake-data-gen` | Web | Generate realistic test data |
 | `git-helper` | Web | Git commands and workflow assistant |
 | `llm-cost-tracker` | Web | Track and estimate AI API spending |

@@ -1,143 +1,118 @@
-import pygame
-import random
+#!/usr/bin/env python3
+"""Dependency-free Conway's Game of Life CLI helper."""
+
+from __future__ import annotations
+
+import argparse
 import json
+from dataclasses import dataclass
 
-# Constants
-SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
-GRID_COLOR = (200, 200, 200)
-CELL_COLOR = (0, 255, 0)
-DEAD_COLOR = (0, 0, 0)
-STATS_COLOR = (255, 255, 255)
-FPS = 30
 
-# Grid settings
-GRID_SIZE = 50
-CELL_SIZE = SCREEN_WIDTH // GRID_SIZE
-
-# Initialize Pygame
-pygame.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH + 300, SCREEN_HEIGHT))  # Extra space for stats
-pygame.display.set_caption("LifeSim: Conway's Game of Life Simulator")
-clock = pygame.time.Clock()
-
-# Initialize grid
-grid = [[0 for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
-generation = 0
-population_history = []
-
-# Predefined patterns
 PATTERNS = {
-    "Glider": [(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)],
-    "Pulsar": [(14, 12), (12, 14), (14, 14), (16, 14), (14, 16)],
-    "Spaceship": [(0, 1), (1, 2), (2, 0), (2, 1), (2, 2)]
+    "block": [(0, 0), (0, 1), (1, 0), (1, 1)],
+    "blinker": [(0, 0), (0, 1), (0, 2)],
+    "toad": [(0, 1), (0, 2), (0, 3), (1, 0), (1, 1), (1, 2)],
+    "beacon": [(0, 0), (0, 1), (1, 0), (2, 3), (3, 2), (3, 3)],
+    "glider": [(0, 1), (1, 2), (2, 0), (2, 1), (2, 2)],
+    "lwss": [(0, 1), (0, 4), (1, 0), (2, 0), (2, 4), (3, 0), (3, 1), (3, 2), (3, 3)],
+    "pulsar": [
+        (0, 2), (0, 3), (0, 4), (0, 8), (0, 9), (0, 10),
+        (2, 0), (3, 0), (4, 0), (2, 5), (3, 5), (4, 5),
+        (2, 7), (3, 7), (4, 7), (2, 12), (3, 12), (4, 12),
+        (5, 2), (5, 3), (5, 4), (5, 8), (5, 9), (5, 10),
+        (7, 2), (7, 3), (7, 4), (7, 8), (7, 9), (7, 10),
+        (8, 0), (9, 0), (10, 0), (8, 5), (9, 5), (10, 5),
+        (8, 7), (9, 7), (10, 7), (8, 12), (9, 12), (10, 12),
+        (12, 2), (12, 3), (12, 4), (12, 8), (12, 9), (12, 10),
+    ],
 }
 
-# Initialize random pattern
-def initialize_random_pattern():
-    pattern_name = random.choice(list(PATTERNS.keys()))
-    pattern = PATTERNS[pattern_name]
-    for x, y in pattern:
-        grid[x % GRID_SIZE][y % GRID_SIZE] = 1
 
-# Draw the grid and cells
-def draw_grid(surface, grid):
-    surface.fill(DEAD_COLOR)
-    for x in range(GRID_SIZE):
-        for y in range(GRID_SIZE):
-            rect = pygame.Rect(y * CELL_SIZE, x * CELL_SIZE, CELL_SIZE, CELL_SIZE)
-            if grid[x][y] == 1:
-                pygame.draw.rect(surface, CELL_COLOR, rect)
-            else:
-                pygame.draw.rect(surface, DEAD_COLOR, rect)
-            pygame.draw.rect(surface, GRID_COLOR, rect, 1)
+@dataclass
+class Life:
+    size: int
+    cells: set[tuple[int, int]]
 
-# Update grid based on Conway's rules
-def update_grid(grid):
-    new_grid = [[0 for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
-    for x in range(GRID_SIZE):
-        for y in range(GRID_SIZE):
-            neighbors = count_neighbors(grid, x, y)
-            if grid[x][y] == 1 and neighbors in [2, 3]:
-                new_grid[x][y] = 1
-            elif grid[x][y] == 0 and neighbors == 3:
-                new_grid[x][y] = 1
-    return new_grid
+    @classmethod
+    def from_pattern(cls, size: int, pattern: str) -> "Life":
+        if pattern not in PATTERNS:
+            raise ValueError(f"Unknown pattern: {pattern}")
+        coords = PATTERNS[pattern]
+        max_row = max(row for row, _ in coords)
+        max_col = max(col for _, col in coords)
+        start_row = (size - max_row - 1) // 2
+        start_col = (size - max_col - 1) // 2
+        return cls(size, {(start_row + row, start_col + col) for row, col in coords})
 
-# Count living neighbors
-def count_neighbors(grid, x, y):
-    neighbors = 0
-    for dx in [-1, 0, 1]:
-        for dy in [-1, 0, 1]:
-            if dx == 0 and dy == 0:
-                continue
-            nx, ny = x + dx, y + dy
-            if 0 <= nx < GRID_SIZE and 0 <= ny < GRID_SIZE:
-                neighbors += grid[nx][ny]
-    return neighbors
+    def neighbors(self, row: int, col: int) -> int:
+        total = 0
+        for dr in (-1, 0, 1):
+            for dc in (-1, 0, 1):
+                if dr == 0 and dc == 0:
+                    continue
+                total += ((row + dr) % self.size, (col + dc) % self.size) in self.cells
+        return total
 
-# Generate random perturbations
-def apply_random_perturbations(grid):
-    for _ in range(5):  # Randomly toggle 5 cells
-        x, y = random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)
-        grid[x][y] = 1 - grid[x][y]
+    def step(self) -> None:
+        candidates = set(self.cells)
+        for row, col in list(self.cells):
+            for dr in (-1, 0, 1):
+                for dc in (-1, 0, 1):
+                    candidates.add(((row + dr) % self.size, (col + dc) % self.size))
 
-# Display real-time statistics
-def draw_stats(surface, generation, population, population_history):
-    font = pygame.font.Font(None, 36)
-    stats_surface = pygame.Surface((300, SCREEN_HEIGHT))
-    stats_surface.fill((30, 30, 30))
-    gen_text = font.render(f"Generation: {generation}", True, STATS_COLOR)
-    pop_text = font.render(f"Population: {population}", True, STATS_COLOR)
-    stats_surface.blit(gen_text, (10, 10))
-    stats_surface.blit(pop_text, (10, 50))
-    render_population_trend(stats_surface, population_history)
-    surface.blit(stats_surface, (SCREEN_WIDTH, 0))
+        next_cells = set()
+        for row, col in candidates:
+            count = self.neighbors(row, col)
+            if (row, col) in self.cells and count in (2, 3):
+                next_cells.add((row, col))
+            elif (row, col) not in self.cells and count == 3:
+                next_cells.add((row, col))
+        self.cells = next_cells
 
-# Render population trend as a line graph
-def render_population_trend(surface, population_history):
-    max_population = max(population_history) if population_history else 1
-    width, height = surface.get_size()
-    for i in range(1, len(population_history)):
-        start = (int((i - 1) / len(population_history) * width),
-                 int(height - (population_history[i - 1] / max_population) * height))
-        end = (int(i / len(population_history) * width),
-               int(height - (population_history[i] / max_population) * height))
-        pygame.draw.line(surface, (0, 255, 0), start, end, 2)
+    def rows(self) -> list[str]:
+        return [
+            "".join("#" if (row, col) in self.cells else "." for col in range(self.size))
+            for row in range(self.size)
+        ]
 
-# Main simulation loop
-def main():
-    global grid, generation, population_history
-    running = True
-    paused = True
-    speed = 5  # Simulation speed
-    initialize_random_pattern()  # Start with a random pattern
 
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:  # Toggle pause
-                    paused = not paused
-                elif event.key == pygame.K_r:  # Reset grid
-                    grid = [[0 for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
-                    generation = 0
-                    population_history = []
-                elif event.key == pygame.K_p:  # Apply random perturbations
-                    apply_random_perturbations(grid)
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run a Conway's Game of Life pattern.")
+    parser.add_argument("--pattern", choices=sorted(PATTERNS), default="glider")
+    parser.add_argument("--steps", type=int, default=5)
+    parser.add_argument("--size", type=int, default=20)
+    parser.add_argument("--json", action="store_true", help="Print JSON instead of a text grid.")
+    return parser.parse_args()
 
-        if not paused:
-            grid = update_grid(grid)
-            generation += 1
-            population = sum(cell for row in grid for cell in row)
-            population_history.append(population)
 
-        draw_grid(screen, grid)
-        draw_stats(screen, generation, population_history[-1] if population_history else 0, population_history)
-        pygame.display.flip()
-        clock.tick(FPS + speed)
+def main() -> None:
+    args = parse_args()
+    if args.size < 5:
+        raise SystemExit("--size must be at least 5")
+    if args.steps < 0:
+        raise SystemExit("--steps must be 0 or greater")
 
-    pygame.quit()
+    life = Life.from_pattern(args.size, args.pattern)
+    history = [len(life.cells)]
+    for _ in range(args.steps):
+        life.step()
+        history.append(len(life.cells))
+
+    if args.json:
+        print(json.dumps({
+            "pattern": args.pattern,
+            "size": args.size,
+            "steps": args.steps,
+            "population": len(life.cells),
+            "population_history": history,
+            "live_cells": sorted([list(cell) for cell in life.cells]),
+        }, indent=2))
+    else:
+        print(f"Pattern: {args.pattern}")
+        print(f"Steps: {args.steps}")
+        print(f"Population: {len(life.cells)}")
+        print("\n".join(life.rows()))
+
 
 if __name__ == "__main__":
     main()
