@@ -54,6 +54,7 @@ Single table; **`category`** matches hub tabs in [`main/main.js`](main/main.js).
 | Tools | `aspect-ratio` | Static | Image dimension calculator |
 | Tools | `countdown-timer` | Static | Countdown to date |
 | Tools | `dna-helix` | Static | 3D DNA visualization |
+| Tools | `system-health` | Static | Browser and machine diagnostics |
 | Tools | `timezone-converter` | Static | Time zones |
 | Tools | `word-counter` | Static | Count words |
 | Tools | `cv-builder` | Static | Upload, clean, export PDF |
@@ -92,7 +93,6 @@ Grid-only on homepage; **not** first-class linked cards. **`surface`** is the ba
 | `qr-generator` | Web | Generate and style QR codes |
 | `secure-vault` | Web | Encrypted local password vault |
 | `seo-intel` | Web | SEO analysis and keyword insights |
-| `system-health` | Web | Monitor system performance metrics |
 | `typing-test` | Web | WPM speed and accuracy test |
 | `backup-mirror` | PowerShell | Sync and mirror file backups |
 | `cpu-benchmark` | PowerShell | Measure and compare CPU performance |
