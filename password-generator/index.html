@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Generator — Pablobot</title>
+  <meta name="description" content="Generate random passwords with crypto.getRandomValues in your browser.">
+  <meta name="theme-color" content="#0d0f17">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%236366ff'>P</text></svg>">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0d0f17;--surface:#161925;--border:#2a2f45;--accent:#6c63ff;--text:#e8eaf6;--muted:#9ca3af}
+    body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .wrap{max-width:560px;margin:0 auto;padding:1rem 1.25rem 2rem}
+    .back-link{color:var(--muted);text-decoration:none;font-size:.9rem}
+    h1{font-size:1.35rem;margin:.5rem 0}
+    .sub{color:var(--muted);font-size:.9rem;margin-bottom:1rem}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;margin:.75rem 0}
+    label{display:flex;align-items:center;gap:.5rem;margin:.45rem 0;font-size:.9rem;cursor:pointer}
+    input[type="range"]{width:100%;margin:.5rem 0}
+    .out{font-family:ui-monospace,monospace;font-size:1rem;padding:.65rem;border-radius:8px;background:#12141f;border:1px solid var(--border);word-break:break-all;margin:.75rem 0}
+    .btn{padding:.55rem 1rem;border:none;border-radius:8px;background:var(--accent);color:#fff;font:inherit;font-weight:600;cursor:pointer;margin-right:.5rem;margin-top:.25rem}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+    footer{margin-top:2rem;text-align:center;font-size:.78rem;color:var(--muted)}
+    footer a{color:var(--accent)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back-link" href="../">← Pablobot</a>
+    <h1>Password generator</h1>
+    <p class="sub">Uses <code style="color:var(--accent)">crypto.getRandomValues</code> — nothing leaves your tab.</p>
+    <div class="card">
+      <label>Length: <strong id="lenVal">16</strong></label>
+      <input type="range" id="length" min="8" max="64" value="16">
+      <label><input type="checkbox" id="upper" checked> Uppercase A–Z</label>
+      <label><input type="checkbox" id="lower" checked> Lowercase a–z</label>
+      <label><input type="checkbox" id="num" checked> Digits 0–9</label>
+      <label><input type="checkbox" id="sym" checked> Symbols !@#$%…</label>
+      <button type="button" class="btn" id="gen">Generate</button>
+      <button type="button" class="btn btn-ghost" id="copy">Copy</button>
+      <div class="out" id="out" aria-live="polite">Click Generate</div>
+    </div>
+    <footer><p><a href="../">Pablobot</a></p></footer>
+  </div>
+  <script>
+    const lengthEl = document.getElementById("length");
+    const lenVal = document.getElementById("lenVal");
+    const out = document.getElementById("out");
+    const pools = {
+      upper: "ABCDEFGHJKLMNPQRSTUVWXYZ",
+      lower: "abcdefghijkmnopqrstuvwxyz",
+      num: "23456789",
+      sym: "!@#$%&*-_=+?"
+    };
+
+    lengthEl.addEventListener("input", () => { lenVal.textContent = lengthEl.value; });
+
+    function charset() {
+      let s = "";
+      if (document.getElementById("upper").checked) s += pools.upper;
+      if (document.getElementById("lower").checked) s += pools.lower;
+      if (document.getElementById("num").checked) s += pools.num;
+      if (document.getElementById("sym").checked) s += pools.sym;
+      return s;
+    }
+
+    function generate() {
+      const chars = charset();
+      if (!chars.length) {
+        out.textContent = "Select at least one character set.";
+        return;
+      }
+      const len = parseInt(lengthEl.value, 10);
+      const bytes = new Uint32Array(len);
+      crypto.getRandomValues(bytes);
+      let pwd = "";
+      for (let i = 0; i < len; i++) pwd += chars[bytes[i] % chars.length];
+      out.textContent = pwd;
+    }
+
+    document.getElementById("gen").addEventListener("click", generate);
+    document.getElementById("copy").addEventListener("click", () => {
+      const t = out.textContent;
+      if (t && t !== "Click Generate") navigator.clipboard.writeText(t).catch(() => {});
+    });
+    generate();
+  </script>
+</body>
+</html>

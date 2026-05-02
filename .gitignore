@@ -55,3 +55,9 @@ mini-agents/**/.env
 mini-agents/**/logs/
 mini-agents/**/__pycache__/
 mini-agents/**/*.pyc
+
+# Legacy duplicate slug — hub canonical is qr-generator/ (Netlify redirects /qr-code → there).
+qr-code/
+
+# One-off issue writeups (not shipped site content).
+**/ISSUE_*_COMPLETION_REPORT.md

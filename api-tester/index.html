@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Tester — Pablobot</title>
+  <meta name="description" content="Send GET/POST/PUT/PATCH/DELETE requests from the browser. Responses stay in your tab (CORS applies).">
+  <meta name="theme-color" content="#0d0f17">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%236366ff'>P</text></svg>">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0d0f17;--surface:#161925;--border:#2a2f45;--accent:#6c63ff;--text:#e8eaf6;--muted:#9ca3af;--err:#f87171}
+    body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5}
+    a{color:var(--accent)}
+    .app-header{border-bottom:1px solid var(--border);background:rgba(22,25,37,.95)}
+    .app-header-inner,.container{max-width:900px;margin:0 auto;padding:1rem 1.25rem}
+    .back-link{color:var(--muted);text-decoration:none;font-size:.9rem;display:inline-block;margin-bottom:.5rem}
+    .back-link:hover{color:var(--text)}
+    .app-title{font-size:1.35rem;font-weight:700}
+    .app-subtitle{color:var(--muted);font-size:.9rem;margin-top:.25rem}
+    .trust{font-size:.8rem;color:var(--muted);text-align:center;padding:.5rem}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;margin:.75rem 0}
+    label{display:block;font-size:.75rem;color:var(--muted);margin:.5rem 0 .25rem}
+    input,textarea,select{width:100%;padding:.55rem .65rem;border-radius:8px;border:1px solid var(--border);background:#12141f;color:var(--text);font:inherit;color-scheme:dark}
+    textarea{min-height:72px;font-family:ui-monospace,monospace;font-size:.82rem}
+    .row{display:grid;grid-template-columns:110px 1fr;gap:.5rem;align-items:end}
+    @media(max-width:540px){.row{grid-template-columns:1fr}}
+    button.btn{cursor:pointer;border:none;border-radius:8px;padding:.55rem 1rem;font-weight:600;background:var(--accent);color:#fff;font:inherit}
+    button.btn:hover{filter:brightness(1.08)}
+    button.btn:disabled{opacity:.5;cursor:not-allowed}
+    .meta{font-size:.85rem;color:var(--muted)}
+    pre{white-space:pre-wrap;word-break:break-word;font-size:.78rem;background:#12141f;border:1px solid var(--border);border-radius:8px;padding:.75rem;max-height:360px;overflow:auto;margin-top:.5rem}
+    .err{color:var(--err)}
+    footer{max-width:900px;margin:2rem auto;padding:1rem;text-align:center;font-size:.78rem;color:var(--muted);border-top:1px solid var(--border)}
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <a class="back-link" href="../">← Pablobot</a>
+      <h1 class="app-title">API Tester</h1>
+      <p class="app-subtitle">Try HTTP requests from your browser. Cross-origin responses require the target server to allow CORS.</p>
+    </div>
+  </header>
+  <p class="trust">Runs locally · no proxy · failures may be network or CORS</p>
+  <main class="container">
+    <div class="card">
+      <div class="row">
+        <div>
+          <label for="method">Method</label>
+          <select id="method">
+            <option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option><option>HEAD</option>
+          </select>
+        </div>
+        <div>
+          <label for="url">URL</label>
+          <input id="url" type="url" placeholder="https://api.example.com/path" autocomplete="off">
+        </div>
+      </div>
+      <label for="headers">Headers (JSON object, optional)</label>
+      <textarea id="headers" placeholder='{"Accept":"application/json"}'></textarea>
+      <label for="body">Body (raw, optional)</label>
+      <textarea id="body" placeholder='{"hello":"world"}'></textarea>
+      <button type="button" class="btn" id="send">Send request</button>
+    </div>
+    <div class="card" id="outCard" hidden>
+      <p class="meta" id="statusLine"></p>
+      <label>Response headers</label>
+      <pre id="respHeaders"></pre>
+      <label>Body</label>
+      <pre id="respBody"></pre>
+    </div>
+    <p class="meta err" id="errBox" hidden></p>
+  </main>
+  <footer><p>Open source · <a href="../">Pablobot</a></p></footer>
+  <script>
+    const methodEl = document.getElementById("method");
+    const urlEl = document.getElementById("url");
+    const headersEl = document.getElementById("headers");
+    const bodyEl = document.getElementById("body");
+    const sendBtn = document.getElementById("send");
+    const outCard = document.getElementById("outCard");
+    const statusLine = document.getElementById("statusLine");
+    const respHeaders = document.getElementById("respHeaders");
+    const respBody = document.getElementById("respBody");
+    const errBox = document.getElementById("errBox");
+
+    sendBtn.addEventListener("click", async () => {
+      errBox.hidden = true;
+      outCard.hidden = true;
+      const url = urlEl.value.trim();
+      if (!url) {
+        errBox.textContent = "Enter a URL.";
+        errBox.hidden = false;
+        return;
+      }
+      let extraHeaders = {};
+      const ht = headersEl.value.trim();
+      if (ht) {
+        try { extraHeaders = JSON.parse(ht); }
+        catch (e) {
+          errBox.textContent = "Headers must be valid JSON object.";
+          errBox.hidden = false;
+          return;
+        }
+      }
+      const opts = { method: methodEl.value, headers: {} };
+      const method = opts.method;
+      const bodyText = bodyEl.value.trim();
+      if (bodyText && method !== "GET" && method !== "HEAD") {
+        opts.body = bodyText;
+        if (!extraHeaders["Content-Type"] && !extraHeaders["content-type"]) {
+          opts.headers["Content-Type"] = "application/json";
+        }
+      }
+      Object.assign(opts.headers, extraHeaders);
+      sendBtn.disabled = true;
+      try {
+        const res = await fetch(url, opts);
+        const text = await res.text();
+        statusLine.textContent = `${res.status} ${res.statusText} · ${res.type}`;
+        const hLines = [];
+        res.headers.forEach((v, k) => hLines.push(`${k}: ${v}`));
+        respHeaders.textContent = hLines.join("\n") || "(none)";
+        respBody.textContent = text || "(empty)";
+        outCard.hidden = false;
+      } catch (e) {
+        errBox.textContent = String(e.message || e);
+        errBox.hidden = false;
+      }
+      sendBtn.disabled = false;
+    });
+  </script>
+</body>
+</html>

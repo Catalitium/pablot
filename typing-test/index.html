@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typing Test — Pablobot</title>
+  <meta name="description" content="Measure typing speed (WPM) and accuracy for one minute.">
+  <meta name="theme-color" content="#0d0f17">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%236366ff'>P</text></svg>">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0d0f17;--surface:#161925;--border:#2a2f45;--accent:#6c63ff;--good:#34d399;--bad:#f87171;--text:#e8eaf6;--muted:#9ca3af}
+    body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .wrap{max-width:720px;margin:0 auto;padding:1rem 1.25rem 2rem}
+    .back-link{color:var(--muted);text-decoration:none;font-size:.9rem}
+    .back-link:hover{color:var(--text)}
+    h1{font-size:1.35rem;margin:.5rem 0}
+    .sub{color:var(--muted);font-size:.9rem;margin-bottom:1rem}
+    .stats{display:flex;flex-wrap:wrap;gap:1rem;margin:1rem 0;font-variant-numeric:tabular-nums}
+    .stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.65rem 1rem;min-width:100px}
+    .stat span{display:block;font-size:.72rem;color:var(--muted);text-transform:uppercase}
+    .stat strong{font-size:1.25rem}
+    #words{font-size:1.15rem;line-height:1.9;letter-spacing:.02em;min-height:4.5em;padding:1rem;background:var(--surface);border-radius:12px;border:1px solid var(--border)}
+    #words span{margin-right:.35em}
+    #words span.ok{color:var(--good)}
+    #words span.bad{color:var(--bad);text-decoration:underline}
+    #words span.pending{color:var(--muted)}
+    #words span.cur{background:rgba(108,99,255,.25);border-radius:4px;padding:0 2px}
+    textarea{width:100%;margin-top:1rem;padding:.75rem;border-radius:10px;border:1px solid var(--border);background:#12141f;color:var(--text);font-size:1rem;font-family:inherit;resize:none;height:3.2rem;color-scheme:dark}
+    textarea:disabled{opacity:.6}
+    .btn{margin-top:.75rem;padding:.55rem 1.2rem;border:none;border-radius:8px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer;font:inherit}
+    .btn:hover{filter:brightness(1.08)}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+    footer{margin-top:2rem;font-size:.78rem;color:var(--muted);text-align:center}
+    footer a{color:var(--accent)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back-link" href="../">← Pablobot</a>
+    <h1>Typing test</h1>
+    <p class="sub">Type the words below. You have <strong>60 seconds</strong>. First keystroke starts the clock.</p>
+    <div class="stats">
+      <div class="stat"><span>Time</span><strong id="timeLeft">60</strong>s</div>
+      <div class="stat"><span>WPM</span><strong id="wpm">0</strong></div>
+      <div class="stat"><span>Accuracy</span><strong id="acc">100</strong>%</div>
+    </div>
+    <div id="words" aria-live="polite"></div>
+    <textarea id="input" placeholder="Start typing…" spellcheck="false" autocomplete="off" autocapitalize="off" rows="2"></textarea>
+    <button type="button" class="btn" id="restart">Restart</button>
+    <footer><p>Open source · <a href="../">Pablobot</a></p></footer>
+  </div>
+  <script>
+    const WORD_BANK = "the quick brown fox jumps over lazy dog and pack my box with five dozen liquor jugs sphinx of black quartz judge my vow cobwebs gleaming dawn rust bridge melody compass harbor lantern velvet prism harbor swift crystal meadow whisper horizon fossil amber voyage lantern quartz meadow velvet harbor compass whisper amber prism fossil voyage swift crystal meadow horizon gleaming rust cobwebs dawn bridge melody lantern velvet prism harbor swift crystal meadow whisper horizon fossil amber voyage lantern quartz meadow velvet harbor compass whisper amber prism fossil voyage swift crystal meadow horizon gleaming rust cobwebs dawn bridge melody".split(/\s+/);
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+    const wordsEl = document.getElementById("words");
+    const inputEl = document.getElementById("input");
+    const timeLeftEl = document.getElementById("timeLeft");
+    const wpmEl = document.getElementById("wpm");
+    const accEl = document.getElementById("acc");
+    let words = [];
+    let wi = 0;
+    let started = false;
+    let ended = false;
+    let deadline = 0;
+    let tickId = 0;
+    let correctChars = 0;
+    let typedChars = 0;
+
+    function renderWords() {
+      wordsEl.innerHTML = words.map((w, i) => {
+        let cls = "pending";
+        if (i < wi) cls = "ok";
+        if (i === wi) cls += " cur";
+        return `<span class="${cls.trim()}">${w}</span>`;
+      }).join("");
+    }
+
+    function setBad(i) {
+      const spans = wordsEl.querySelectorAll("span");
+      if (spans[i]) spans[i].classList.add("bad");
+    }
+
+    function tick() {
+      const left = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      timeLeftEl.textContent = String(left);
+      const elapsedMin = (60 - left) / 60;
+      const grossWpm = elapsedMin > 0 ? (typedChars / 5) / elapsedMin : 0;
+      wpmEl.textContent = String(Math.round(grossWpm));
+      const acc = typedChars ? Math.round((100 * correctChars) / typedChars) : 100;
+      accEl.textContent = String(acc);
+      if (left <= 0) endGame();
+    }
+
+    function endGame() {
+      if (ended) return;
+      ended = true;
+      clearInterval(tickId);
+      inputEl.disabled = true;
+      tick();
+    }
+
+    function startClock() {
+      if (started || ended) return;
+      started = true;
+      deadline = Date.now() + 60000;
+      tickId = setInterval(tick, 200);
+      tick();
+    }
+
+    function reset() {
+      clearInterval(tickId);
+      words = shuffle([...WORD_BANK]).slice(0, 48);
+      wi = 0;
+      started = false;
+      ended = false;
+      correctChars = 0;
+      typedChars = 0;
+      inputEl.value = "";
+      inputEl.disabled = false;
+      timeLeftEl.textContent = "60";
+      wpmEl.textContent = "0";
+      accEl.textContent = "100";
+      renderWords();
+      inputEl.focus();
+    }
+
+    inputEl.addEventListener("input", () => {
+      if (ended) return;
+      startClock();
+      let v = inputEl.value;
+      if (!v.length) return;
+      if (/\s$/.test(v)) {
+        const token = v.trimEnd();
+        typedChars += token.length + 1;
+        if (token === words[wi]) correctChars += token.length + 1;
+        else {
+          correctChars += Math.min(token.length, words[wi]?.length || 0);
+          setBad(wi);
+        }
+        wi++;
+        inputEl.value = "";
+        if (wi >= words.length) {
+          words = words.concat(shuffle([...WORD_BANK]).slice(0, 24));
+        }
+        renderWords();
+      }
+    });
+
+    document.getElementById("restart").addEventListener("click", reset);
+    reset();
+  </script>
+</body>
+</html>
