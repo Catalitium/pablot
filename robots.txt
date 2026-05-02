@@ -1,0 +1,5 @@
+# Pablobot — allow crawl of static tools + reference; sitemap lists canonical URLs.
+User-agent: *
+Allow: /
+
+Sitemap: https://pablobot.com/sitemap.xml

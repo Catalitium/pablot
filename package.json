@@ -1,0 +1,12 @@
+{
+  "name": "pablot",
+  "private": true,
+  "description": "Pablobot static hub — Node only for regenerating reference HTML.",
+  "scripts": {
+    "build": "node main/main.js",
+    "flatten": "node -e \"const fs=require('fs');['index.html','main.js','style.css'].forEach(f=>fs.copyFileSync('main/'+f, f));\""
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
