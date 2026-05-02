@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Epoch Converter — Pablobot</title>
+  <meta name="description" content="Convert Unix epoch seconds or milliseconds to local ISO strings and back.">
+  <meta name="theme-color" content="#0d0f17">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%236366ff'>P</text></svg>">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0d0f17;--surface:#161925;--border:#2a2f45;--accent:#6c63ff;--text:#e8eaf6;--muted:#9ca3af}
+    body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .wrap{max-width:640px;margin:0 auto;padding:1rem 1.25rem 2rem}
+    .back-link{color:var(--muted);text-decoration:none;font-size:.9rem}
+    h1{font-size:1.35rem;margin:.5rem 0}
+    .sub{color:var(--muted);font-size:.9rem;margin-bottom:1rem}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;margin:.75rem 0}
+    label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:.25rem}
+    input{width:100%;padding:.55rem;border-radius:8px;border:1px solid var(--border);background:#12141f;color:var(--text);font:inherit;color-scheme:dark}
+    .hint{font-size:.78rem;color:var(--muted);margin-top:.35rem}
+    .btn{margin-top:.75rem;padding:.45rem .9rem;border:none;border-radius:8px;background:var(--accent);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+    footer{margin-top:2rem;text-align:center;font-size:.78rem;color:var(--muted)}
+    footer a{color:var(--accent)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back-link" href="../">← Pablobot</a>
+    <h1>Epoch converter</h1>
+    <p class="sub">All times use your browser timezone.</p>
+    <div class="card">
+      <label for="unix">Unix timestamp (seconds or milliseconds)</label>
+      <input id="unix" type="text" inputmode="numeric" placeholder="e.g. 1700000000 or 1700000000000" autocomplete="off">
+      <p class="hint">Edits here update the local field. Values ≥ 1e12 are treated as milliseconds.</p>
+    </div>
+    <div class="card">
+      <label for="local">Local datetime</label>
+      <input id="local" type="datetime-local" step="1">
+      <p class="hint">Edits here update the unix field.</p>
+    </div>
+    <div class="card">
+      <label>ISO string (UTC)</label>
+      <input id="iso" type="text" readonly aria-readonly="true">
+      <button type="button" class="btn" id="copy">Copy ISO</button>
+    </div>
+    <footer><p><a href="../">Pablobot</a> · static</p></footer>
+  </div>
+  <script>
+    const unixEl = document.getElementById("unix");
+    const localEl = document.getElementById("local");
+    const isoEl = document.getElementById("iso");
+    let lock = false;
+
+    function pad(n) { return String(n).padStart(2, "0"); }
+
+    function toMs(n) {
+      if (!Number.isFinite(n)) return NaN;
+      return n >= 1e12 ? n : n * 1000;
+    }
+
+    function fromUnixStr(str) {
+      const trimmed = str.trim();
+      if (!trimmed) return null;
+      const n = Number(trimmed);
+      if (!Number.isFinite(n)) return null;
+      return toMs(n);
+    }
+
+    function fmtLocalInput(d) {
+      const y = d.getFullYear();
+      const mo = pad(d.getMonth() + 1);
+      const da = pad(d.getDate());
+      const h = pad(d.getHours());
+      const mi = pad(d.getMinutes());
+      const s = pad(d.getSeconds());
+      return `${y}-${mo}-${da}T${h}:${mi}:${s}`;
+    }
+
+    function applyFromMs(ms) {
+      if (!Number.isFinite(ms)) return;
+      const d = new Date(ms);
+      lock = true;
+      unixEl.value = ms >= 1e12 ? String(ms) : String(Math.floor(ms / 1000));
+      localEl.value = fmtLocalInput(d);
+      isoEl.value = d.toISOString();
+      lock = false;
+    }
+
+    unixEl.addEventListener("input", () => {
+      if (lock) return;
+      const ms = fromUnixStr(unixEl.value);
+      if (ms === null) return;
+      applyFromMs(ms);
+    });
+
+    localEl.addEventListener("input", () => {
+      if (lock) return;
+      const v = localEl.value;
+      if (!v) return;
+      const d = new Date(v);
+      if (Number.isNaN(d.getTime())) return;
+      applyFromMs(d.getTime());
+    });
+
+    document.getElementById("copy").addEventListener("click", () => {
+      if (isoEl.value) navigator.clipboard.writeText(isoEl.value).catch(() => {});
+    });
+
+    applyFromMs(Date.now());
+  </script>
+</body>
+</html>

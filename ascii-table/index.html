@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASCII Table — Pablobot</title>
+  <meta name="description" content="Printable ASCII reference: decimal, hexadecimal, and character.">
+  <meta name="theme-color" content="#0d0f17">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%236366ff'>P</text></svg>">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0d0f17;--surface:#161925;--border:#2a2f45;--accent:#6c63ff;--text:#e8eaf6;--muted:#9ca3af}
+    body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .wrap{max-width:920px;margin:0 auto;padding:1rem 1.25rem 2rem}
+    .back-link{color:var(--muted);text-decoration:none;font-size:.9rem}
+    h1{font-size:1.35rem;margin:.5rem 0}
+    .sub{color:var(--muted);font-size:.9rem;margin-bottom:1rem}
+    table{width:100%;border-collapse:collapse;font-size:.82rem;background:var(--surface);border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+    th,td{padding:.45rem .5rem;text-align:left;border-bottom:1px solid var(--border)}
+    th{background:#12141f;color:var(--muted);font-weight:600;font-size:.72rem;text-transform:uppercase}
+    tr:last-child td{border-bottom:none}
+    td.mono{font-family:ui-monospace,monospace}
+    .ch{font-weight:700;width:3rem}
+    footer{margin-top:2rem;text-align:center;font-size:.78rem;color:var(--muted)}
+    footer a{color:var(--accent)}
+    @media(max-width:520px){table{font-size:.75rem}th,td{padding:.35rem}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back-link" href="../">← Pablobot</a>
+    <h1>ASCII table</h1>
+    <p class="sub">Printable ASCII (codes 32–126).</p>
+    <table>
+      <thead><tr><th>Dec</th><th>Hex</th><th>Char</th><th>Name</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <footer><p><a href="../">Pablobot</a></p></footer>
+  </div>
+  <script>
+    const NAMES = { 32: "Space", 127: "DEL" };
+    function esc(s) {
+      return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+    const tbody = document.getElementById("tbody");
+    const rows = [];
+    for (let c = 32; c <= 126; c++) {
+      const char = String.fromCharCode(c);
+      const vis = char === " " ? "␠" : esc(char);
+      rows.push(`<tr><td class="mono">${c}</td><td class="mono">${c.toString(16).toUpperCase().padStart(2, "0")}</td><td class="ch">${vis}</td><td>${NAMES[c] || ""}</td></tr>`);
+    }
+    tbody.innerHTML = rows.join("");
+  </script>
+</body>
+</html>

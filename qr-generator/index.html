@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Quick QR — Pablobot</title>
+  <meta name="description" content="Generate QR codes in your browser—private, fast, no accounts.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a href="/" class="hub-link">← Pablobot</a>
+
+  <header class="page-header">
+    <h1>Quick QR</h1>
+  </header>
+
+  <main class="shell">
+    <div class="field-block">
+      <label class="sr-only" for="qrInput">Text or URL to encode</label>
+      <div class="input-row">
+        <input type="text" id="qrInput" name="qrInput" autocomplete="off" spellcheck="false"
+          placeholder="Enter text, URL, or email" maxlength="2953" aria-describedby="charCount">
+        <button type="button" id="clearBtn" class="icon-btn" aria-label="Clear input">×</button>
+      </div>
+      <p id="charCount" class="char-count" aria-live="polite">0 / 2953</p>
+    </div>
+
+    <section class="qr-section" aria-label="QR code output">
+      <div id="qrHost" class="qr-host" role="img" aria-label="Generated QR code"></div>
+      <p id="qrPlaceholder" class="qr-placeholder">Type above to generate a QR code</p>
+    </section>
+
+    <div class="actions">
+      <a id="downloadBtn" class="btn btn-primary" href="#" download="qr-code.png" aria-disabled="true">Download PNG</a>
+      <button type="button" id="copyBtn" class="btn btn-secondary" disabled aria-label="Copy QR image to clipboard">Copy</button>
+    </div>
+  </main>
+
+  <footer class="page-footer">Private • Fast • Free</footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="vendor/qrcode.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Mixer — Pablobot</title>
+  <meta name="description" content="Blend two hex colors with a slider — outputs hex and RGB.">
+  <meta name="theme-color" content="#0d0f17">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%236366ff'>P</text></svg>">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0d0f17;--surface:#161925;--border:#2a2f45;--accent:#6c63ff;--text:#e8eaf6;--muted:#9ca3af}
+    body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .wrap{max-width:560px;margin:0 auto;padding:1rem 1.25rem 2rem}
+    .back-link{color:var(--muted);text-decoration:none;font-size:.9rem}
+    h1{font-size:1.35rem;margin:.5rem 0}
+    .sub{color:var(--muted);font-size:.9rem;margin-bottom:1rem}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;margin:.75rem 0}
+    .sw{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin:.5rem 0}
+    input[type="color"]{width:56px;height:40px;border:none;border-radius:8px;cursor:pointer;background:transparent}
+    label{display:block;font-size:.75rem;color:var(--muted);margin:.5rem 0 .25rem}
+    input[type="range"]{width:100%}
+    .preview{height:72px;border-radius:12px;border:1px solid var(--border);margin:1rem 0}
+    .mono{font-family:ui-monospace,monospace;font-size:1rem;background:#12141f;padding:.5rem .65rem;border-radius:8px;border:1px solid var(--border)}
+    .btn{margin-top:.5rem;padding:.45rem .9rem;border:none;border-radius:8px;background:var(--accent);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+    footer{margin-top:2rem;text-align:center;font-size:.78rem;color:var(--muted)}
+    footer a{color:var(--accent)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back-link" href="../">← Pablobot</a>
+    <h1>Color mixer</h1>
+    <p class="sub">Linear RGB blend between two colors.</p>
+    <div class="card">
+      <div class="sw">
+        <div><label for="a">Color A</label><input type="color" id="a" value="#6c63ff"></div>
+        <div><label for="b">Color B</label><input type="color" id="b" value="#ff6584"></div>
+      </div>
+      <label for="mix">Mix toward B: <strong id="pct">50</strong>%</label>
+      <input type="range" id="mix" min="0" max="100" value="50">
+      <div class="preview" id="preview"></div>
+      <label>Hex</label>
+      <div class="mono" id="hexOut"></div>
+      <label>RGB</label>
+      <div class="mono" id="rgbOut"></div>
+      <button type="button" class="btn" id="copy">Copy hex</button>
+    </div>
+    <footer><p><a href="../">Pablobot</a></p></footer>
+  </div>
+  <script>
+    const aEl = document.getElementById("a");
+    const bEl = document.getElementById("b");
+    const mixEl = document.getElementById("mix");
+    const pctEl = document.getElementById("pct");
+    const preview = document.getElementById("preview");
+    const hexOut = document.getElementById("hexOut");
+    const rgbOut = document.getElementById("rgbOut");
+
+    function parseHex(h) {
+      const x = h.replace("#", "");
+      const n = parseInt(x.length === 3 ? x.split("").map(c => c + c).join("") : x, 16);
+      return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+    }
+
+    function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
+
+    function update() {
+      const t = mixEl.valueAsNumber / 100;
+      pctEl.textContent = String(mixEl.value);
+      const A = parseHex(aEl.value);
+      const B = parseHex(bEl.value);
+      const R = lerp(A.r, B.r, t);
+      const G = lerp(A.g, B.g, t);
+      const Bb = lerp(A.b, B.b, t);
+      const hex = "#" + [R, G, Bb].map(x => x.toString(16).padStart(2, "0")).join("");
+      preview.style.background = hex;
+      hexOut.textContent = hex;
+      rgbOut.textContent = `rgb(${R}, ${G}, ${Bb})`;
+    }
+
+    [aEl, bEl, mixEl].forEach(el => el.addEventListener("input", update));
+    document.getElementById("copy").addEventListener("click", () => {
+      navigator.clipboard.writeText(hexOut.textContent).catch(() => {});
+    });
+    update();
+  </script>
+</body>
+</html>
