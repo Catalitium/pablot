@@ -38,7 +38,7 @@ Run a strict, lightweight delivery loop where evidence quality and QA grading de
 ## Top 3 Easiest WIP Testing Targets
 - `wip-case-converter`
 - `wip-password-generator`
-- `wip-token-counter`
+- `token-counter`
 
 Execution pattern per project:
 1. Add deterministic unit tests for core logic.

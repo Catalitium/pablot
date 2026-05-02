@@ -2,7 +2,9 @@
 
 Static hub at **`/`**, **`/{slug}/`** tool apps on the **repo root**, and editable hub product under **`main/`**. **OOO** = shipped tools stay **out of** `main/` (layout in **Monolith map**).
 
-**Support / incidents:** hub tool lists are authoritative in [`main/main.js`](main/main.js) (`TOOLS`, `WIP_TOOLS`). Run **`npm run build`** to regenerate **`main/reference/`** from **`main/content/`** and flatten **`main/index.html`**, **`main/main.js`**, **`main/style.css`** to `/` (`package.json`). Deploy: [`netlify.toml`](netlify.toml) uses **`publish = "."`** and **301** redirects **`/content/*`**, **`/reference/*`**, **`/assets/*`** → **`/main/...`**.
+**Support / incidents:** hub tool lists are authoritative in [`main/main.js`](main/main.js) (`TOOLS`, `WIP_TOOLS`). Run **`npm run build`** to regenerate **`main/reference/`** HTML from the embedded dataset in that file (`node main/main.js`). If your checkout includes flatten scripts, run the full **`build`** chain so [`main/index.html`](main/index.html), [`main/main.js`](main/main.js), and [`main/style.css`](main/style.css) are copied to the repo root for deploy. Deploy: [`netlify.toml`](netlify.toml) uses **`publish = "."`** and redirects **`/content/*`**, **`/reference/*`**, **`/assets/*`** → **`/main/...`** where applicable. Legacy **`/qr-code`** URLs **301** to **`/qr-generator/`** (single canonical QR tool).
+
+The lab grid mixes stacks (`Python`, `Flask`, shells, etc.); **`surface`** in the WIP table below matches the badge string in **`main/main.js`**, not “always static HTML”.
 
 ---
 
@@ -36,12 +38,17 @@ Single table; **`category`** matches hub tabs in [`main/main.js`](main/main.js).
 | Code | `url-parser` | Static | Parse URLs |
 | Code | `uuid-generator` | Static | Generate UUIDs |
 | Code | `yaml-formatter` | Static | Format YAML |
+| Code | `lorem-generator` | Static | Placeholder text |
+| Code | `api-tester` | Static | HTTP requests from the browser |
+| Code | `ascii-table` | Static | ASCII / hex reference |
 | Design | `color-scheme` | Static | Generate palettes |
 | Design | `gradient-generator` | Static | CSS gradients |
 | Design | `hex-palette` | Static | Color palette |
 | Design | `social-card` | Static | Design social cards |
 | Design | `generative-art` | Static | Mathematical art generation |
 | Design | `audio-visualizer` | Static | Realtime audio FFT |
+| Design | `qr-generator` | Static | Generate QR codes |
+| Design | `color-mixer` | Static | Blend hex colors |
 | Data | `base64` | Static | Encode/decode Base64 |
 | Data | `binary-converter` | Static | Binary/hex converter |
 | Math | `complex-plane` | Static | Julia sets visualization |
@@ -50,6 +57,8 @@ Single table; **`category`** matches hub tabs in [`main/main.js`](main/main.js).
 | Math | `graphing-calculator` | Static | Plot functions |
 | Math | `linear-solver` | Static | Solve linear equations |
 | Math | `matrix-calculator` | Static | Matrix operations |
+| Math | `lorenz-attractor` | Static | Chaos 3D visualization |
+| Math | `solar-system` | Static | Orbital visualization |
 | AI | `token-counter` | Static | Count tokens |
 | AI | `context-packer` | Static | Pack context for LLMs |
 | Tools | `aspect-ratio` | Static | Image dimension calculator |
@@ -59,6 +68,11 @@ Single table; **`category`** matches hub tabs in [`main/main.js`](main/main.js).
 | Tools | `timezone-converter` | Static | Time zones |
 | Tools | `word-counter` | Static | Count words |
 | Tools | `cv-builder` | Static | Upload, clean, export PDF |
+| Tools | `pomodoro-timer` | Static | Focus intervals |
+| Tools | `reading-estimator` | Static | Reading time estimate |
+| Tools | `typing-test` | Static | WPM speed and accuracy |
+| Tools | `epoch-converter` | Static | Unix time and locale dates |
+| Tools | `password-generator` | Static | Random passwords |
 
 **Static** = static HTML/CSS/JS (no repo `package.json` deps for these). URL pattern: **`/{slug}/`**.
 
@@ -66,14 +80,12 @@ Single table; **`category`** matches hub tabs in [`main/main.js`](main/main.js).
 
 ## Hub catalog — lab / WIP (`WIP_TOOLS`)
 
-Grid-only on homepage; **not** first-class linked cards. **`surface`** is the badge type from [`main/main.js`](main/main.js) (implementation may differ — open folder only when scoped).
+Grid-only on homepage; **not** first-class linked cards. **`surface`** is the badge type from [`main/main.js`](main/main.js).
 
 | Slug | Surface | Summary |
 |------|---------|---------|
-| `api-tester` | Web | Test and debug API endpoints |
 | `ascii-art` | Web | Generate ASCII art from text |
 | `auto-prompter` | Web | Prompt chaining and automation |
-| `markdown-preview` | Web | Live markdown editor and preview |
 | `prompt-tester` | Web | Test and compare AI prompts |
 | `text-summarizer` | Web | Summarize text with AI |
 | `pdf-summarizer` | Web | Extract and summarize PDF content in-browser |
@@ -81,32 +93,35 @@ Grid-only on homepage; **not** first-class linked cards. **`surface`** is the ba
 | `code-explainer` | Web | Explain snippets or files without leaving the tab |
 | `meeting-notes-cleaner` | Web | Structure and clean raw meeting notes |
 | `url-shortener` | Web | Shorten URLs client-side or via static mapping |
-| `audio-visualizer` | Web | Real-time audio visualization |
 | `cache-cleaner` | Web | Browser cache management tool |
 | `fake-data-gen` | Web | Generate realistic test data |
 | `git-helper` | Web | Git commands and workflow assistant |
 | `llm-cost-tracker` | Web | Track and estimate AI API spending |
-| `lorenz-attractor` | Web | Chaos theory 3D visualizer |
 | `maze-master` | Web | Maze generation and pathfinding |
-| `md2html` | Web | Markdown to HTML converter |
-| `mini-agents` | Web | Lightweight AI agent runner |
-| `qr-generator` | Web | Generate and style QR codes |
+| `md2html` | Python | Markdown to HTML converter |
+| `mini-agents` | Python | Lightweight AI agent runner |
 | `secure-vault` | Web | Encrypted local password vault |
-| `seo-intel` | Web | SEO analysis and keyword insights |
-| `typing-test` | Web | WPM speed and accuracy test |
+| `seo-intel` | Flask | SEO analysis and keyword insights |
 | `backup-mirror` | PowerShell | Sync and mirror file backups |
 | `cpu-benchmark` | PowerShell | Measure and compare CPU performance |
 | `disk-space-health` | PowerShell | Visualise and monitor disk usage |
 | `git-worktree` | Shell | Manage multiple git worktrees |
 | `rsa-keygen` | Rust | Generate RSA key pairs locally |
 
-*`markdown-preview` and `audio-visualizer` also appear in **live** `TOOLS`; duplicated on the lab grid by design.*
+---
+
+## Contributing a new tool
+
+- Copy [`main/tool-template/index.html`](main/tool-template/index.html) into a new repo-root folder **`{slug}/`**, then rename paths: hub link **`href="../"`**, local **`style.css`** / **`script.js`** as needed.
+- Include **`charset`**, **`viewport`**, **`title`**, **`meta name="description"`**, and a visible **back link** to the hub.
+- Keep it **static** (no secrets, no backend); prefer zero CDN unless an existing tool pattern requires it.
+- Register the tool in **`TOOLS`** (and summary row in this README **live** table). Use **`WIP_TOOLS`** only until there is a solid root **`index.html`**.
 
 ---
 
 ## Root folders outside these tables
 
-Treat as **unknown / experimental** until the user points at them (e.g. `pomodoro-timer`, `fluid-sim`, `particle-galaxy`, `contract-generator`).
+Treat as **unknown / experimental** until the user points at them (e.g. `fluid-sim`, `particle-galaxy`, `contract-generator`).
 
 ---
 
@@ -114,13 +129,12 @@ Treat as **unknown / experimental** until the user points at them (e.g. `pomodor
 
 | Area | Path | Notes |
 |------|------|--------|
-| Hub UI | [`main/index.html`](main/index.html), [`main/main.js`](main/main.js), [`main/style.css`](main/style.css) | Source; flatten copies these three to repo root for deploy |
-| Facts (JSON) | [`main/content/`](main/content/) | **Single source of truth** — hub loads **`main/content/*.json`** |
-| Reference HTML | [`main/reference/`](main/reference/) | **Generated** — run `node main/main.js`; do not hand-edit as master |
+| Hub UI | [`main/index.html`](main/index.html), [`main/main.js`](main/main.js), [`main/style.css`](main/style.css) | Source of hub; copy/f flatten to repo root when your pipeline requires it |
+| Facts (JSON) | [`main/content/`](main/content/) | Used for reference/tooling pipelines — **not** loaded at runtime by the hub (`TOOLS` / galleries are embedded in [`main/main.js`](main/main.js)) |
+| Reference HTML | [`main/reference/`](main/reference/) | Regenerate with **`node main/main.js`** (see top of that file); avoid hand-editing as master |
 | Images / shared CSS | [`main/assets/`](main/assets/) | Served at **`/main/assets/...`** |
-| Build scripts | [`main/scripts/`](main/scripts/) | `flatten-main.cjs`, `extract-diagram-map.cjs` |
-| Tool scaffold | [`main/tool-template/`](main/tool-template/) | Dev-only; not flattened |
+| Tool scaffold | [`main/tool-template/`](main/tool-template/) | Dev-only template for new root tools |
 | Extra hub UI | [`main/content-suite/`](main/content-suite/) | Keep front-end experiments here |
 
 - **OOO:** each shipped tool is **`{slug}/`** at repo root — **not** inside `main/`.
-- **npm:** [`package.json`](package.json) has **no** `dependencies`; scripts only run Node for regen + flatten.
+- **npm:** [`package.json`](package.json) has **no** `dependencies`; **`npm run build`** runs `node main/main.js`; **`npm run flatten`** copies hub files to the repo root when you need them aligned with `main/`.

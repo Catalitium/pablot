@@ -287,6 +287,9 @@ REF_MODEL_ROWS.forEach(m => {
       {name:"URL Parser",slug:"url-parser",category:"code",icon:"🔗",desc:"Parse URLs"},
       {name:"UUID Generator",slug:"uuid-generator",category:"code",icon:"🆔",desc:"Generate UUIDs"},
       {name:"YAML Formatter",slug:"yaml-formatter",category:"code",icon:"📄",desc:"Format YAML"},
+      {name:"Lorem Generator",slug:"lorem-generator",category:"code",icon:"📜",desc:"Placeholder text"},
+      {name:"API Tester",slug:"api-tester",category:"code",icon:"🧪",desc:"HTTP requests from the browser"},
+      {name:"ASCII Table",slug:"ascii-table",category:"code",icon:"📋",desc:"ASCII / hex reference"},
 
       // Design
       {name:"Color Scheme",slug:"color-scheme",category:"design",icon:"🌈",desc:"Generate palettes"},
@@ -295,6 +298,8 @@ REF_MODEL_ROWS.forEach(m => {
       {name:"Social Card",slug:"social-card",category:"design",icon:"📱",desc:"Design social cards"},
       {name:"Generative Art",slug:"generative-art",category:"design",icon:"✨",desc:"Mathematical art generation"},
       {name:"Audio Visualizer",slug:"audio-visualizer",category:"design",icon:"🎵",desc:"Realtime audio FFT"},
+      {name:"QR Generator",slug:"qr-generator",category:"design",icon:"📱",desc:"Generate QR codes"},
+      {name:"Color Mixer",slug:"color-mixer",category:"design",icon:"🎨",desc:"Blend hex colors"},
 
       // Data
       {name:"Base64",slug:"base64",category:"data",icon:"🔤",desc:"Encode/decode Base64"},
@@ -307,6 +312,8 @@ REF_MODEL_ROWS.forEach(m => {
       {name:"Graphing Calculator",slug:"graphing-calculator",category:"math",icon:"📈",desc:"Plot functions"},
       {name:"Linear Solver",slug:"linear-solver",category:"math",icon:"➗",desc:"Solve linear equations"},
       {name:"Matrix Calculator",slug:"matrix-calculator",category:"math",icon:"🔢",desc:"Matrix operations"},
+      {name:"Lorenz Attractor",slug:"lorenz-attractor",category:"math",icon:"🌀",desc:"Chaos 3D visualization"},
+      {name:"Solar System",slug:"solar-system",category:"math",icon:"🪐",desc:"Orbital visualization"},
 
       // AI
       {name:"Token Counter",slug:"token-counter",category:"ai",icon:"🔢",desc:"Count tokens"},
@@ -320,6 +327,11 @@ REF_MODEL_ROWS.forEach(m => {
       {name:"Timezone Converter",slug:"timezone-converter",category:"tools",icon:"🌍",desc:"Time zones"},
       {name:"Word Counter",slug:"word-counter",category:"tools",icon:"📊",desc:"Count words"},
       {name:"CV Builder",slug:"cv-builder",category:"tools",icon:"📋",desc:"Upload, clean, export PDF"},
+      {name:"Pomodoro Timer",slug:"pomodoro-timer",category:"tools",icon:"🍅",desc:"Focus intervals"},
+      {name:"Reading Estimator",slug:"reading-estimator",category:"tools",icon:"📖",desc:"Reading time estimate"},
+      {name:"Typing Test",slug:"typing-test",category:"tools",icon:"⌨️",desc:"WPM speed and accuracy"},
+      {name:"Epoch Converter",slug:"epoch-converter",category:"tools",icon:"⏳",desc:"Unix time and locale dates"},
+      {name:"Password Generator",slug:"password-generator",category:"tools",icon:"🔑",desc:"Random passwords"},
     ];
 
     const CATEGORIES = {
@@ -335,6 +347,7 @@ REF_MODEL_ROWS.forEach(m => {
 
     const RECENT_KEY = "pablobot_recent_tools_v1";
     const MAX_RECENT = 5;
+    const THEME_KEY = "pablobot_theme_v1";
 
     const tabsEl      = document.getElementById("tabs");
     const toolsGridEl = document.getElementById("toolsGrid");
@@ -399,7 +412,34 @@ REF_MODEL_ROWS.forEach(m => {
       if (next !== cur) history.replaceState(null, "", next);
     }
 
+    function initTheme() {
+      const saved = localStorage.getItem(THEME_KEY);
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const mode = saved === "light" || saved === "dark" ? saved : (prefersDark ? "dark" : "light");
+      document.documentElement.dataset.theme = mode;
+      const toggle = document.getElementById("themeToggle");
+      if (toggle) {
+        toggle.textContent = mode === "dark" ? "☀️" : "🌙";
+        toggle.setAttribute("aria-pressed", mode === "dark" ? "true" : "false");
+        toggle.title = mode === "dark" ? "Switch to light theme" : "Switch to dark theme";
+      }
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", mode === "dark" ? "#141414" : "#fafafa");
+    }
+
     function init() {
+      initTheme();
+      const themeToggle = document.getElementById("themeToggle");
+      if (themeToggle) {
+        themeToggle.addEventListener("click", () => {
+          const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+          localStorage.setItem(THEME_KEY, next);
+          initTheme();
+        });
+      }
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+        if (!localStorage.getItem(THEME_KEY)) initTheme();
+      });
       applyUrlToState();
       const heroStats = document.getElementById("heroStats");
       if (heroStats) heroStats.textContent = `${TOOLS.length} curated tools · static · no signup · ${WIP_TOOLS.length} more in the lab`;
@@ -422,7 +462,13 @@ REF_MODEL_ROWS.forEach(m => {
     function renderTools(filter = "") {
       const q = filter.toLowerCase().trim();
       let filtered = activeCategory === "all" ? TOOLS : TOOLS.filter(t => t.category === activeCategory);
-      if (q) filtered = filtered.filter(t => t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q));
+      if (q) {
+        filtered = filtered.filter(t => {
+          const catLabel = (CATEGORIES[t.category] && CATEGORIES[t.category].name) || "";
+          const hay = `${t.name} ${t.desc} ${t.slug} ${catLabel}`.toLowerCase();
+          return hay.includes(q);
+        });
+      }
 
       // Update count badge
       toolCount.textContent = filtered.length + (filtered.length === 1 ? " tool" : " tools");
@@ -442,7 +488,7 @@ REF_MODEL_ROWS.forEach(m => {
       }
 
       toolsGridEl.innerHTML = filtered.map(tool => `
-        <a href="${escapeHtml(tool.slug)}/" class="tool-card" target="_blank" rel="noopener noreferrer" data-tool-slug="${escapeHtml(tool.slug)}">
+        <a href="${escapeHtml(tool.slug)}/" class="tool-card" data-tool-slug="${escapeHtml(tool.slug)}">
           <div class="tool-icon">${tool.icon}</div>
           <div class="tool-name">${escapeHtml(tool.name)}</div>
           <div class="tool-desc">${escapeHtml(tool.desc)}</div>
@@ -517,12 +563,13 @@ REF_MODEL_ROWS.forEach(m => {
       });
     }
 
+    /* WIP lab grid only. Flywheel: add row while there is no root index.html → ship tool → delete row here,
+       register in TOOLS + README live table. Never list a slug that already ships in TOOLS (duplicate cards).
+       Stack `type` is the honest runtime (Python/Flask/etc.); flip to "Web" if we later wrap as static-only. */
     const WIP_TOOLS = [
-      // No index.html — moved from live tools
-      { name:"API Tester",          slug:"api-tester",         icon:"🧪", desc:"Test and debug API endpoints",           type:"Web" },
+      // No production index.html yet
       { name:"ASCII Art",           slug:"ascii-art",           icon:"🎨", desc:"Generate ASCII art from text",           type:"Web" },
       { name:"Auto-Prompter",       slug:"auto-prompter",       icon:"🤖", desc:"Prompt chaining and automation",         type:"Web" },
-      { name:"Markdown Preview",    slug:"markdown-preview",    icon:"📑", desc:"Live markdown editor and preview",        type:"Web" },
       { name:"Prompt Tester",       slug:"prompt-tester",       icon:"💬", desc:"Test and compare AI prompts",            type:"Web" },
       { name:"Text Summarizer",     slug:"text-summarizer",     icon:"📝", desc:"Summarize text with AI",                 type:"Web" },
       { name:"PDF Summarizer",      slug:"pdf-summarizer",      icon:"📕", desc:"Extract and summarize PDF content in-browser", type:"Web" },
@@ -530,20 +577,15 @@ REF_MODEL_ROWS.forEach(m => {
       { name:"Code Explainer",      slug:"code-explainer",      icon:"📘", desc:"Explain snippets or files without leaving the tab", type:"Web" },
       { name:"Meeting Notes Cleaner", slug:"meeting-notes-cleaner", icon:"🗒️", desc:"Structure and clean raw meeting notes", type:"Web" },
       { name:"URL Shortener",       slug:"url-shortener",       icon:"🔗", desc:"Shorten URLs client-side or via static mapping", type:"Web" },
-      // No index.html — never listed
-      { name:"Audio Visualizer",    slug:"audio-visualizer",    icon:"🎵", desc:"Real-time audio visualization",          type:"Web" },
       { name:"Cache Cleaner",       slug:"cache-cleaner",       icon:"🧹", desc:"Browser cache management tool",          type:"Web" },
       { name:"Fake Data Gen",       slug:"fake-data-gen",       icon:"🎭", desc:"Generate realistic test data",           type:"Web" },
       { name:"Git Helper",          slug:"git-helper",          icon:"🌿", desc:"Git commands and workflow assistant",     type:"Web" },
       { name:"LLM Cost Tracker",    slug:"llm-cost-tracker",    icon:"💰", desc:"Track and estimate AI API spending",     type:"Web" },
-      { name:"Lorenz Attractor",    slug:"lorenz-attractor",    icon:"🌀", desc:"Chaos theory 3D visualizer",             type:"Web" },
       { name:"Maze Master",         slug:"maze-master",         icon:"🧩", desc:"Maze generation and pathfinding",        type:"Web" },
-      { name:"MD to HTML",          slug:"md2html",             icon:"📄", desc:"Markdown to HTML converter",             type:"Web" },
-      { name:"Mini Agents",         slug:"mini-agents",         icon:"🤖", desc:"Lightweight AI agent runner",            type:"Web" },
-      { name:"QR Generator",        slug:"qr-generator",        icon:"📱", desc:"Generate and style QR codes",            type:"Web" },
+      { name:"MD to HTML",          slug:"md2html",             icon:"📄", desc:"Markdown to HTML converter",             type:"Python" },
+      { name:"Mini Agents",         slug:"mini-agents",         icon:"🤖", desc:"Lightweight AI agent runner",            type:"Python" },
       { name:"Secure Vault",        slug:"secure-vault",        icon:"🔒", desc:"Encrypted local password vault",         type:"Web" },
-      { name:"SEO Intel",           slug:"seo-intel",           icon:"🔍", desc:"SEO analysis and keyword insights",      type:"Web" },
-      { name:"Typing Test",         slug:"typing-test",         icon:"⌨️", desc:"WPM speed and accuracy test",           type:"Web" },
+      { name:"SEO Intel",           slug:"seo-intel",           icon:"🔍", desc:"SEO analysis and keyword insights",      type:"Flask" },
       // No web UI — scripts only
       { name:"Backup Mirror",       slug:"backup-mirror",       icon:"🪞", desc:"Sync and mirror file backups",           type:"PowerShell" },
       { name:"CPU Benchmark",       slug:"cpu-benchmark",       icon:"⚡", desc:"Measure and compare CPU performance",    type:"PowerShell" },
@@ -555,7 +597,7 @@ REF_MODEL_ROWS.forEach(m => {
     function renderWipTools() {
       const grid = document.getElementById("wipGrid");
       if (!grid) return;
-      const typeClass = { Web:"web", PowerShell:"powershell", Shell:"shell", Rust:"rust" };
+      const typeClass = { Web:"web", PowerShell:"powershell", Shell:"shell", Rust:"rust", Python:"python", Flask:"flask" };
       grid.innerHTML = WIP_TOOLS.map(t => `
         <div class="wip-card" title="${t.name} — coming soon">
           <span class="wip-card-badge">WIP</span>

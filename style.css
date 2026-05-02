@@ -680,6 +680,8 @@
     .wip-card-type--powershell { background: #f0fdf4; color: #16a34a; }
     .wip-card-type--shell      { background: #faf5ff; color: #7c3aed; }
     .wip-card-type--rust       { background: #fff7ed; color: #c2410c; }
+    .wip-card-type--python     { background: #ecfeff; color: #0e7490; }
+    .wip-card-type--flask      { background: #fefce8; color: #a16207; }
 
     .wip-card-bar {
       height: 3px;
@@ -1664,4 +1666,61 @@
     .chain-wp-btn:hover {
       background: color-mix(in srgb, var(--accent) 18%, transparent);
       border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+    }
+
+    /* -------- Dark theme (toggle + prefers-color-scheme baseline via JS) -------- */
+    [data-theme="dark"] {
+      --white-50: #141414;
+      --white-100: #1a1a1a;
+      --white-200: #2a2a2a;
+      --white-300: #3f3f3f;
+      --white-400: #737373;
+      --white-500: #a3a3a3;
+      --white-600: #c4c4c4;
+      --white-700: #d4d4d4;
+      --white-800: #e8e8e8;
+      --white-900: #fafafa;
+      --accent: #60a5fa;
+      --accent-hover: #93c5fd;
+      color-scheme: dark;
+    }
+
+    [data-theme="dark"] .header.scrolled {
+      background: rgba(20, 20, 20, 0.88);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    [data-theme="dark"] .hero-btn--secondary {
+      background: var(--white-100);
+      border-color: var(--white-300);
+      color: var(--white-800);
+    }
+
+    [data-theme="dark"] .wip-card-type--web {
+      background: rgba(37, 99, 235, 0.18);
+      color: var(--accent);
+    }
+    [data-theme="dark"] .wip-card-type--powershell {
+      background: rgba(22, 163, 74, 0.2);
+      color: #4ade80;
+    }
+    [data-theme="dark"] .wip-card-type--shell {
+      background: rgba(124, 58, 237, 0.2);
+      color: #c4b5fd;
+    }
+    [data-theme="dark"] .wip-card-type--rust {
+      background: rgba(234, 88, 12, 0.2);
+      color: #fdba74;
+    }
+    [data-theme="dark"] .wip-card-type--python {
+      background: rgba(14, 116, 144, 0.22);
+      color: #67e8f9;
+    }
+    [data-theme="dark"] .wip-card-type--flask {
+      background: rgba(161, 98, 7, 0.25);
+      color: #fde047;
+    }
+
+    [data-theme="dark"] .gallery-overlay {
+      background: rgba(10, 10, 10, 0.92);
     }

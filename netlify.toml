@@ -1,0 +1,74 @@
+[build]
+  publish = "."
+
+# Serve monolith assets under /main/… when linked from flattened hub paths.
+[[redirects]]
+  from = "/content/*"
+  to = "/main/content/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/reference/*"
+  to = "/main/reference/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/assets/*"
+  to = "/main/assets/:splat"
+  status = 301
+  force = true
+
+# Legacy duplicate folder name — canonical tool is qr-generator (see hub TOOLS).
+[[redirects]]
+  from = "/qr-code"
+  to = "/qr-generator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/qr-code/"
+  to = "/qr-generator/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/qr-code/*"
+  to = "/qr-generator/"
+  status = 301
+  force = true
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json; charset=utf-8"
+
+[[headers]]
+  for = "/main/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/main/content/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Flattened hub scripts/styles — 1d cache is safe; switch to long immutable TTL once filenames are hashed.
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
