@@ -389,6 +389,9 @@ ${urlEntries}
       // AI
       {name:"Token Counter",slug:"token-counter",category:"ai",icon:"🔢",desc:"Count tokens"},
       {name:"Context Packer",slug:"context-packer",category:"ai",icon:"📦",desc:"Pack context for LLMs"},
+      {name:"Prompt Tester",slug:"prompt-tester",category:"ai",icon:"💬",desc:"Compare prompts locally"},
+      {name:"Auto-Prompter",slug:"auto-prompter",category:"ai",icon:"🤖",desc:"Chain prompts locally"},
+      {name:"Text Summarizer",slug:"text-summarizer",category:"ai",icon:"📝",desc:"Summarize text locally"},
 
       // Tools
       {name:"Aspect Ratio",slug:"aspect-ratio",category:"tools",icon:"📐",desc:"Image dimension calculator"},
@@ -640,9 +643,6 @@ ${urlEntries}
     const WIP_TOOLS = [
       // No production index.html yet
       { name:"ASCII Art",           slug:"ascii-art",           icon:"🎨", desc:"Generate ASCII art from text",           type:"Web" },
-      { name:"Auto-Prompter",       slug:"auto-prompter",       icon:"🤖", desc:"Prompt chaining and automation",         type:"Web" },
-      { name:"Prompt Tester",       slug:"prompt-tester",       icon:"💬", desc:"Test and compare AI prompts",            type:"Web" },
-      { name:"Text Summarizer",     slug:"text-summarizer",     icon:"📝", desc:"Summarize text with AI",                 type:"Web" },
       { name:"PDF Summarizer",      slug:"pdf-summarizer",      icon:"📕", desc:"Extract and summarize PDF content in-browser", type:"Web" },
       { name:"Image Analyzer",      slug:"image-analyzer",      icon:"🖼️", desc:"Inspect images with captions and metadata locally", type:"Web" },
       { name:"Code Explainer",      slug:"code-explainer",      icon:"📘", desc:"Explain snippets or files without leaving the tab", type:"Web" },

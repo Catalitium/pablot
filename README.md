@@ -61,6 +61,9 @@ Single table; **`category`** matches hub tabs in [`main/main.js`](main/main.js).
 | Math | `solar-system` | Static | Orbital visualization |
 | AI | `token-counter` | Static | Count tokens |
 | AI | `context-packer` | Static | Pack context for LLMs |
+| AI | `prompt-tester` | Static | Compare prompts locally |
+| AI | `auto-prompter` | Static | Chain prompts locally |
+| AI | `text-summarizer` | Static | Summarize text locally |
 | Tools | `aspect-ratio` | Static | Image dimension calculator |
 | Tools | `countdown-timer` | Static | Countdown to date |
 | Tools | `dna-helix` | Static | 3D DNA visualization |
@@ -74,6 +77,8 @@ Single table; **`category`** matches hub tabs in [`main/main.js`](main/main.js).
 | Tools | `epoch-converter` | Static | Unix time and locale dates |
 | Tools | `password-generator` | Static | Random passwords |
 
+Promoted from lab to the AI tab: `prompt-tester`, `auto-prompter`, `text-summarizer`.
+
 **Static** = static HTML/CSS/JS (no repo `package.json` deps for these). URL pattern: **`/{slug}/`**.
 
 ---
@@ -85,9 +90,6 @@ Grid-only on homepage; **not** first-class linked cards. **`surface`** is the ba
 | Slug | Surface | Summary |
 |------|---------|---------|
 | `ascii-art` | Web | Generate ASCII art from text |
-| `auto-prompter` | Web | Prompt chaining and automation |
-| `prompt-tester` | Web | Test and compare AI prompts |
-| `text-summarizer` | Web | Summarize text with AI |
 | `pdf-summarizer` | Web | Extract and summarize PDF content in-browser |
 | `image-analyzer` | Web | Inspect images with captions and metadata locally |
 | `code-explainer` | Web | Explain snippets or files without leaving the tab |
