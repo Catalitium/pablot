@@ -3,115 +3,222 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tool Name — Pablot</title>
+  <title>Tool Name — Pablobot</title>
   <meta name="description" content="One-line description of what this tool does.">
-  <link rel="icon" href="../assets/favicon.svg">
-  <link rel="stylesheet" href="../assets/pablot-ui.css">
+  <meta name="robots" content="index, follow">
+  <!-- Replace __TOOL_SLUG__ with your folder slug (e.g. markdown-preview) so canonical/OG match the live URL. -->
+  <link rel="canonical" href="https://pablobot.com/__TOOL_SLUG__/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://pablobot.com/__TOOL_SLUG__/">
+  <meta property="og:title" content="Tool Name — Pablobot">
+  <meta property="og:description" content="One-line description of what this tool does.">
+  <meta property="og:image" content="https://pablobot.com/main/assets/hero/architecture-gallery-hero.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Tool Name — Pablobot">
+  <meta name="twitter:description" content="One-line description of what this tool does.">
+  <meta name="theme-color" content="#0d0f17">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23171717'>P</text></svg>">
   <style>
-    /* Tool-specific styles only — brand variables are already in pablot-ui.css */
-    .tool-body {
-      padding: var(--sp-8) 0;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d0f17;
+      --surface: #161925;
+      --border: #2a2f45;
+      --accent: #6c63ff;
+      --text: #e8eaf6;
+      --muted: #9ca3af;
+      --radius: 12px;
     }
-
-    .output-area {
-      margin-top: var(--sp-4);
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
     }
+    a { color: var(--accent); }
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      z-index: 999;
+      padding: 8px 16px;
+      background: var(--surface);
+      color: var(--text);
+    }
+    .skip-link:focus { left: 16px; top: 16px; }
+    .app-header {
+      border-bottom: 1px solid var(--border);
+      background: rgba(22, 25, 37, 0.92);
+      backdrop-filter: blur(8px);
+    }
+    .app-header-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1rem 1.25rem;
+    }
+    .back-link {
+      display: inline-block;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    .back-link:hover { color: var(--text); }
+    .app-title { font-size: 1.35rem; font-weight: 700; }
+    .app-subtitle { color: var(--muted); font-size: 0.9rem; margin-top: 0.25rem; }
+    main.container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-top: 1rem;
+    }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; }
+    textarea, input[type="text"], input[type="search"], select {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #12141f;
+      color: var(--text);
+      font-size: 0.95rem;
+      color-scheme: dark;
+    }
+    textarea { min-height: 140px; resize: vertical; font-family: ui-monospace, monospace; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+    button.btn {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 0.55rem 1rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      background: var(--accent);
+      color: #fff;
+    }
+    button.btn:hover { filter: brightness(1.08); }
+    button.btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    pre.code-block {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      background: #12141f;
+      border: 1px solid var(--border);
+      overflow: auto;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .trust-line {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 0.75rem 1rem;
+    }
+    footer.site-footer {
+      max-width: 720px;
+      margin: 2rem auto 0;
+      padding: 1rem 1.25rem 2rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    .tool-more {
+      max-width: 720px;
+      margin: 1rem auto 0;
+      padding: 0 1.25rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+    .tool-more a { margin: 0 0.35rem; white-space: nowrap; }
   </style>
 </head>
 <body>
+  <a href="../" class="skip-link">Back to tools</a>
 
-  <header class="tool-header">
-    <a href="../" class="back-link">← Pablot</a>
-    <h1>Tool Name</h1>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <a class="back-link" href="../">← Pablobot</a>
+      <h1 class="app-title">Tool Name</h1>
+      <p class="app-subtitle">Short subtitle — everything runs in your browser.</p>
+    </div>
   </header>
 
+  <p class="trust-line">Static tool · no accounts · no uploads leave this tab unless you choose to</p>
+
   <main class="container">
-    <div class="tool-body stack stack--lg">
-
-      <!-- Input section -->
-      <div class="card stack stack--md">
-        <div>
-          <label for="input">Input</label>
-          <textarea id="input" placeholder="Paste your content here…"></textarea>
-        </div>
-        <div class="cluster cluster--sm">
-          <button class="btn btn--primary" id="runBtn">Run</button>
-          <button class="btn btn--ghost" id="clearBtn">Clear</button>
+    <div class="card">
+      <label for="input">Input</label>
+      <textarea id="input" placeholder="Paste your content here…" aria-label="Input"></textarea>
+      <div class="btn-row">
+        <button type="button" class="btn" id="runBtn">Run</button>
+        <button type="button" class="btn btn-ghost" id="clearBtn">Clear</button>
+      </div>
+      <div id="outputWrap" hidden style="margin-top:1rem;">
+        <label>Output</label>
+        <pre class="code-block" id="output" tabindex="0"></pre>
+        <div class="btn-row">
+          <button type="button" class="btn btn-ghost" id="copyBtn">Copy</button>
         </div>
       </div>
-
-      <!-- Output section -->
-      <div class="card output-area" id="outputCard" hidden>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-3)">
-          <label style="margin:0">Output</label>
-          <button class="copy-btn" id="copyBtn">Copy</button>
-        </div>
-        <pre class="code-block" id="output"></pre>
-      </div>
-
     </div>
   </main>
 
-  <!-- Toast notification -->
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <nav class="tool-more" aria-label="More Pablobot utilities">
+    Also try:
+    <a href="/json-formatter/">JSON Formatter</a>
+    <a href="/uuid-generator/">UUID Generator</a>
+    <a href="/jwt-decoder/">JWT Decoder</a>
+    <a href="/base64/">Base64</a>
+    <a href="/qr-generator/">QR Generator</a>
+  </nav>
+
+  <footer class="site-footer">
+    <p>Open source · Part of <a href="../">Pablobot</a></p>
+  </footer>
 
   <script>
-    const inputEl   = document.getElementById("input");
-    const outputEl  = document.getElementById("output");
-    const outputCard= document.getElementById("outputCard");
-    const copyBtn   = document.getElementById("copyBtn");
-    const toast     = document.getElementById("toast");
+    const inputEl = document.getElementById("input");
+    const outputEl = document.getElementById("output");
+    const outputWrap = document.getElementById("outputWrap");
+    const copyBtn = document.getElementById("copyBtn");
 
-    // ── Core logic ──────────────────────────────────────────
     function run() {
       const val = inputEl.value.trim();
       if (!val) return;
-
-      // TODO: replace with actual tool logic
-      const result = val;
-
-      outputEl.textContent = result;
-      outputCard.hidden = false;
+      outputEl.textContent = val;
+      outputWrap.hidden = false;
     }
 
     function clear() {
       inputEl.value = "";
-      outputCard.hidden = true;
+      outputWrap.hidden = true;
       inputEl.focus();
     }
 
-    // ── Clipboard ────────────────────────────────────────────
-    function copyOutput() {
-      navigator.clipboard.writeText(outputEl.textContent).then(() => {
-        copyBtn.textContent = "Copied!";
-        copyBtn.classList.add("copied");
-        showToast("Copied to clipboard", "success");
-        setTimeout(() => {
-          copyBtn.textContent = "Copy";
-          copyBtn.classList.remove("copied");
-        }, 2000);
-      });
-    }
-
-    // ── Toast ────────────────────────────────────────────────
-    let _toastTimer;
-    function showToast(msg, type = "") {
-      toast.textContent = msg;
-      toast.className = "toast show" + (type ? ` toast--${type}` : "");
-      clearTimeout(_toastTimer);
-      _toastTimer = setTimeout(() => { toast.className = "toast"; }, 2500);
-    }
-
-    // ── Event wiring ─────────────────────────────────────────
     document.getElementById("runBtn").addEventListener("click", run);
     document.getElementById("clearBtn").addEventListener("click", clear);
-    copyBtn.addEventListener("click", copyOutput);
-
-    // Ctrl/Cmd+Enter to run
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(outputEl.textContent).catch(() => {});
+    });
     inputEl.addEventListener("keydown", e => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); run(); }
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        run();
+      }
     });
   </script>
-
 </body>
 </html>

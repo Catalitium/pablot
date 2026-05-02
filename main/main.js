@@ -37,6 +37,15 @@ const chainPageTemplate = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{name}} — Pablobot</title>
   <meta name="description" content="{{name}} blockchain: {{layer}} layer, {{consensus}} consensus mechanism, launched {{year}}.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://pablobot.com/main/reference/chains/{{id}}.html">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://pablobot.com/main/reference/chains/{{id}}.html">
+  <meta property="og:title" content="{{name}} — Pablobot">
+  <meta property="og:description" content="{{name}} blockchain reference — {{layer}}, {{consensus}}, {{year}}.">
+  <meta property="og:image" content="https://pablobot.com/main/assets/hero/architecture-gallery-hero.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{name}} — Pablobot">
   <link rel="stylesheet" href="../../../style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23171717'>P</text></svg>">
   <style>
@@ -108,6 +117,7 @@ const chainPageTemplate = `<!DOCTYPE html>
 
 REF_CHAIN_ROWS.forEach(c => {
   const html = chainPageTemplate
+    .replace(/\{\{id\}\}/g, c.id)
     .replace(/\{\{name\}\}/g, c.name)
     .replace(/\{\{ticker\}\}/g, c.ticker)
     .replace(/\{\{layer\}\}/g, c.layer)
@@ -163,6 +173,15 @@ const modelPageTemplate = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{name}} — Pablobot</title>
   <meta name="description" content="{{name}} AI model: {{params}} parameters, {{context}} context.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://pablobot.com/main/reference/models/{{id}}.html">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://pablobot.com/main/reference/models/{{id}}.html">
+  <meta property="og:title" content="{{name}} — Pablobot">
+  <meta property="og:description" content="{{name}} — {{params}}, {{context}} context. LLM reference on Pablobot.">
+  <meta property="og:image" content="https://pablobot.com/main/assets/hero/architecture-gallery-hero.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{name}} — Pablobot">
   <link rel="stylesheet" href="../../../style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23171717'>P</text></svg>">
   <style>
@@ -249,6 +268,7 @@ REF_MODEL_ROWS.forEach(m => {
     : '';
 
   let html = modelPageTemplate
+    .replace(/\{\{id\}\}/g, m.id)
     .replace(/\{\{name\}\}/g, m.name)
     .replace(/\{\{family\}\}/g, m.family)
     .replace(/\{\{provider\}\}/g, m.provider)
@@ -267,6 +287,57 @@ REF_MODEL_ROWS.forEach(m => {
   console.log('Created:', m.id + '.html');
 });
   console.log("Reference pages written: reference/chains/, reference/models/");
+
+  // Sitemap: derived from TOOLS slugs in this file + reference routes (single source of truth for crawl lists).
+  const SITE = "https://pablobot.com";
+  const mainJsPath = path.join(__dirname, "main.js");
+  const srcBundle = fs.readFileSync(mainJsPath, "utf8");
+  const toolsMarker = "const TOOLS = [";
+  // Browser bundle also assigns toolsMarker string constant above — use last occurrence for real TOOLS array.
+  const toolsIdx = srcBundle.lastIndexOf(toolsMarker);
+  if (toolsIdx === -1) throw new Error("Sitemap: const TOOLS block not found in main.js");
+  let depth = 1;
+  let pos = toolsIdx + toolsMarker.length;
+  while (pos < srcBundle.length && depth > 0) {
+    const ch = srcBundle[pos++];
+    if (ch === "[") depth++;
+    else if (ch === "]") depth--;
+  }
+  const toolsSlice = srcBundle.slice(toolsIdx + toolsMarker.length, pos - 1);
+  const toolSlugs = [...new Set([...toolsSlice.matchAll(/slug:"([^"]+)"/g)].map((m) => m[1]))].filter((s) =>
+    /^[a-z0-9-]+$/.test(s)
+  );
+  const locs = new Set();
+  locs.add(`${SITE}/`);
+  toolSlugs.forEach((s) => locs.add(`${SITE}/${s}/`));
+  const refIndexPaths = [
+    "/main/reference/",
+    "/main/reference/models/",
+    "/main/reference/chains/",
+    "/main/reference/compare/models.html",
+    "/main/reference/compare/chains.html",
+    "/main/reference/concepts/",
+    "/main/reference/families/",
+  ];
+  refIndexPaths.forEach((p) => locs.add(SITE + p));
+  REF_CHAIN_ROWS.forEach((c) => locs.add(`${SITE}/main/reference/chains/${c.id}.html`));
+  REF_MODEL_ROWS.forEach((m) => locs.add(`${SITE}/main/reference/models/${m.id}.html`));
+
+  const xmlEsc = (u) =>
+    u.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  const urlEntries = [...locs]
+    .sort()
+    .map((loc) => `  <url><loc>${xmlEsc(loc)}</loc></url>`)
+    .join("\n");
+  const sitemapBody = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlEntries}
+</urlset>
+`;
+  const siteRoot = path.join(__dirname, "..");
+  fs.writeFileSync(path.join(siteRoot, "sitemap.xml"), sitemapBody);
+  console.log("Created: sitemap.xml");
+
   process.exit(0);
 })();
 

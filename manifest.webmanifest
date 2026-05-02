@@ -1,0 +1,18 @@
+{
+  "name": "Pablobot",
+  "short_name": "Pablobot",
+  "description": "Curated static browser utilities — fast hub, no signup.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#171717",
+  "icons": [
+    {
+      "src": "/main/assets/hero/architecture-gallery-hero.webp",
+      "sizes": "1400x500",
+      "type": "image/webp",
+      "purpose": "any"
+    }
+  ]
+}

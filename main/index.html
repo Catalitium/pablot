@@ -37,18 +37,11 @@
     "description": "Curated in-browser utilities for builders; optional LLM architecture and blockchain reference diagrams.",
     "url": "https://pablobot.com/",
     "inLanguage": "en-US",
-    "publisher": { "@type": "Organization", "name": "Pablobot", "url": "https://pablobot.com/" },
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": "https://pablobot.com/?q={search_term_string}"
-      },
-      "query-input": "required name=search_term_string"
-    }
+    "publisher": { "@type": "Organization", "name": "Pablobot", "url": "https://pablobot.com/" }
   }
   </script>
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
   <!-- Header -->
@@ -61,6 +54,7 @@
     </div>
 
     <nav class="header-nav" aria-label="Quick links">
+      <button type="button" class="header-nav-btn" id="themeToggle" aria-label="Toggle color theme" aria-pressed="false">🌙</button>
       <a href="https://github.com/Catalitium/pablot" target="_blank" rel="noopener noreferrer"
          class="header-nav-btn header-nav-gh" aria-label="GitHub repository">
         <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18" aria-hidden="true">

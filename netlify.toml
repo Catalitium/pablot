@@ -1,6 +1,19 @@
 [build]
   publish = "."
 
+# Hub HTML also lives under /main/; canonical entry is /. Avoid indexing duplicate hub copies.
+[[redirects]]
+  from = "/main"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/main/index.html"
+  to = "/"
+  status = 301
+  force = true
+
 # Serve monolith assets under /main/… when linked from flattened hub paths.
 [[redirects]]
   from = "/content/*"
